@@ -93,3 +93,19 @@
 - **懂推荐CoT Pattern**:baseline是"兴趣归纳→行为模式→预测总结"三段式,官方明说**优化空间大**;点名 **CoT/UnCoT配比** 值得探(=Frinkleko重组方向的官方背书)。
 - 官方CoT样例披露:action_select出现**候选演化链选择题格式**(候选A/B/C→答案[A,B],与种子提取式并存);懂物料复赛含pattern→desc;还有"潜在需求共鸣"等新颖关系数据形态。
 - RL tips:rollout要group diversity(勿盲目加size)、避免all-correct/all-wrong零优势样本;reward=做对推荐为主+format/validity约束有效;CoT与answer token分开clipping/loss weight;无效负样本降权。
+
+## ★★官方《赛题解析》PPT 全要点(2026-07-06 入库 docs/reference/赛题解析_官方.pdf,40页)
+
+### 各赛道评测机制(比此前情报更细)
+- **懂物料**:beam64 生成 itemic pattern → **经 pattern→item_id 映射表转成 item id**(一 pattern 多 id 时取最新Pid;无效pattern记0)→ 与 gold item_id 比对,任一命中即过。**评测 desc 是 API 从原生多模态信息生成的**(≠Pid2Caption,连 desc 风格都不同源——caption 类物料数据连"题面分布"都对不上)。
+- **懂用户 action_select**:gold=**API 两步标注**(①API 从纯文本历史抽主题;②给定历史+主题,API 抽相关交互)→ F1。**不是规则标注!**我方 R2 规则 gold 与评测 gold 存在系统性分布差。
+- **懂用户 topic_gen(logic chain)计分**:①按 action 做**最优有序匹配**(顺序敏感);②action 粒度惩罚漏生成+过度生成;③logic 文本在匹配上的 event 算 **Token-F1 与 ROUGE-L-F1 均值**;④总分=action对齐与logic对齐的均值。规则:≤5步;同日同类交互合并用"；";必须是场景需求补全/兴趣因果递进/需求深度细化三类演进;禁浅层并列。**logic 文本按 ROUGE 计分 ⇒ 模仿官方 logic 行文风格直接得分**。
+- **懂推荐**:prompt 域顺序规则=**目标域最后、视频倒数第二、广告倒数第三**;answer 可含**多个** gold item ids,64池任一命中任一 gold 即过。各域历史构造字段级配方(行为判定+保留条数):video 按组合event_type各留50(rsft_score>0.75→长播);live 同主播留更强行为、各50;电商 点击/加购/购买各50≈150(ts=ec_time_ms−lag天);广告 深转+点击各70≈140。**⇒ 评测同分布 prompt 的完整复刻配方到手(rec_loo v3/RFT 用)**。
+- **官方推理参数**:物料 T0.7/topk20/topp0.8;用户 T0.6/20/0.95;推荐 T0.6/**topk50**/0.95(think+nothink双路);世界 T0.7/20/0.8。probe 校准用。
+
+### 官方数据产线(两张图,可用 DS 复刻)
+- **懂推荐 CoT=拒绝采样产线**:LLM **不见 gold** 生成 K 条 CoT → LLM-as-judge 按"CoT 与 gold 物品语义相关性"独立打分 → 过滤留高分 CoT 入库。(与 Tips"CoT Pattern 优化空间大"呼应)
+- **懂用户 R2 产线**(官方就叫R2):全域行为时间线 → LLM 提取兴趣演化(触发/延伸/修正/深化) → 候选链筛选 → **LLM 裁决质量过滤**(时间干净/证据支持/认知递进/演化合理) → 三种任务形态:①演化行为选择(=action_select) ②演化主题生成 ③演化链条生成。
+
+### Pretrain 背景(定超参直觉用)
+三阶段:词表预热110B(只训词表+LMHead,lr2e-4→1e-4)→ 全参449B(lr1e-4→1e-5)→ 长序列32K 19B(lr1e-5→1e-6);RQ-Kmeans 三级8192码本;416B推荐对齐+162B通用。Pid2Caption 覆盖率仅58.6%、Pid2Tag 15%。
