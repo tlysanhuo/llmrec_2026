@@ -1,0 +1,19 @@
+# 大件/可复现产物,不进仓
+data/
+checkpoints/
+models/
+submissions/
+logs/
+notebooks/
+external_repos/
+wandb/
+LLaMA-Factory
+*.safetensors
+*.jsonl
+*.parquet
+*.tar.gz
+# 密钥
+configs/deepseek_api.env
+configs/secrets/
+# 大 PDF 参考文献(公开可下)
+docs/reference/

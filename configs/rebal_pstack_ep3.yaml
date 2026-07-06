@@ -1,0 +1,58 @@
+### rebal_pstack_ep3 —— 0.9009底座手术 × P系靶向增量(2026-07-05,平台名=本名,用户批准"go")
+### 战略:Frinkleko家族ad优势已证不可复现(三点证据链),回到我方唯一登顶配方做加法。
+### 数据 = scripts/data/build_rebal_pstack.py 产出 38097条(seed2026):
+###   rebal_world手术(去4339纯重复+2012组think去重转4226条nothink协议行,与07-04审计数字精确咬合)
+###   + P3 quote-and-stop 3000 + P1同桶分辨 4679 + P2尾部覆盖 4000/7105 + P4演化链 1500 + world_mc_clean 238
+### 超参 = rebal_world_ep3/seed_ep3 原封:全参/lr2e-5/3ep/batch1×4/cutoff32768(唯一登顶0.9009且物料2453的配方);val升5%(平台默认对齐)
+### 出分判读预登记(07-05):
+###   ①action(±0.005): ≥0.095 ⇒ P3生效(vs 队友史高0.0841/我方0.0756);<0.08 ⇒ quote-and-stop不迁移
+###   ②物料(零噪声): >0.2146 ⇒ P1/P2×全参生效;≥0.2453 ⇒ 平历史新高;=0.184~0.2146 ⇒ 物料增量与rec重平衡互扰
+###   ③topic: ≥0.048 ⇒ P4生效(基线0.0428)
+###   ④挤占检查: live/prod/video 对 0.9009 锚点(0.1292/0.1386/0.1017);集体掉 ⇒ +9k增量过载,下一版减半
+###   ⑤ad: 0.05± 不指望(现实带0.04-0.10已定案)
+### 预期中位 0.93-0.95。训完流程: precheck→probe→打包 submissions/rebal_pstack_ep3_platform/
+### 启动: CUDA_VISIBLE_DEVICES=3 WANDB_PROJECT=llmrec-2026 llamafactory-cli train configs/rebal_pstack_ep3.yaml
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★07-05事故修复:此前误关(focal血统),已证配方=true
+stage: sft
+do_train: true
+finetuning_type: full
+
+dataset: rebal_pstack
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 100
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/rebal_pstack_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: rebal_pstack_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

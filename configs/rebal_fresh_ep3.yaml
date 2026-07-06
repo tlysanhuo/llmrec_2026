@@ -1,0 +1,55 @@
+### rebal_fresh_ep3 —— "多样曝光"假设检验(2026-07-04,平台名=本名)
+### 教训链: rebal_mat_ep3(0.8454)证明重复上采样=毒药 → 物料要多样曝光
+### 数据 data_rebal_fresh(35019条)= data_rebal_world(29019, 0.9009底座) + fresh_mat 6000条
+###   fresh_mat = Pid2Caption⋈Pid2Sid 查表构造的【训练集外】desc→SID(四域各1500,
+###   caption清洗+去重+与种子SID零重叠, build_fresh_mat.py, seed2026)
+### 单变量 vs rebal_world_ep3: 仅 +6000 新鲜物料样本
+### badcase依据(07-04日志挖掘): 物料丢分=beam坍缩型(3个s_a占83%候选)+重复过拟合致top1翻转
+###   → 新鲜多样样本直接对治s_a分布过窄
+### 超参不动: lr2e-5/3ep/batch4/cutoff32768/单卡
+### 归因预登记: 物料↑0.23+=多样曝光假设成立; ad/action/世界应持平(数据没动它们)
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: true
+
+dataset: data_rebal_fresh
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.03
+eval_strategy: steps
+eval_steps: 100
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/rebal_fresh_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: rebal_fresh_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

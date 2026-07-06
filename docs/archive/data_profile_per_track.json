@@ -1,0 +1,68 @@
+[
+  {
+    "track": "懂物料 (R0 Perception / itemic grounding)",
+    "records": 10384,
+    "files": 7,
+    "input": "system (1 of 48 role templates, direction+domain) + prompt (Chinese instruction embedding a description OR a triplet, ending /think or /no_think)",
+    "output": "response = <think> block (empty under /no_think, populated under /think) + newline + answer (single triplet for desc->token, NL description for token->desc)",
+    "metric": "Pass@64 for the gradable desc->token direction (recover exact 3-layer triplet among 64); token->desc likely semantic-similarity / training aid",
+    "task": "Bidirectional description<->itemic-token grounding across 4 domains",
+    "key_numbers": "desc->token 5597 (53.9%) / token->desc 4787 (46.1%); /think 5182 (49.9%) / /no_think 5202 (50.1%); domains prod 3200 / ad 3200 / video 3200 / living 784 (7.6%, desc->token ONLY); 10384/10384 triplets well-formed; part2 is all living",
+    "top_traps": [
+      "<think> always present; empty '<think>\\n</think>' under /no_think is required structure",
+      "token->desc think is an abstract cluster prior that need NOT match the concrete description",
+      "living is desc->token only; no sid domain",
+      "chars are token approximations"
+    ]
+  },
+  {
+    "track": "懂用户 (R2 Evolution / interest-trajectory extraction)",
+    "records": 2892,
+    "files": 1,
+    "input": "system ALWAYS empty; prompt = plain-text dated history (【YYYY-MM-DD】 + '  --:-- [域-行为] <token>' lines) + 角色任务 + 主题 (always present) + 输出格式 + /think|/no_think",
+    "output": "response = EMPTY <think> (100%) + JSON in ONE of two shapes: FORMAT A json_list (flat token array, 1588 recs) or FORMAT B logic_chain object {name,events:[{date,action,logic}]} (1304 recs)",
+    "metric": "F1 (precision+recall over the selected relevant-behavior set)",
+    "task": "Subset SELECTION over the user's own history given a named interest-evolution theme (output tokens are 100% a subset of history — verified frac=1.0)",
+    "key_numbers": "/no_think 2290 (79.2%) / /think 602; json_list 1588 (all /no_think) vs logic_chain 1304 (702 /no_think + 602 /think); history median 191 events (max 438); json_list selects median 11 (max 56); logic_chain events median 3 (max 6); prompt median 12862 chars (max 28699); 97 responses repeat a token; NO sid despite instruction text saying 'SID'",
+    "top_traps": [
+      "output format keyed on 输出格式 text, NOT on /think",
+      "<think> empty in 100% even for /think",
+      "two schemas coexist in one file — parsing all as list fails on 1304 rows",
+      "FORMAT B name must equal 主题 verbatim; obeys 场景驱动协同/兴趣因果递进/需求深度细化 + forbids 品类平级/重复/凑单"
+    ]
+  },
+  {
+    "track": "懂推荐 (R3 Recommendation / next-item)",
+    "records": 19204,
+    "files": 4,
+    "input": "system (6 paraphrases) + prompt (multi-domain history in behavior-block templates, item tokens inline) + closing instruction + /think",
+    "output": "response = populated <think> (fixed 【兴趣归纳】3-4 categories w/ cited tokens + 【行为模式】 cross-domain synergy) + newline + ONE line '该用户最近<动作>: <SINGLE item token>'",
+    "metric": "Pass@64 (32 think + 32 non-think merged; hit if ground-truth target appears among 64) — per README, reported separately as C-Video/C-Product/C-Ad/C-Live",
+    "task": "Multi-domain history -> predict the SINGLE next target item for ONE specified scenario",
+    "key_numbers": "per-file 5426/5442/5372/2964; 100% /think, ZERO /no_think; final answer is EXACTLY 1 item token (verified 5965/5965); output targets video 14868 (77.4%) / ad 1576 (8.2%) / prod 1489 (7.8%) / living 1271 (6.6%); prompt median ~7831 chars / ~167 item tokens (max 440); response median ~1474 chars, tightly clustered by fixed rubric",
+    "top_traps": [
+      "target is ONE token, not a list — the ~8 tokens in response are <think> citations",
+      "no /no_think data despite metric needing 32 non-think — must synthesize",
+      "system says '各场景' but each row targets ONE",
+      "think cites metadata/搜索 the student won't have at inference",
+      "living is sparsest in and out"
+    ]
+  },
+  {
+    "track": "base_model_and_tokenizer (OneReason-0.8B pretrain)",
+    "records": 1,
+    "files": 0,
+    "input": "models/OneReason-0.8B-pretrain-competition (Qwen3ForCausalLM safetensors + tokenizer)",
+    "output": "profile",
+    "metric": "n/a",
+    "task": "Base checkpoint + tokenizer we must SFT ourselves (README: 'SFT coming soon')",
+    "key_numbers": "801,433,600 params BF16; hidden 1024, 28 layers, 16 heads / 8 KV, head_dim 128, rope_theta 1e6, max_pos 40960, QK-norm; vocab 176253 = 151643 base BPE + 24610 added (24576 codebook 3x8192 + 34 specials incl 8 domain tokens 176245-176252); embed_tokens & lm_head UNTIED, both 176253x1024 (180.48M each); think=151667 close=151668; im_start 151644 im_end/eos 151645 endoftext/pad 151643; gen eos=[151645,151643], defaults do_sample temp 0.6 top_k 20 top_p 0.95; add_bos_token=false; model.safetensors 1.603GB",
+    "top_traps": [
+      "pretrain-only, no SFT/RL ckpt — must SFT",
+      "thinking gated by enable_thinking kwarg (false auto-inserts empty think), not slash-text, in the chat template",
+      "5th 'sid' domain has NO dedicated token — BPE-splits",
+      "ensure the 24576 itemic embedding rows actually train",
+      "index.json total_size 1,871,839,232 over-counts"
+    ]
+  }
+]

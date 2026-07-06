@@ -1,0 +1,56 @@
+### pstack_v2_ep3 —— v1 C灾难修复版(2026-07-05,平台名=本名,用户批准"开始做")
+### vs rebal_pstack_ep3 仅两处: ①+CEval 1578 MC锚(总MC 1816,对抗P3复制过泛化的占位符复读)
+###   ②P3减半3000→1500。数据=scripts/data/build_pstack_v2.py 38175条(seed2026)。
+### 出分判读预登记(继承v1全部判据+新增):
+###   ⓪precheck C≥75% 是上传硬门(v1=25%,占位符复读)
+###   ①action≥0.095判P3 ②物料>0.2146判P1/P2(零噪声) ③topic≥0.048判P4
+###   ④挤占: live/prod/video对0.9009锚点 ⑤ad 0.05±不指望
+###   ⑥v1已证收益应保留: precheck A~10%/B~7%、probe抄史率ad~0.33/video~0.56
+### ★出分前修正预登记(2026-07-05 19:5x,码本审计后):HF Pid2Sid 仅覆盖种子物料gold的18.5-34.9%
+###   (评测item宇宙65-81%在HF墙外)⇒ P1/P2的多样曝光打在错误区域,物料预测从"0.225中位"
+###   下修为"2146为主,±0.005内=码本墙实锤";v2价值支点改为 action(P3)/topic(P4)/world回0.14带/底座手术。
+### 启动: CUDA_VISIBLE_DEVICES=3 WANDB_PROJECT=llmrec-2026 llamafactory-cli train configs/pstack_v2_ep3.yaml
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★07-05事故修复:此前误关(focal血统),已证配方=true
+stage: sft
+do_train: true
+finetuning_type: full
+
+dataset: pstack_v2
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 100
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/pstack_v2_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: pstack_v2_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

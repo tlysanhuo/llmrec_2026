@@ -1,0 +1,63 @@
+### riders_fk_lora_ep1 —— 群制度底盘(1ep LoRA)× 两个线上定案骑手(2026-07-06,平台名=本名)
+### 背景:用户裁定切出低lr多ep谱系(ad死税5-7题),换群里 1-2ep 制度;只传期望正增益的包。
+### 数据 = scripts/data/build_riders_fk.py 产出 37267 条(seed=2026):
+###   frinkleko_alpaca_32705(0.9107 底盘数据:think去重转nothink+1573 CEval+5评测真题[用户已裁定可用])
+###   + world_zh 2824(rebal_world/tokengeo 两次线上验证 +0.011/+0.013,同一批)
+###   + P3 1500(tokengeo 线上定案 action 0.0905,同批采样)+ world_mc_clean 238(MC锚)
+### 训练 = 照抄 fk_fuse_lora_ep1(已训练验证的 LoRA 配方,liger=true 血统干净):
+###   LoRA r32/α32/dropout0.05/lr2e-4/1ep/seq32768/packing/nothink,LoRA不动embedding=保pretrain ad/prod。
+### 出分前预登记(vs Frinkleko 0.9107 / 我方 seed_ep5 0.9081):
+###   预期中位 0.93-0.94,上行 0.95+。判据:
+###   ①action ≥0.085 ⇒ P3骑手跨底盘成立(tokengeo定案值0.0905);<0.06 ⇒ 骑手不跨制度
+###   ②world ≥0.145 ⇒ world_zh+CEval 叠加复现;③物料(零噪声)预期 0.2146(LoRA档 7题),≤6题⇒骑手稀释伤LoRA底盘
+###   ④ad 单次±2题不作数;⑤video 若~0.067 ⇒ nothink转换伤video坐实(fk_lora_embed 曾0.1035未伤,预期不塌)
+### 已知死法(红队):a) 骑手增益只在3ep全参制度成立、LoRA 1ep学不进(action欠训);b) 4562外加行稀释伤fk物料档
+### 训完流程: export merge LoRA → precheck → probe → 打包 submissions/riders_fk_lora_ep1_platform/ → 用户传平台
+### 启动: source ai_runtime venv; CUDA_VISIBLE_DEVICES=<空闲卡> llamafactory-cli train configs/riders_fk_lora_ep1.yaml
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★配方血统:true(07-05事故后锚定)
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_riders_fk
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/riders_fk_lora_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: riders_fk_lora_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

@@ -1,0 +1,50 @@
+### recipe4: 直接复刻克西(榜一0.9351)配方,不加任何自定义 loss/trick
+### 三要素已核对: seq8192(他确认)/原始数据=平台种子(他确认,与我们data_final一致)/lr1e-4(他确认)
+### 唯一改动 vs 官方 demo.yaml: lr 2e-5→1e-4(他亲口说的唯一超参)
+### 其余全部保持官方demo默认: 有效batch=4, packing, liger, 1 epoch, cutoff 8192
+### 目的: 不猜测trick, 先把能确认的三要素严格对齐, 看纯净复刻能到多少
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: true
+
+dataset: data_final
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 8192
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+### 验证集监控(延续 recipe1 的好习惯)
+val_size: 0.03
+eval_strategy: steps
+eval_steps: 100
+per_device_eval_batch_size: 1
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/recipe4_kexi_repro
+logging_steps: 10
+save_strategy: epoch
+save_total_limit: 1
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: recipe4_kexi_repro
+
+### train — 官方demo默认batch(有效batch=4), 唯一改动是lr(他亲口说1e-4)
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

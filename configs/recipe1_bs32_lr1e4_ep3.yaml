@@ -1,0 +1,49 @@
+### 训练配方修正实验 v_recipe1: 单卡大batch + 大lr + 3epoch + eval_loss监控
+### 数据=纯官方种子(=v1,排除数据变量,直接对标"momo只用种子到前面")
+### 目标: 第一次看 train/eval loss 双曲线, 判断欠训 vs 过拟合, 找训练甜点
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: true
+
+dataset: data_final
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+### ★验证集监控 (之前完全没有 → 无法判断过拟合)
+val_size: 0.03
+eval_strategy: steps
+eval_steps: 20
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/recipe1_bs32_lr1e4_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: recipe1_bs32_lr1e4_ep3
+
+### train — 单卡有效 batch 32 (per_device 1 × grad_accum 32), 大 lr 配大 batch
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 32
+learning_rate: 1.0e-4
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

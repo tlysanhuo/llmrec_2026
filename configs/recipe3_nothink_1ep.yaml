@@ -1,0 +1,51 @@
+### recipe3: no-think 复刻(榜一假说直接验证)
+### 单变量 vs recipe1: 数据换 data_nothink(CoT已剥,损失100%落答案段) + 只训1ep(榜一形态)
+### 依据: 答案段仅占12.6% token、73.3% itemic信号在CoT里是"抄历史"模式;
+###       心定 LoRA+关thinking=0.85+;克西(0.9351)全量/lr1e-4/1ep+"加强itemic"
+### 注意: LF enable_thinking:false 的正则在本数据命中0/32480,故在数据层剥(scripts/data/build_nothink.py)
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: true
+
+dataset: data_nothink
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+### 验证集监控(同 recipe1)
+val_size: 0.03
+eval_strategy: steps
+eval_steps: 10
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/recipe3_nothink_1ep
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: recipe3_nothink_1ep
+
+### train — 同 recipe1 batch/lr;1 epoch(榜一只训1轮)
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 32
+learning_rate: 1.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

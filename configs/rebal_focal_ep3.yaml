@@ -1,0 +1,56 @@
+### rebal_focal_ep3 —— focal loss 单变量实验(2026-07-04,平台名=本名)
+### 依据: 选手对账"平台训练=focal+token加权,本地=CE";克西指路"加强训练/对itemic不友好";
+###   平台文档"难样本聚焦"。focal=跷跷板对症机制(自动降权已学会的头部、提权难样本),
+###   与 recipe2 全区均匀加权(0.7692翻车)机制不同——按difficulty自适应。
+### 单变量 vs rebal_world_ep3(0.9009): 数据/超参全同,仅 loss CE→focal(γ=2)
+### 启动方式(不是llamafactory-cli!): 
+###   FOCAL_GAMMA=2.0 python scripts/train/train_focal.py configs/rebal_focal_ep3.yaml
+### ⚠️enable_liger_kernel 必须 false(fused CE不物化logits);显存/速度会比liger版差,
+###   预计单卡时长 ~1.5-2h(CE分块+checkpoint换显存)
+### 归因预登记: 若"跷跷板税=CE人祸"假设成立→物料/ad同涨(史上首次同框);
+###   物料掉→focal压了grounding头部;总分<0.89→γ=2过猛,退γ=1
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: false
+
+dataset: data_rebal_world
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.03
+eval_strategy: steps
+eval_steps: 100
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/rebal_focal_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: rebal_focal_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817
+resume_from_checkpoint: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/rebal_focal_ep3/checkpoint-640

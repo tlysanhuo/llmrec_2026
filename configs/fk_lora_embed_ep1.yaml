@@ -1,0 +1,60 @@
+### fk_lora_embed_ep1 —— LoRA+解冻embedding:单变量拆物料天花板(2026-07-04,平台名=本名,用户已批准)
+### 理论:八分项=三种学习类型,需按参数区域分配可塑性。LoRA(中层低秩护栏=保ad先验)+
+###   additional_target 全秩放开 embed_tokens/lm_head(SID绑定所在=拆物料2146天花板,≈50M/6%参数)。
+### 锚点:Frinkleko 0.9107(LoRA r32/lr2e-4/1ep,embedding冻结,物料2146/ad 0.1498);
+###   本实验=其配方+我方fk_fuse数据(world_zh+fresh_mat)+解冻embedding,主变量只有解冻。
+### 出分判读预登记(07-04):
+###   ①物料(零噪声): >0.2146 ⇒ "物料天花板=embedding冻结"证实(通往0.95钥匙);=2146 ⇒ 知识在中层FFN,转freeze方案
+###   ②ad: ≥0.12 ⇒ 解冻无连带伤害(P=60%);<0.08 ⇒ embedding漂移伤中层读数,主风险暴露
+###   ③挤占检查(滿栀警报): rec分项集体<锚点且世界>0.148 ⇒ 下一版通识砍半
+###   ④lr2e-4对全秩embedding偏热的风险:盯val曲线,异常即停
+### 训完流程: export merge(LoRA+modules_to_save)→ precheck → probe → 打包 → 用户传平台
+### 启动: CUDA_VISIBLE_DEVICES=3 WANDB_PROJECT=llmrec-2026 llamafactory-cli train configs/fk_lora_embed_ep1.yaml
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★07-05事故修复:此前误关(focal血统),已证配方=true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+additional_target: embed_tokens,lm_head
+
+dataset: fk_fuse
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/fk_lora_embed_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: fk_lora_embed_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

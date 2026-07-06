@@ -1,0 +1,49 @@
+### OneReason-0.8B baseline SFT — 复现官方 demo.yaml（本地 2×H100 适配）
+### 来源: docs/demo_baseline/config/demo.yaml。改动仅限路径与多卡 batch 对齐，训练超参与官方一致。
+
+### model
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: true
+
+### dataset
+dataset: data_final
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+### output
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/baseline_sft_v1
+logging_steps: 5
+save_strategy: steps
+save_steps: 500
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: false
+report_to: tensorboard
+logging_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/baseline_sft_v1/tb
+
+### train
+# 官方单卡 global batch = bs1 * accum4 * 1gpu = 4。此处 2 卡 => bs1 * accum2 * 2gpu = 4，精确对齐。
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 2
+learning_rate: 2.0e-5
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

@@ -1,0 +1,55 @@
+### recipe6: 域重平衡 + 8%中文通识, 官方lr/batch, 1 epoch —— 双确定性增益一次拿
+### 数据 data_rebal_world(29019条, build_rebalanced.py):
+###   rec域重平衡: video 16494→6000(降采样), ad/living/prod 各上采样至4000
+###     依据: 训练占比65%的video边际收益仅为living的1/21(v4 vs锚点); 选手实测采样调比率+0.046
+###   + 中文通识2824条(8%, world_zh.jsonl, 官方General洗出) — momo实测懂世界+0.024
+###   物料双向/懂用户 原样保留
+### lr=2e-5(保物料grounding), batch4(官方值; recipe5的batch16仅104步→lr过早归零欠训, 教训)
+### 1 epoch(全群主流)。compute_accuracy=true 看 token accuracy。
+### 对照: v1(纯种子/同超参)=0.810 → 本实验变量=数据(重平衡+通识)
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: true
+
+dataset: data_rebal_world
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+### 验证集 + token accuracy
+val_size: 0.03
+eval_strategy: steps
+eval_steps: 50
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/recipe6_rebal_world
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 1
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: recipe6_rebal_world
+
+### train — 官方 batch4 (bs1×accum4), lr2e-5, 1 epoch
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

@@ -1,0 +1,61 @@
+### fk_fuse_lora_ep1 —— Frinkleko方法 × 我方最高分方案 融合(2026-07-04,平台名=本名,用户已批准)
+### 数据 = scripts/data/build_fk_fuse.py 产出 41529 条(seed=2026):
+###   Frinkleko 32705(种子think去重转nothink直出+1573 CEval+5评测真题[用户裁定:官方允许用评测日志])
+###   + world_zh 2824(rebal_world 线上验证 +0.0115) + fresh_mat 6000(训练集外新物料,已补/no_think尾缀)
+### 训练 = 照抄其已证保ad配方: LoRA r32/α32/dropout0.05, lr2e-4, wd0.001, 1ep, seq32768, packing, nothink。
+###   LoRA不训embedding/lm_head=保pretrain itemic几何(ad塌=全参SFT洗掉能力,三组证据链)。
+###   val 5%(对齐平台训练UI默认切分;其0.9107即95%数据训出)。13:1x 第一次启动误删了val已杀掉重启(用户纠正)。
+### 出分判读预登记(vs Frinkleko 0.9107 / 我方 rebal_world 0.9009):
+###   ①ad(±0.02噪声): ≥0.13=本地LoRA复现其ad; ≤0.07=平台训练器有私货(focal/token加权),差距在训练器
+###   ②物料(零噪声硬数字): >0.2146 ⇒ fresh_mat"多样曝光"在LoRA下也推物料,数据路线成立;=0.2146 ⇒ 物料只认训练量
+###   ③世界: ≥0.145 ⇒ world_zh+CEval双格式叠加有效
+###   ④video: 他家0.0672 vs 我方0.1017,若融合仍~0.067 ⇒ nothink转换伤video,下一版考虑video行保留filled
+### 训完流程: export merge LoRA → precheck → probe → 打包 submissions/fk_fuse_lora_ep1_platform/ → 用户传平台
+### 启动: source ai_runtime venv; CUDA_VISIBLE_DEVICES=2 llamafactory-cli train configs/fk_fuse_lora_ep1.yaml
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★07-05事故修复:此前误关(focal血统),已证配方=true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: fk_fuse
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/fk_fuse_lora_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: fk_fuse_lora_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

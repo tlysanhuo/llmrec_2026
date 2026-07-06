@@ -1,0 +1,9 @@
+### fk_lora_embed_ep1 merge 配置(LoRA+embed/lm_head 合回全量权重)
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/fk_lora_embed_ep1
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/fk_lora_embed_ep1_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

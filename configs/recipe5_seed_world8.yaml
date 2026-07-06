@@ -1,0 +1,52 @@
+### recipe5: 种子 + 8%中文通识, 官方lr, 1epoch, batch16 —— 拿"懂世界"确定性增益
+### 数据: 种子32480 + 官方General洗出的中文通识采样2824(8%, build_world_zh.py)
+### lr=2e-5(官方安全lr, 保护物料grounding不被高lr砸坏; recipe1的1e-4把物料砸到0.1533)
+### 1 epoch(全群主流: 克西/momo/平台默认都是1ep) + 全局batch16
+### ★compute_accuracy=true: 训练中看token accuracy(效果指标), 不再盲看loss
+### 对照基准: v1(纯种子/lr2e-5/1ep/batch4=0.810) → 本实验单变量加"通用数据+batch16"
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: true
+
+dataset: data_seed_world8
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+### 验证集 + token accuracy(效果指标)
+val_size: 0.03
+eval_strategy: steps
+eval_steps: 20
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/recipe5_seed_world8
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 1
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: recipe5_seed_world8
+
+### train — 全局batch16 (bs1 × accum16), 官方lr2e-5, 1 epoch
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 16
+learning_rate: 2.0e-5
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

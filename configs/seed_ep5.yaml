@@ -1,0 +1,50 @@
+### seed_ep5 —— 物料阶梯探边(2026-07-05,平台上传名=本名)
+### 格点发现(score-lattice-discovery)后的第一判决实验:
+###   物料分=整数题数×0.0307,阶梯 pretrain=5题/1ep=6/2ep=7/3ep=8 精确等差
+###   本实验=seed_ep3(0.8931, mat 8题)唯一变量 epoch 3→5,每epoch存ckpt
+### 预登记(出分前锁定):
+###   4ep ckpt 物料=0.276(9题)⇒阶梯未到墙,+1题=+0.031(全场最便宜的分)
+###   持平0.2453(8题)⇒墙在3ep,物料通道全押"新样本燃料"(rebal_fresh判决)
+###   ad 预期仍4-5题(本实验是物料臂,不治ad);5ep若9→10题继续等差则考虑6-7ep
+### 注意:cosine按5ep拉伸,中间ckpt的lr轨迹与seed_ep3不同,3ep中间点不可与0.8931直接比
+### 与seed_ep3的偏差:无(07-05修订:去掉val/eval段——seed_ep3本无验证集,现为严格单变量;
+###   附带解决eval步全词表logits 21.5G的OOM;训练充分度由loss曲线+线上零噪声物料分判)
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: true
+
+dataset: data_final
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_ep5
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 5
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_ep5
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+num_train_epochs: 5
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817
