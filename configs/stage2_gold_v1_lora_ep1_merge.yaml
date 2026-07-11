@@ -1,0 +1,11 @@
+# Merge-only config for the rejected stage2_gold_v1_lora_ep1 audit artifact.
+# The merged model is retained for reproducing the 2026-07-11 local gate failure;
+# it is not a submission candidate or a valid warm start.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/exp_seed_ep3
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/stage2_gold_v1_lora_ep1
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/stage2_gold_v1_lora_ep1_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

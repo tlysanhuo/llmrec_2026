@@ -1,0 +1,57 @@
+### capcot_v1 —— 官方种子 rec 行 CoT 语义重构 × riders LoRA 配方 × 1ep(2026-07-09,平台名=本名)
+### 数据 = data_capcot_v1(32,480 行,md5 1c8bc4bc):官方种子原样,仅 3,450 条 rec 行的 think 被
+###   原位重构(官方四步框架,内容逐句溯源官方 Caption/Tag;gold 不进 think,按 gold 类目组级过滤,
+###   不合格组回退原 think;prompt/答案/标记/行序 零字节改动,构建器断言)。
+### 单变量对照:vs seed_raw_lora_ep1(纯官方种子)唯一差异=3,450 条 think 内容(18% rec 行,保守首版)。
+### 官方依据:Tips"CoT优化空间大"+四步框架;产线"不看gold生成、按相关性过滤";07-09 Caption/Tag 发布留言
+###   "探索不同 CoT 构造方式对推荐任务表现的影响"。
+### 机制:rec 评测一半 beam 走 think 通路(think 质量=候选质量);物料 grounding 95% 住 rec 行 think 且
+###   需搭"同题多答案"结构(capg 点映射行探针证伪了别的载体)——本实验是 grounding 经由正确载体的首测。
+### 训完流程:merge → precheck → probe_v2 → 读数与包放桌面,评测决策不在本配置的职责内。
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★配方血统:true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_capcot_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/capcot_v1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: capcot_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

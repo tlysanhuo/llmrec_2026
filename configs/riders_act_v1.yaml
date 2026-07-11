@@ -1,0 +1,62 @@
+### riders_act_v1 —— 名次弹:riders 底盘 + action 加浓(P3 v2)一锅 1ep(2026-07-10,平台名=本名)
+### 目标=期望分最大化(用户 07-10 指令"只要名次"):把已证明的 action 增益装回已证明的最高分底盘。
+### 数据 = data_riders_fk(37,267,0.9177 原封)+ p3_v2_extra(~2,600,B线三修正:[搜索]行注入
+###   [评测历史 18-45% 为搜索行、训练此前零覆盖]/长k层 20-45[gold k p75=19,欠输出吃 recall]/
+###   评测五元 few-shot 含文本项;gold 程序可复核,build_p3_quote_stop_v2.py verify 全过后方可入锅)。
+### 证据链:①ep5_rider 实证浓缩骑手→action 0.0924+时长58min(终止纪律可修);②riders 实证同款骑手
+###   一锅 1ep 零蚀(mat7/video8/ad99/live122 全保);③本发=一锅式加浓,预期 action 落 0.0655 与
+###   0.0924 之间;④新增行全用户域复制任务,不写 itemic 映射 ⇒ mat/rec 结构性低风险。
+### 预登记:
+###   ①总分带 0.93-0.95,地板≈0.91(底盘未动);判据 action≥0.075 即成功、≥0.085 达标;
+###   ②物料应保 0.2146(零噪声哨兵,若跌=一锅稀释理论翻案);video≥8/ad·live 噪声带内;
+###   ③评测时长应显著短于 riders 的 66.7min(终止纪律仪表);
+###   ④仪表关:precheck 保险丝 + probe_v2 否决(<30 作废;本发不指望物料涨)+ action 留出集
+###     (p3_v2_extra_val 150 条)逐字率≥95%、序合规≥95%。
+### 训完流程:merge → precheck → probe_v2 → val 行为读数 → 全过即打包提传。
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★配方血统:true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_riders_act_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/riders_act_v1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: riders_act_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

@@ -1,0 +1,62 @@
+### ep5_rider_v1 —— seed_ep5(物料8题基座)冻结 + 骑手 LoRA 适配器(2026-07-09,平台名=本名)
+### 用户提案的实现:"把物料8题但其他分欠缺的 ckpt 再训一轮"——不继续全参(4/5ep已证物料墙8题不动、
+###   有过拟合风险),改为冻结 seed_ep5 全部权重、只训 LoRA 适配器补"可教"缺口。
+### 基座 = checkpoints/seed_ep5(线上 0.9081:mat 0.2453/action 0.0584/video 7题/ad 101/无P3无world_zh;
+###   probe 锚位 58/20 = 全场最强 8 题签名)。
+### 数据 = rider_stage2_v1(6,562 行,md5 764acd35):world_zh 2,824 + P3 1,500 + wmc 238
+###   + 种子 replay 2,000。2026-07-10 审计 replay 实含 material634/rec1177/topic90/native-action99;
+###   因此旧注释“不含 mat/rec、纯 action 二阶段”错误。本数据没有构建脚本,仅保留成品供历史复核。
+### 预登记:
+###   ①仪表门槛:probe ≥50/17(掉出 8 题签名即废);precheck C≥75%(MC锚在锅,预期高);A 复读应显著
+###     低于 raw 系(P3 在锅,riders 系 26-50% 带);
+###   ②面板预期:mat 0.2453 保持(主风险项,适配器行为覆盖可蚀)/action 0.058→0.07-0.09/world +0.01/
+###     video 0.0672 保持/rec 其余持平 ⇒ 总分带 0.92-0.95,中位 ~0.93;
+###   ③形状对标:0.995 队面板 = mat8 + action 高,本实验是该形状的直接逼近。
+### 上传形态:全参基座+适配器 ⇒ merge 后传完整 model.safetensors(bf16)。评测决策在用户。
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_ep5
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: rider_stage2_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 20
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/ep5_rider_v1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: ep5_rider_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

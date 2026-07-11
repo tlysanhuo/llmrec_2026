@@ -1,0 +1,50 @@
+# Purpose: test whether native non-material no-think SFT can preserve seed_ep3's
+# 8-item material tier while recovering action/recommendation/world capability.
+# Data: 8030 rows (action1430, topic300, rec1200/domain, world1500), material0;
+# train/holdout/offline-dev prompt overlap is zero. See logs/data/stage2_gold_v1_audit.json.
+# Result (2026-07-11): trained 103 steps/1 epoch, then rejected by local gates;
+# visible platform action prompts produced 0/5 JSON and material probe fell 55/18 -> 14/7.
+# Status: do not upload, resume, or use as a warm start.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/exp_seed_ep3
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_stage2_gold_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/stage2_gold_v1_lora_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 1
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: stage2_gold_v1_lora_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

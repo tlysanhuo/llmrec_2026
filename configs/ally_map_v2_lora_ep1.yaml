@@ -1,0 +1,66 @@
+### ally_map_v2_lora_ep1 — corrected Ally map package (2026-07-08, platform name = file name)
+### Background:
+###   quality_swap_v1_lora_ep1 scored 0.8235 online and disproved the "replace old user rows
+###   with official-shape user rows" branch.  Ally-map remains a separate high-upside clue, but
+###   v1 allocated rec_loo according to the old mistaken panel order.
+### Data = scripts/data/build_ally_map_v2.py, 45267 rows:
+###   data_riders_fk 37267 (current best base, 0.9177)
+###   + rec_loo_v2 5000 corrected to official rec order value:
+###       video 2000, prod 1500, ad 800, living 700
+###   + fresh_mat 3000 (750/domain, same as v1)
+### Training = same as riders_fk_lora_ep1:
+###   LoRA r32/alpha32/dropout0.05/lr2e-4/1ep/seq32768/packing/qwen3_nothink/liger on.
+### Expected score, pre-registered:
+###   median 0.94-0.95; reasonable band 0.91-0.98; 0.99 is upside, not expectation.
+###   Hard reads: mat 7 -> no fresh_mat gain; mat 8 -> likely 0.965-0.98 branch.
+###   Main target is video/prod rec recovery without killing riders' world/action base.
+### Launch:
+###   source scripts/env.sh
+###   CUDA_VISIBLE_DEVICES=<idle_gpu> llamafactory-cli train configs/ally_map_v2_lora_ep1.yaml
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_ally_map_v2
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/ally_map_v2_lora_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: ally_map_v2_lora_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

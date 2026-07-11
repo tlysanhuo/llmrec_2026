@@ -1,0 +1,71 @@
+### riders_fk_lora_ep2 —— riders_fk_lora_ep1(0.9177)唯一变量 epoch 1→2(2026-07-08,平台名=本名)
+### ★超参基线=riders_fk_lora_ep1 的线上验证值,一个不改(dropout0.05/wd0.001/accum4 是 0.9177 的血统,
+###   不因与平台UI默认不同而改——07-08 用户纠正:官方参数用于理解评测与机制,不是抄数值)。
+### 唯一变量 epochs 1→2 的机制依据(不是"别人训了2轮"):
+###   ①物料阶梯=video_ad子空间多样曝光遍数的函数(1533/1840/2146/2453 全参阶梯已证);LoRA lr2e-4 档
+###     遍数轴只采样过1ep(mat 7题),第8题(+0.0307)的假设=再一遍曝光在LoRA制度下补齐;
+###   ②video/ad 的分数机制=冻结基座保 pretrain 候选多样性(lr1e-6×3ep 与 lr2e-4×1ep 两个LoRA谱系均持
+###     video 8题/ad 98-107),遍数增加不动基座 ⇒ 有望不交全参制度的 video 税;
+###   ③action 0.0655 的欠训分支(P3 1ep 学到 0.0655 vs 3ep全参 0.0905)可被第二遍部分补齐。
+### 官方侧佐证(理解用,非依据):平台UI默认迭代3轮(建议1-5)=官方认为LoRA制度需要多遍。
+### 出分前预登记(判据按噪声结构排序;禁止点值保证):
+###   ①物料(零噪声,一锤定音):0.2453(8题)⇒ LoRA爬墙成立,0.99主拼图到手;0.2146(7题)⇒ 遍数不解决,
+###     下一旋钮=rank/数据侧;≤0.1840 ⇒ FK数据2遍=重复毒,遍数路线关死。
+###   ②video(低噪声):保≥8题(0.0768)⇒ LoRA保先验跨ep成立;≤7题 ⇒ 复读病加重(分支C)。
+###   ③action:≥0.085 ⇒ P3欠训假说证实;~0.065 ⇒ 缺口是行为问题(复读不停),转EOS专项(riders action行
+###     已全nothink,07-08核查,think错位排除)。
+###   ④ad±2题/单次不作数;world 应持0.144带;总分±0.03内只看分项形态。
+### 已知死法(红队):a) FK think-dedup数据过2遍→nothink直通复读加重→video/ad跌(baseline-epoch3 3ep无损
+###   不能外推:那是lr1e-6弱训练);b) r32容量不够第8题(墙=容量而非遍数);c) cosine跨2ep尾段lr低,第二遍增量打折。
+### 分支预期:A(mat8+video保+action涨)≈0.95-0.97;B(mat7其余持平)≈0.92-0.93;C(video/ad跌)≤0.91。
+### 改变哪个决策:A⇒主线=LoRA遍数+action行为专项;B⇒转rank或数据侧;C⇒遍数关死,转种子内重组。
+### 训完流程:merge(riders_fk_lora_ep2_merge.yaml)→ precheck(仅保险丝)→ 打包 → 用户传平台(adapter两件套)。
+### 启动:source ai_runtime/llmrec_2026/LLaMA-Factory/.venv/bin/activate;
+###   CUDA_VISIBLE_DEVICES=<nvidia-smi确认空闲卡> llamafactory-cli train configs/riders_fk_lora_ep2.yaml
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★配方血统:true(07-05事故后锚定)
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_riders_fk
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/riders_fk_lora_ep2
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: riders_fk_lora_ep2
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 2
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

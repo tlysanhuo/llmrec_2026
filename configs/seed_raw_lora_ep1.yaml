@@ -1,0 +1,65 @@
+### seed_raw_lora_ep1 —— 官方种子原样 × riders LoRA 配方 × 1ep(2026-07-09,平台名=本名)
+### 单变量 = 数据:data_final(官方 32480 原样,think 全保留)vs data_riders_fk(FK 转写血统)。
+### 立论(07-09 数据 EDA,docs/data_eda_20260709.md):
+###   ①FK 转写剥掉 think 内 65% 的 SID 语境监督(138,850→48,321 三元组;76.2% 带中文描述前缀
+###     =10.6 万条 desc↔SID grounding;think 独有三元组=0,纯语义标注,方向正中物料评测);
+###   ②OneThree 人证:官方原样×LoRA×1ep(平台)=物料 0.24(8题);我方 FK 血统 5 个 LoRA 点全 7 题
+###     (lr×600 倍/数据 5 种均不动)⇒ "物料墙"疑为 FK 自伤,非容量/遍数墙;
+###   ③OneThree/Tune 双警告多遍过拟合 ⇒ 本实验守 1ep;
+###   ④这是用户"只用官方 400MB+LoRA"假设的字面实现。
+### 出分前预登记(禁点值保证):
+###   ①物料(零噪声,一锤定音):0.2453(8题)⇒ grounding 假说成立,下一步组合 v2=raw 底盘+骑手
+###     (MC锚/P3/world_zh 加法式,不做任何 FK 式重组);0.2146 ⇒ 假说死,回平台剂量/rank 线;
+###   ②rec 四域:LoRA 保先验预期 video 7-8/ad 95-107/live 118-124/prod 33-38;think-heavy 数据若伤
+###     nothink 通路会先在 video/prod 显形(风险登记;v1 全参×raw 无格式崩先例,rec 评测本有 think 通路);
+###   ③action:无 P3 ⇒ 预期回落 0.03-0.06(不是本实验判据);world:无 world_zh ⇒ 预期 ~0.13-0.14;
+###   ④总分:mat 中(8题)且 rec 保 ⇒ 0.92-0.95;mat 不中 ⇒ 0.88-0.91。本实验是判决弹,总分非目标,
+###     上传与否出训后按 precheck+预期由用户拍板。
+### 训完流程:merge(seed_raw_lora_ep1_merge.yaml)→ precheck(保险丝)→ 打包 → 汇报预期等用户定夺。
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★配方血统:true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_final
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_raw_lora_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_raw_lora_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

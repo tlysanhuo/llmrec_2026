@@ -1,0 +1,64 @@
+### riders_fk_lora_ep3 —— riders_fk_lora_ep1(0.9177)唯一变量 epoch 1→3(2026-07-09,平台名=本名)
+### 立论(07-09 定稿):①某0.995队三连面板实锤"与0.995的全部差距=物料1题+action",且其mat 7→8为相邻
+###   提交间离散跳变、未伤任何rec列 ⇒ 第8题在保先验制度内可得;②两个0.99人证(海飞丝"没加数据,lora"/
+###   Ally"非平台,LoRA+映射")唯一共同要素=LoRA×充分更新量;③平台默认给LoRA 3轮;④全参阶梯在第3遍到
+###   0.2453;⑤riders_fk_plat_ep1(0.8229)已证伪平台loss路线 ⇒ 本地CE×遍数是主候选。
+### 为什么直接3ep跳过ep2上传:ep2中位读数落±0.03噪声带(≈48%),3ep是人证/平台默认/全参阶梯共同指向的
+###   格点;ep2包(efaee6fb)留作备用弹不传。
+### 超参=riders_fk_lora_ep1 线上验证值一个不改;唯一变量 num_train_epochs 1→3。
+### 出分前预登记(按噪声结构排序,禁点值保证):
+###   ①物料(零噪声,一锤定音):0.2453 ⇒ 遍数开关成立,0.99主拼图到手;0.2146 ⇒ 遍数轴关闭,转rank(r64);
+###     ≤0.1840 ⇒ 多遍=重复毒,遍数路线关死。
+###   ②video:≥7题可接受(mat+0.031 vs video−0.0096 仍净赚);≤6题 ⇒ 先验侵蚀税,分支C。
+###   ③action:≥0.085 ⇒ P3欠训假说证实,终止专项只需补最后一段;~0.065 ⇒ 行为问题,启动EOS专项。
+###   ④评测时长(新仪表,锚50min):明显缩短 ⇒ 终止纪律随遍数改善。
+### 分支预期:A(~35%)0.95-0.97 / B(~40%)0.915-0.935 / C(~25%)0.88-0.91。
+### 对照:riders_fk_lora_ep1(0.9177,1ep)/ ep2(已训未传,eval_acc 0.6233)/ seed_lora_ep3(同格点数据轴对照)。
+### 训完流程:merge(riders_fk_lora_ep3_merge.yaml)→ precheck(保险丝)→ 打包 → 用户传平台。
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★配方血统:true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_riders_fk
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/riders_fk_lora_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: riders_fk_lora_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

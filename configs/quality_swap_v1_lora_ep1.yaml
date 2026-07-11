@@ -1,0 +1,58 @@
+### quality_swap_v1_lora_ep1 —— riders_fk_lora_ep1 等量换好数据版(2026-07-07)
+### 背景:用户裁定不加数据,而是把低价值旧 user/action/topic 行换成官方形态更强的数据。
+### 数据 = scripts/data/build_quality_swap_v1.py 产出 37267 条(seed=2026):
+###   从 frinkleko_alpaca_32705 删除旧 action_select 1254 + 旧 topic_chain 1253
+###   加入 U1 action-select 354(367 raw 按 _src_idx 去重) + U2 candidate-chain MC 353 + U3 topic-chain 2372
+###   保留 riders_fk 的 world_zh 2824 + P3 1500 + world_mc_clean 238
+###   为严格等量,再从剩余 FK 中删除最长 CoT 行 572 条(mat_or_rec 441,itemic_answer 131)
+### 训练 = 完全照抄 riders_fk_lora_ep1: LoRA r32/lr2e-4/1ep/seq32768/packing/nothink。
+### 目的:测“换好数据”是否优于 riders_fk_lora_ep1(0.9177),避免 ally_map 外加 8k 行的稀释风险。
+### 启动前规则:训练/上传都需要用户明示;本配置只是预备资产。
+### 启动: source ai_runtime venv; CUDA_VISIBLE_DEVICES=<空闲卡> llamafactory-cli train configs/quality_swap_v1_lora_ep1.yaml
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_quality_swap_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/quality_swap_v1_lora_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: quality_swap_v1_lora_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

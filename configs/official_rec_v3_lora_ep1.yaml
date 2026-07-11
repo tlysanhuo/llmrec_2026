@@ -1,0 +1,67 @@
+### official_rec_v3_lora_ep1 — official UserProfile recommendation reconstruction (2026-07-08)
+### Goal:
+###   Replace old video-heavy recommendation rows with official-distribution,
+###   multi-domain next-item rows built only from official UserProfile + Pid2Sid.
+###
+### Data = scripts/data/build_official_rec_v3.py, 37267 rows:
+###   base data_riders_fk 37267
+###   - 8000 old recommendation rows, removed from the over-heavy video target bucket
+###   + official_rec_v3_block 8000:
+###       video 2500 / prod 2000 / ad 1750 / living 1750
+###   Total size unchanged.  Full QC:
+###       leak 0, bad format 0, bad domain order 0, missing /no_think 0
+###       prompt chars p50 10172.5 / p90 14386 / max 22474
+###
+### Training = riders_fk_lora_ep1 regime:
+###   LoRA r32/alpha32/dropout0.05/lr2e-4/1ep/seq32768/packing/qwen3_nothink/liger.
+###
+### Expected read:
+###   This is not an Ally-map bet and not a caption/material expansion.  Main signal should be
+###   recommendation subitems, especially prod/ad/live recovery after reducing redundant video SFT rows.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_official_rec_v3
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/official_rec_v3_lora_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: official_rec_v3_lora_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

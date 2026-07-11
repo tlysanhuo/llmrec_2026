@@ -1,0 +1,63 @@
+### seed_capg_v1 —— 官方种子原样 + 官方 caption grounding 增料 × riders LoRA 配方 × 1ep(2026-07-09,平台名=本名)
+### 数据 = data_final(官方 32480 原样,一字不动)+ cap_grounding_v1(5,441 行,官方 Caption/Tag parquet
+###   衍生 desc→SID 增料,模板逐字采样自官方种子物料行;md5 092f7ba5;QC:矛盾监督 0/input 全唯一/
+###   SID 全部种子内/与种子零冲撞)= 37,921 行,百分之百官方材料。
+### 单变量对照:vs seed_raw_lora_ep1(纯官方种子,已打包待评)唯一差异=+5,441 官方 grounding 行。
+### 立论:①官方 caption=评测 desc 同风格带(234-338字 vs 评测 259-424,种子物料行最长仅 203=形态空白);
+###   ②物料评测=desc→SID 精度任务,增料直接提升 video_ad 码本 grounding 密度与风格覆盖;
+###   ③官方发布留言明示此数据用于"构造推荐任务样本/分析目标内容语义"。
+### 出分前预登记(上传资格由本地仪表决定,门槛现在写死):
+###   ①训完先过三层仪表:precheck 保险丝(B>10%或C<75%作废)→ 物料探针 probe_v2(≥35/13=riders锚
+###     才有配额资格;≥50/≥17=8题签名优先传;<30 作废)→ rec 直通抄史率(video<0.5=格式中毒作废);
+###   ②真分判据:物料 0.2453(8题)⇒ caption grounding 路线成立,下一步加量/多视角 v2;
+###     0.2146 ⇒ 增料无效(密度/风格假说双弱化),转 CoT 重构试点;≤0.1840 ⇒ 增料有毒,回纯种子;
+###   ③rec 四域预期 LoRA 保先验带;action/world 预期与 seed_raw 同带回落(无 P3/world_zh,非判据);
+###   ④评测时长照记(锚 50min)。
+### 训完流程:merge → precheck → probe_v2 → 抄史率 → 全达标才向用户提传,否则就地作废零配额。
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★配方血统:true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_final,cap_grounding_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_capg_v1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_capg_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

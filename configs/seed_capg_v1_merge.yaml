@@ -1,0 +1,8 @@
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_capg_v1
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_capg_v1_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

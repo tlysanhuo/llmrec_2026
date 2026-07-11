@@ -1,0 +1,61 @@
+### evalform_v1_lora_ep1 —— rec 行评测形态转写 × riders 配方原封(2026-07-08,平台名=本名)
+### 单变量 = 18651 条 rec 目标行的"外衣"(题面模板+答案前缀)换成评测形态;历史SID多重集/gold/CoT/think配比
+###   零改动(build_evalform_v1.py,转写 18651/回退 0/QC 全绿);超参/血统/epoch 与 riders_fk_lora_ep1(0.9177)完全同。
+### 机制(07-08 数据审计):评测 rec 题型在训练数据覆盖率≈0(0 行结尾句/533 行历史段头),主力 1.86 万行教的是
+###   "目标内容"方言;0.8B=模板学习者,换不加(两方言并存=容量干扰,用户 07-08 明示约束)。
+###   模板字节级取自评测日志;域顺序按赛题解析 p16(目标域最后/视频倒数第二/广告倒数第三)。
+### 出分前预登记(禁点值保证):
+###   ①mat 应=0.2146(7题)不动——SID曝光多重集未变,这是本包的"对照仪表":若 mat 动了,曝光理论要翻案;
+###   ②video(主判据,低噪声):≥9题(0.0864)⇒ 形态对齐生效;仍 8 题 ⇒ "形态不是瓶颈"分支
+###     (pretrain case4+评测强制前缀已桥接);③prod/ad/live 同向看;④action/topic/world 应持平(未动);
+###   ⑤总分:中位 0.92-0.94,上行 0.95+(video+prod 双涨),下行 ~0.90。
+### 红队(出手前自答):a) CoT 行首人设句仍称旧角色(化妆级,未改内容);b) 裸SID答案使 assistant 段变短,
+###   packing 分布移动;c) 增益≈0 分支=形态早被 pretrain 桥接;d) 原方言隐性正则作用(无证据,风险登记)。
+### 训完流程:merge → precheck(保险丝)→ 打包 → 与 riders_fk_lora_ep2 并排比预期后由用户定传谁。
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★配方血统:true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_evalform_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/evalform_v1_lora_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: evalform_v1_lora_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

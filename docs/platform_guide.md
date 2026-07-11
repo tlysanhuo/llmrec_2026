@@ -1,7 +1,44 @@
-# 万擎平台完全指南(合并版)— 快手 LLM-Rec 2026
+# 官方全案(唯一官方信息文档)— 快手 LLM-Rec 2026
 
-> 2026-07-04 合并自三处:`platform_and_baseline.md`(07-01 全量整理)+ `platform_intro_v2.md`(07-02 官方更新)+ 用户转交的平台训练服务默认参数表与官方任务定义(07-03/07-04)。**平台侧信息以本文件为唯一权威;上述两个旧文件保留作历史存档。**
-> 官方指南 URL:https://www.streamlake.com/document/WANQING/mh1g8b8aunh8esspfm(开发机使用指南)
+> **★★★每次会话必读(用户 2026-07-08 明令)**:所有官方材料(平台参数/任务定义/评测机制/FAQ/赛题解析PPT/官方Tips)只放这一个文档;**动任何训练配置之前,先过 §〇 官方参数对账表**;偏离官方默认值必须在 config 头注写明理由。
+> 2026-07-04 合并自三处:`platform_and_baseline.md`(07-01 全量整理)+ `platform_intro_v2.md`(07-02 官方更新)+ 用户转交的平台训练服务默认参数表与官方任务定义(07-03/07-04)。2026-07-08 大修:并入赛题解析 PPT 40 页全量重读要点 + 官方参数对账表。旧文件保留作历史存档。
+> 官方指南 URL:https://www.streamlake.com/document/WANQING/mh1g8b8aunh8esspfm(开发机使用指南);赛题解析 PPT 原件:`docs/reference/赛题解析_官方.pdf`(40页)。
+
+## 〇、官方参数总对账表(2026-07-08 建;新配置出生前必查)
+
+**训练参数(四个官方来源 × 我方现行)**:
+
+| 参数 | 平台训练UI默认 | 万擎指南页参考 | 官方demo.yaml(全参) | 我方 riders(现行最高分LoRA) | 判读 |
+|---|---|---|---|---|---|
+| 制度 | LoRA | LoRA 或 全参 | 全参 | LoRA | ✓(群内四方佐证LoRA) |
+| **迭代轮次** | **3(建议1-5)** | — | 1 | **1** | **✗ 官方默认3轮,我方lr2e-4档从未测过>1ep——最大的未对齐旋钮** |
+| 学习率 | 1e-6(⚠️已证废:几乎不动模型) | **LoRA 2e-4 / 全参 2e-5** | 2e-5 | 2e-4 | ✓(按指南页;UI默认1e-6不可抄) |
+| LoRA rank / α | 32 / 32 | — | — | 32 / 32 | ✓ |
+| **LoRA dropout** | **0.1** | — | — | **0.05** | ✗ 无理由偏离 |
+| 单卡批大小 / **梯度累积** | 1 / **8** | 1 / 4 | 1 / 4 | 1 / 4 | UI=8,指南页=4;我方=4 |
+| 序列长度 | 32768 | 32768 | 32768 | 32768 | ✓ |
+| 调度 / 预热 | cosine / 0.03 | cosine / 0.03 | cosine / 0.03 | cosine / 0.03 | ✓ |
+| **正则化 wd** | **0.01** | 0.001(心定笔记) | 0 | **0.001** | ✗ 三个来源三个值;UI权威=0.01 |
+| Packing | true | packing+neat_packing | packing+neat | packing+neat | ✓ |
+| 精度 | bf16 | bf16 | bf16 | bf16 | ✓ |
+| thinking 开关 | 可开关,**训推需一致** | 关thinking(心定0.85+) | qwen3_nothink 模板 | qwen3_nothink | ✓(评测侧think开关见下表) |
+| seed | — | 19260817 | 19260817 | 19260817 | ✓ |
+| **loss** | **focal + token加权(平台独有)** | — | 普通CE | 普通CE | 已知差异;本地focal γ=2已证伪,**平台版focal未测** |
+| Checkpoint间隔 | 64 | — | — | epoch | 无影响 |
+
+**评测侧推理参数(赛题解析PPT p22 逐字;训练数据 think/nothink 配比的官方依据)**:
+
+| 任务 | think模式 | Temperature | Top-k | Top-p |
+|---|---|---|---|---|
+| 懂物料 | **\no_think** | 0.7 | 20 | 0.8 |
+| 懂用户(两子项) | **\no_think** | 0.6 | 20 | 0.95 |
+| 懂推荐 | **\no_think + \think 双路各32** | 0.6 | **50** | 0.95 |
+| 懂世界 | **\no_think** | 0.7 | 20 | 0.8 |
+
+> **★推论(07-08)**:评测时**只有懂推荐的一半通路开 think**,其余全部 nothink——而种子懂用户 100% 带 CoT,存在训/推 think 形态错位;Frinkleko 的 nothink 重组、官方 Tips 的"CoT/UnCoT 配比"、心定"关thinking"全部指向同一件事。**数据侧任何新版本必须按这张表配 think/nothink。**
+
+**衍生纪律(07-08 用户两次纠正后的正确用法)**:这张表**不是抄数值用的**。①它的价值=理解测量仪器与官方判断:评测侧 think 开关/解码参数定义了训练数据该长什么样;"UI默认3轮(建议1-5)"是官方认为 LoRA 制度需要多遍的**机制信号**,不是"把3抄进config"的指令;②**已被线上验证的自家值(如 riders 0.9177 的 dropout0.05/wd0.001/accum4)优先于官方默认**,不因不同而改;③lr 1e-6 是唯一已线上证废的官方默认值;④改任何超参必须有机制假设,"官方是这个值"或"高分选手是这个值"都不构成机制假设。
+
 
 ## 一、官方任务定义与评测机制(07-04 用户提供官方原文)
 
@@ -70,6 +107,15 @@
 
 种子 SFT 32480 条(=data_final);原始素材:UserProfile 50万用户 / Pid2Sid 3591万 / Pid2Caption 2106万 / Pid2Tag 541万 / General 通识。详见 `docs/DATA_INVENTORY.md` 与队友全量调研 `docs/hf_raw_data_analysis.md`。
 
+### ★★2026-07-09 晚官方新发布:SFT 对齐 Caption/Tag 数据(HF `SFT/` 目录)
+
+官方原话:"为便于参赛选手更好地理解预制的懂推荐数据,并进一步构造推荐任务样本。我们在 Hugging Face 发布了与预制 SFT 数据中'懂推荐'部分对齐的 Caption/Tag 数据。该数据提供物料 token 对应的内容描述与类目信息,选手可据此分析用户历史行为和目标内容语义,并**探索不同 CoT 构造方式对推荐任务表现的影响**。"
+
+- **文件**:`SFT/baseline_caption_tag_lists.parquet`(730MB;本地已下 `data/hf_sft_aligned/`)。官方 README 字段:`record_id`(0-19203)/`messages`(原始 SFT messages JSON)/`sid_token_list`/`caption_list`/`tag_list`(三 list 按位置一一对齐,未找到为 null)。
+- **官方口径规模**:19,204 行(=种子懂推荐行 1:1)、SID token 位置 3,539,794。
+- **我方实测(07-09)**:caption 位置覆盖 98.3%、tag 38.3%;**唯一 SID 568,944、其中 97.7% 有 caption**(分域 video 98%/ad 97%/prod 100%/living 99%);caption 长度中位 234、p90 338(叙述式,与评测物料 desc 同风格带 259-424);41,110 个 SID 有多视角 caption;⚠️living 域 caption 多为标签列表体非散文。**与 SFT 对齐 ⇒ 不受 Q5 码本墙约束**(区别于旧 Pid2Sid 的"另一批采样")。
+- **首个衍生品**:`data/processed/cap_grounding_v1.jsonl`(5,441 行 desc→SID 增料,构建器 `scripts/data/build_cap_grounding.py`,md5 `092f7ba5`;模板逐字采样自官方种子物料行,散文过滤+同域同 caption 去矛盾+input 全局唯一,QC 全绿)。
+
 ## ★★2026-07-06 官方FAQ全文要点(用户转发,当日最高优先级情报)
 
 ### 面板列序官方定义(引发全账本rec域重标)
@@ -94,18 +140,41 @@
 - 官方CoT样例披露:action_select出现**候选演化链选择题格式**(候选A/B/C→答案[A,B],与种子提取式并存);懂物料复赛含pattern→desc;还有"潜在需求共鸣"等新颖关系数据形态。
 - RL tips:rollout要group diversity(勿盲目加size)、避免all-correct/all-wrong零优势样本;reward=做对推荐为主+format/validity约束有效;CoT与answer token分开clipping/loss weight;无效负样本降权。
 
-## ★★官方《赛题解析》PPT 全要点(2026-07-06 入库 docs/reference/赛题解析_官方.pdf,40页)
+## ★★官方《赛题解析》PPT 全要点(07-06 入库;**07-08 逐页全量重读补全**,原件 docs/reference/赛题解析_官方.pdf,40页)
 
 ### 各赛道评测机制(比此前情报更细)
-- **懂物料**:beam64 生成 itemic pattern → **经 pattern→item_id 映射表转成 item id**(一 pattern 多 id 时取最新Pid;无效pattern记0)→ 与 gold item_id 比对,任一命中即过。**评测 desc 是 API 从原生多模态信息生成的**(≠Pid2Caption,连 desc 风格都不同源——caption 类物料数据连"题面分布"都对不上)。
+- **懂物料**:beam64 生成 itemic pattern → **经 pattern→item_id 映射表转成 item id**(一 pattern 多 id 时取最新Pid;无效pattern记0)→ 与 gold item_id 比对,任一命中即过。**评测 desc 是 API 从原生多模态信息生成的**(≠Pid2Caption,连 desc 风格都不同源——caption 类物料数据连"题面分布"都对不上)。评测 system prompt 逐字:"你是一位视频数据分析专家,负责将视频文本映射为精确的视频token。"
 - **懂用户 action_select**:gold=**API 两步标注**(①API 从纯文本历史抽主题;②给定历史+主题,API 抽相关交互)→ F1。**不是规则标注!**我方 R2 规则 gold 与评测 gold 存在系统性分布差。
-- **懂用户 topic_gen(logic chain)计分**:①按 action 做**最优有序匹配**(顺序敏感);②action 粒度惩罚漏生成+过度生成;③logic 文本在匹配上的 event 算 **Token-F1 与 ROUGE-L-F1 均值**;④总分=action对齐与logic对齐的均值。规则:≤5步;同日同类交互合并用"；";必须是场景需求补全/兴趣因果递进/需求深度细化三类演进;禁浅层并列。**logic 文本按 ROUGE 计分 ⇒ 模仿官方 logic 行文风格直接得分**。
-- **懂推荐**:prompt 域顺序规则=**目标域最后、视频倒数第二、广告倒数第三**;answer 可含**多个** gold item ids,64池任一命中任一 gold 即过。各域历史构造字段级配方(行为判定+保留条数):video 按组合event_type各留50(rsft_score>0.75→长播);live 同主播留更强行为、各50;电商 点击/加购/购买各50≈150(ts=ec_time_ms−lag天);广告 深转+点击各70≈140。**⇒ 评测同分布 prompt 的完整复刻配方到手(rec_loo v3/RFT 用)**。
-- **官方推理参数**:物料 T0.7/topk20/topp0.8;用户 T0.6/20/0.95;推荐 T0.6/**topk50**/0.95(think+nothink双路);世界 T0.7/20/0.8。probe 校准用。
+- **懂用户 topic_gen(logic chain)计分**:①按 action 做**最优有序匹配**(顺序敏感);②action 粒度惩罚漏生成+过度生成;③logic 文本在匹配上的 event 算 **Token-F1 与 ROUGE-L-F1 均值**(公式(30)-(38)逐字在原件 p14-15);④总分=action对齐与logic对齐的均值。规则:≤5步;同日同类交互合并用"；";必须是场景需求补全/兴趣因果递进/需求深度细化三类演进;禁浅层并列。**logic 文本按 ROUGE 计分 ⇒ 模仿官方 logic 行文风格直接得分**。**⚠️07-08 日志补充:平台 EvolutionTopicGenEvaluator 实际还加载 NLI CrossEncoder(nli-deberta-v3-base)——匹配含语义分量,与 PPT 的纯 Token-F1/ROUGE 描述不完全一致,topic 数据不能只堆 n-gram 风格。**
+- **懂推荐**:prompt 域顺序规则=**目标域最后、视频倒数第二、广告倒数第三**;answer 可含**多个** gold item ids,64池任一命中任一 gold 即过。各域历史构造字段级配方(行为判定+保留条数,原件p17逐字):video 按组合event_type各留50(rsft_score>0.75→长播);live 同主播留更强行为、各50;电商 点击/加购/购买各50≈150(ts=ec_time_ms−lag天);广告 深转+点击各70≈140。**⇒ 评测同分布 prompt 的完整复刻配方到手(rec_loo v3/RFT 用)**。
+- **懂世界(07-08 补全)**:system 逐字"你是一个非常聪明的助手,请直接遵循指示作答";题面末尾格式指令逐字:"请按以下格式作答:'正确答案是 (在此处填写选项字母)'"。**答案抽取=按优先级逐条正则扫全文**(样例:`(?:正确)?答案(?:应该)?(?:是|为|应为|应当是)\s*[:：]?\s*[\(（]?[A-Z][\)）]?`、`最佳答案(?:是|为)…`),第一个匹配到合法字母的提取、去重、升序返回;**少选/错选/多选/解析失败都算错**。⇒ 抽取对格式有一定容错,但训练里"占位符复读"型输出(rebal_pstack事故)会被正则抓成错误答案。
+- **官方推理参数(p22 逐字,含 think 开关)**:已提炼为 §〇 第二张表——**除懂推荐 think 通路外,评测全部 \no_think**。
 
 ### 官方数据产线(两张图,可用 DS 复刻)
-- **懂推荐 CoT=拒绝采样产线**:LLM **不见 gold** 生成 K 条 CoT → LLM-as-judge 按"CoT 与 gold 物品语义相关性"独立打分 → 过滤留高分 CoT 入库。(与 Tips"CoT Pattern 优化空间大"呼应)
-- **懂用户 R2 产线**(官方就叫R2):全域行为时间线 → LLM 提取兴趣演化(触发/延伸/修正/深化) → 候选链筛选 → **LLM 裁决质量过滤**(时间干净/证据支持/认知递进/演化合理) → 三种任务形态:①演化行为选择(=action_select) ②演化主题生成 ③演化链条生成。
+- **懂推荐 CoT=拒绝采样产线**:LLM **不见 gold** 生成 K 条 CoT → LLM-as-judge 按"CoT 与 gold 物品语义相关性"独立打分 → 阈值τ过滤留高分 CoT 入库(避免事后解释捷径)。(与 Tips"CoT Pattern 优化空间大"呼应)
+- **懂用户 R2 产线**(官方就叫R2):全域行为时间线 → LLM 提取兴趣演化(触发/细化/修正/闭合) → 候选链筛选 → **LLM 裁决质量过滤**(时间顺序/证据支持/认知增量/因果合理/避免主观臆测) → 三种任务形态:①演化行为选择(=action_select) ②演化主题生成 ③演化链直接生成。
+- **源数据总览(07-08 补全,p30)**:行为序列与 SFT 数据**来自同一份原始表、仅采样不同用户序列、且与预训练数据隔离**。Pid2Caption 全表覆盖率 58.64%(video 55.26%/live 99.69%/ad 69.21%/goods 60.73%),Pid2Tag 15.08%。
 
-### Pretrain 背景(定超参直觉用)
-三阶段:词表预热110B(只训词表+LMHead,lr2e-4→1e-4)→ 全参449B(lr1e-4→1e-5)→ 长序列32K 19B(lr1e-5→1e-6);RQ-Kmeans 三级8192码本;416B推荐对齐+162B通用。Pid2Caption 覆盖率仅58.6%、Pid2Tag 15%。
+### Pretrain 背景(07-08 补全为精确三阶段,p24-25;定超参直觉用)
+| 阶段 | 训练方式 | Token预算 | seq | 学习率 |
+|---|---|---|---|---|
+| Stage1 词表预热 | **冻结 Transformer 主干,只训扩展词表+LM Head** | 110B | 4K | **2e-4 退火至 1e-4** |
+| Stage2 全参共训 | 全参;四粒度推荐数据×通用域混合 | 449B | 4K | **1e-4 退火至 1e-5** |
+| Stage3 长序列 | 全参;扩至32K,建模长程行为依赖 | 19B | 32K | **1e-5 退火至 1e-6** |
+
+- RQ-Kmeans 三级 8192 码本(8192³≈5498亿组合);Token格式 `<domain_begin><a_X><b_Y><c_Z>`;多域物料统一表示。
+- 推荐对齐数据 416B(Token-Item-Relational-User 四粒度)+通用 162B。**官方原话(p9):"只有将推荐数据与通识数据混合训练,才有可能使得推荐模型获得 Reasoning 能力"**——通识混入的官方背书。
+- 四粒度任务形式(p26):Token粒度=子Token语义组合/前缀语义预测/Token预测;Item=描述对齐/粗化降噪/多视图多来源;Relational=物品关联/兴趣转移路径/多步兴趣流;User=分域行为序列/时间交错序列。
+- **Pretrain 数据样例形态(07-08 补全,p27-28)**:①Token粒度问答体("短视频域中,<a_3664><b_3076>表示什么?");②**User粒度含选择题体**("以下哪些商品是该用户浏览过的?A/B/C"→"A;C")和**多轮续推体**("请继续给出其他点击广告")——**MC 锚/续推形态在 pretrain 阶段官方就喂过**,解释了 pretrain 对选择题格式有底子、CEval 锚为何能精确治愈占位符复读。
+
+### SFT-CoT 官方样例(07-08 补全,p34)
+- 懂物料含 **item QA 新形态**:"潜在需求共鸣"关系判断题(两表面不同的视频满足同一深层心理需求,四选一)。
+- **懂推荐同一 prompt 官方给出 think/nothink 两个版本**(一份带完整 think 正文,一份空 think 直出)——Frinkleko 重组机制的官方原型,坐实"同 prompt 双形态"是官方设计而非选手发明。
+- 懂用户样例带完整 think(候选链逐一论证后输出 [A,B])。
+
+### 评测 FAQ(p36)
+- 分项已按难度加权(权重不公开);vLLM 评测波动难免,**后续会对波动大的 benchmark 多次评估取均值**。
+
+### 官方 Tips(p38-39)
+- **Tips-SFT**:baseline 懂推荐 CoT 是"兴趣归纳→行为模式→预测总结"三段式,**官方明说优化空间大**;推荐 CoT 设计四步框架:**Induction(归纳用户抽象)→ Abduction(溯因,兴趣发散)→ 溯因主导+演绎(兴趣权衡推导)→ Deduction(演绎,物料ID生成)**;点名"**溯因的解释空间大,需要压缩:降噪、找到最重要的部分**";鼓励自探 CoT Pattern 和 **CoT/UnCoT 配比**。
+- **Tips-RL**:rollout 要 group diversity(勿盲目加 size)、避免 all-correct/all-wrong 零优势样本;reward=做对推荐为主+format/validity 约束有效;监控 entropy/response length/KL/reward variance;**CoT 与 answer token 分开 clipping/loss weight**;无效负样本降权。
