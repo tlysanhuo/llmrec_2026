@@ -16,6 +16,7 @@
 - I-14 E3固定协议单次线上0.9518。相对I-13逐项为`0/-0.0138/-0.0003/-0.0480/+0.0068/+0.0098/+0.0018/-0.0022`、面板总分差-0.0460，但这只回答“是否替换融合灰区主模型”的榜分问题，不支持纯O1单体路线的因果否决。更接近的非融合固定协议参考I-11为0.9618，I-14名义低0.0100；I-11仍使用164条teacher、从I-10 E3续训且rank不同，也不是干净基线。原始日志已复核为action1024+itemic 7次race-average、8/8完成、失败0，evalTaskId `eval-task-lfrrhq-1784013605`。
 - I-16于2026-07-14 12:19 UTC通过持久启动器在单卡启动，W&B [`packufor`](https://wandb.ai/3120252125-/llmrec-2026/runs/packufor)，600/600正常完成。policy从保留的I-10 E3继续同一个r64 adapter，reference为O6显式加载并合并同一E3 adapter；不新建adapter、不拼接参数、不做同容量蒸馏。step200/400/600使四推荐域聚合raw chosen胜率从32.03%升到52.73%/57.03%/58.59%，action始终保持93.75%，但推荐gold平均token logp分别下降0.01185/0.02030/0.02149，全部超过0.01保护线。I-16按原门槛本地否决，不上传；这些读数只作机制和剂量证据，不估线上分数。
 - I-17已在I-16 step400结果后、正式启动前注册，并于2026-07-14 12:57 UTC在I-16正常退出后顺序持久启动；W&B [`pfjlvm70`](https://wandb.ai/3120252125-/llmrec-2026/runs/pfjlvm70)服务端`finished`。它从原始I-10 E3重新开始，数据、beta和冻结E3 reference不变，只将峰值lr降至7e-7并用30步warmup后的constant日程把step200累计LR面积降为I-16 step200的74.8434%。step100/150/200全部满足量化保护线；按预注册“最早全通过”规则选step100，其推荐聚合raw chosen胜率32.03%→43.36%、gold平均token logp仅下降0.00327、action保持93.75%，itemic断裂0/60。step100固定协议线上0.9727，八项=`0.2453/0.1077/0.0380/0.0960/0.1156/0.1274/0.1044/0.1383`，低I-13 0.0251；相对I-12推荐合计+0.0101但用户合计-0.0142，总分-0.0041。直接父模型I-10 E3固定协议分仍缺失，因此不作DPO因果结论，桥接前不提交step150/200。
+- I-18已完成训练前数据封板并正式启动：官方源派生`data_seed_teacher_cotfix_v2`从I-10父数据逐行构建，只修复538条保留推荐CoT；538/538通过程序门与独立judge score=5九项全真。32,644行/SHA256 `634c4805...c0e4`，prompt/答案/行序/任务数/O2 teacher均0变化，target元数据/T/E为0，16k超限0。正式配置与I-10训练物理逐字段一致，仅切换已登记数据及新output/run name；从O6干净启动，不使用融合、续训或失败checkpoint。2026-07-14 17:26 UTC在GPU1持久后台启动，W&B [`32av8e8z`](https://wandb.ai/3120252125-/llmrec-2026/runs/32av8e8z)服务端`running`且首批指标正常。
 - 撤回旧 I-09 规则数据资格：规则标签相对同源独立judge满分teacher参考的平均F1仅0.0429；匹配实际过滤条件的42条平均F1 0.0813且32条零交集。该teacher参考不是官方gold；`seed_o2_action_r64_lr1e4_ep3`因此在step16中止，W&B `sh96a1sq`，`checkpoints/seed_o2_action_r64_lr1e4_ep3/`无adapter且禁止resume。
 - 当前最高单次显示分和固定协议最高均为I-13 `0.9978`。I-10 E3旧协议0.9849仍只能作旧轨迹父模型记录；E3固定协议桥缺失不妨碍I-13在现有固定协议候选中确定为主模型，但仍禁止计算I-13相对E3的净增益。
 - r64 同一训练轨迹 E1/E2 已线上评测：E1=0.8839，E2=0.9187；E3未评测且不再建议上传。本地门禁原先只选 E1、拒绝 E2，线上排序相反，门禁不再承担正向 checkpoint 排名。
@@ -25,6 +26,26 @@
 - `seed_o2_action_r64_lr15e5_ep1` 已完成：`D(O1,O2)` 33,644 行，O2 唯一 action 行 1,164（3.4598%），r64/alpha64、lr1.5e-4、单卡 1 epoch/710 steps。itemic 结构通过，但 action 0/5 闭合、material 39/13，状态为本地否决、不上传。
 - E2 的本地 checkpoint 存在，但 `submissions/riders_fk_clean_r64_e2_platform/` 不存在；平台日志只记录临时 `/tmp/eval_model/merged`。在缺上传 manifest 时，不能声称平台工件哈希已由本地 adapter 哈希证明。
 - 旧实验的中间 checkpoint、optimizer、失败 checkpoint 和 merged 工作副本已于 2026-07-11 删除；本轮用户批准的 r64 E1/E2/E3 例外已单独列入下表。
+
+## 训练中：seed_teacher_cotfix_v2_r64_lr1e4_ep3
+
+| 项 | 冻结与运行记录 |
+|---|---|
+| 目的 | 单变量检验“忠实补全上游截断推荐CoT”能否改善推荐四域；不采用参数融合，不把选手约1.03转述当收益证明 |
+| 基座/隔离 | O6 `OneReason-0.8B`干净启动；不加载、resume、merge或warm-start任何adapter/checkpoint，旧`cotfix_v1`失败产物输入为0 |
+| 正式数据 | `assets/derived/processed/data_seed_teacher_cotfix_v2.jsonl`，32,644行，`D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O3)`，SHA256 `634c4805367308b35dd729c17f59a1a8b4bb473b84a80d21cc71931a2c29c0e4` |
+| 上游与混合 | 父I-10数据SHA256 `13c40526...eee4f`；O1父行32,480（99.497611%）+ O2唯一teacher 164（0.502389%），O2规则/T/E为0；O3 SHA256 `c307fe6d...b8d9d`只作历史侧证据，目标答案/目标元数据0 |
+| 构造与质检 | `scripts/data/build_cotfix_v2.py` SHA256 `81aba7b962a4ad1c27d450d882a6774ab1771daae0fe7957e1f790a81227c9d0`；538/538为`TRUNCATED`且程序门0错误，独立judge全部score=5九项全真；新增非历史SID/重复前缀SID均0 |
+| 单变量不变量 | 恰改538条保留推荐CoT；其余32,106行逐字不变。instruction/input/history、最终答案、行序、任务数和164条O2 teacher均0变化；target token 5,867,041，仅推荐四域增加；raw最大约9,744 token、16,384 cutoff超限0 |
+| 审计 | `logs/data/seed_teacher_cotfix_v2_audit.json` SHA256 `bdea6db13a398dbcde973117dbf72d9ed81d5635bcbcbb7f1f1ba41fda79057c`；generation/judge审计SHA256 `05f5399b...5edf` / `994c8702...c861` |
+| 配置 | `configs/active/seed_teacher_cotfix_v2_r64_lr1e4_ep3.yaml` SHA256 `2bd234bd3d58a553c3f9b304e718e73531bbdb2a192d195866ba09350d3042da`；与I-10关键训练字段完全相同，仅dataset/dataset_dir及非训练的output/run name变化 |
+| 训练物理 | 单卡、r64/alpha64/dropout0.05、lr1e-4 cosine、warmup0.03、effective batch4、cutoff16384、3 epoch、W&B online；按epoch保存adapter-only E1/E2/E3且最多3份，不保存optimizer/scheduler/RNG |
+| 选择边界 | I-10旧协议轨迹只支持保留三轮剂量，不预测固定协议分数。主要预期在推荐四项；material/action/topic/world标签未改，结构灾难即否决。E1/E2/E3先保留，结构门只作硬失败保险丝，不本地估分排序；不自动消耗线上提交配额 |
+| 持久启动 | 2026-07-14 17:26 UTC；单卡`GPU-66333310-c796-4db6-6772-684087c24bc9`（物理GPU1）。detached wrapper PID `2813778`由PID1接管、SID `2813778`且无TTY；PID/日志/退出码分别持久化为同名`.pid`、`.log`、`.exit_code`，不是临时PTY会话 |
+| 训练规模 | 2,657 packed examples；665 update steps/epoch、1,995 total；40,370,176 trainable params（4.7957%）；effective batch4。与I-10精确相同的步数，新增CoT未改变packed样本总数或总步数 |
+| 在训输出 | `checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/`；计划按epoch生成`checkpoint-665/`、`checkpoint-1330/`、`checkpoint-1995/`，三者均为adapter-only且已预登记；训练完成前不赋予评测、父模型或打包角色 |
+| W&B与首指标 | [`32av8e8z`](https://wandb.ai/3120252125-/llmrec-2026/runs/32av8e8z)；2026-07-14 17:28 UTC服务端确认为`running`。step5/10/15/20/25 loss=`2.8461/2.7248/2.5192/2.3375/2.1453`，GPU进入约95%利用率；未发现Traceback、OOM或NaN |
+| 当前状态 | **TRAINING_RUNNING**；等待1,995/1,995正常退出及E1/E2/E3 adapter-only产物审计，不自动上传或消耗线上提交次数 |
 
 ## 保留模型
 
