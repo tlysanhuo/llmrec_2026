@@ -1,0 +1,85 @@
+### User-approved performance-combination run, 2026-07-12.
+### audit_workspace_exception: user_approved_i01_action_distill_r64_ep3_20260712
+### This is intentionally not a causal ablation: combine I-01 recommendation
+### CoT compression, O2-derived action distillation, r64 capacity, and a lower-LR
+### 3-epoch trajectory to maximize the next score attempt.
+###
+### Rank/LR rationale:
+### - The prior same-recipe r64 trajectory reached action 0.0981 versus the
+###   stable r32 parent's 0.0655; r64 is selected for demonstrated action capacity.
+### - alpha=64 keeps alpha/r=1, matching the retained r32/alpha32 scale.
+### - peak LR 5e-5 over 3 cosine epochs has about 0.75x the integrated LR dose
+###   of one 2e-4 cosine epoch at similar steps/epoch, addressing the prior r64
+###   late-epoch material/action degradation without collapsing to a tiny update.
+###
+### Asset ledger (finalized before launch):
+### - Base: O6 OneReason-0.8B.
+### - Dataset: data_i01_action_distill_v1, class D(O1,O2), no T/E rows.
+### - Upstream D(O1) data_final.jsonl: 32,480 rows, SHA256
+###   995efe62ee98b44c28175a444849e51c3ebbbc9c1b9e83fc83146f09024f8f71.
+### - Upstream D(O2) action_distill_v5.jsonl: 164 unique 5/5 rows,
+###   repeated 8x into 1,312 effective rows; SHA256
+###   cb020185132c9ad06ee847798bc8d78e546cd8f5a77cae323f5d802f2dd3f189.
+### - Builders: scripts/data/distill_action_v5.py and
+###   scripts/data/build_i01_action_distill_v1.py.
+### - Output: 33,792 rows, SHA256
+###   bbefa5f24d4c9a8e0c7573873fdc2947b35880955cb60b5debc0f619d6ce99d3.
+### - Row mix: O1_i01 32,480 (96.117424%); O2 action effective 1,312
+###   (3.882576%). Unique/effective action counts must not be conflated.
+### - Target-token mix: action 211,816/6,364,037 (3.328328%);
+###   O2 action source 73,136/6,364,037 (1.149208%).
+### - I-01: 6,460 recommendation prompt groups; 12,744 duplicate CoTs
+###   converted to /no_think while retaining all 19,204 recommendation targets.
+### - Leakage gate: all 354 registered E action source indices excluded; overlap 0.
+### - Full audit: logs/data/i01_action_distill_v1_audit.json.
+###
+### Explicit user exception to the default one-epoch policy:
+### - exactly 3 epochs, one GPU, W&B online, save_strategy=no.
+### - train from O6, never from a failed or prior adapter checkpoint.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_i01_action_distill_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/i01_action_distill_v1
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i01_action_distill_r64_ep3
+logging_steps: 5
+save_strategy: "no"
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: i01_action_distill_r64_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 5.0e-5
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

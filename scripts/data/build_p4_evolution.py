@@ -72,7 +72,7 @@ from collections import Counter, defaultdict
 import pandas as pd
 
 ROOT = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026"
-HF = f"{ROOT}/data/hf_full/data"
+HF = f"{ROOT}/assets/official/hf_raw"
 OUT_TRAIN = f"{ROOT}/data/processed/p4_evolution.jsonl"
 OUT_VAL = f"{ROOT}/data/processed/p4_evolution_val.jsonl"
 SEED_USER_FILE = f"{ROOT}/data/懂用户.jsonl"

@@ -1,0 +1,86 @@
+### ABORTED_AFTER_STEP_16_DO_NOT_RESUME: superseded by seed_teacher_r64_lr1e4_ep3.
+### I-10 (withdrawn): continuous three-epoch horizon search on the I-09 mix.
+### The run was interrupted after step 16 when label-level validation showed
+### that the 1,000 rule targets do not align with accepted teacher labels.
+### User correction/approval, 2026-07-12: epoch count must follow training
+### dynamics; there is no universal one-epoch restriction.
+###
+### This starts from O6. It does not warm-start the independent I-09 E1
+### adapter because that run used a one-epoch cosine schedule ending at zero.
+### The new trajectory saves adapter-only E1/E2/E3 checkpoints. E2 is the
+### preselected primary candidate; E3 is retained for inspection, not automatic
+### online submission.
+###
+### Horizon/dose rationale:
+### - Historical r64 trajectory: 353/706/1059 steps at lr2e-4 over 3 epochs.
+### - This dataset: about 710/1420/2130 steps at cutoff 16k.
+### - Halving peak LR to 1e-4 while roughly doubling steps per epoch makes the
+###   cumulative cosine LR area at E1/E2/E3 approximately match that trajectory.
+### - Historical E2=0.9187 is one online observation, not a stable anchor or a
+###   guaranteed mapping from dose to score.
+###
+### Asset ledger finalized before launch:
+### - Base: O6 OneReason-0.8B.
+### - Dataset: data_seed_o2_action_v1, class
+###   D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag); no T/E rows.
+### - O1 upstream data_final.jsonl: 32,480 rows, SHA256
+###   995efe62ee98b44c28175a444849e51c3ebbbc9c1b9e83fc83146f09024f8f71.
+### - O2 rule upstream r2_base_v3.jsonl: 4,200 rows, SHA256
+###   2ba91b019dd9c0a445af96165fc36c1c1b7939c98b730a6890ca34e9bf59aeb1.
+### - O2 teacher upstream action_distill_v5.jsonl: 164 rows, SHA256
+###   cb020185132c9ad06ee847798bc8d78e546cd8f5a77cae323f5d802f2dd3f189.
+### - Builders: scripts/data/build_r2_actionselect.py,
+###   scripts/data/distill_action_v5.py, scripts/data/build_seed_o2_action_v1.py.
+### - Output: 33,644 rows, SHA256
+###   ffb865e6a29d746ea609d041ee0906bda7fb2236712bd09bdee8cbe271f294d8.
+### - Row mix: O1 32,480 (96.540245%); O2 teacher 164 (0.487457%);
+###   O2 rule 1,000 (2.972298%). No repeated O2 labels.
+### - Target tokens: 5,897,456 total; action 190,657 (3.232869%).
+### - Leakage gate: all 354 registered E source indices excluded; overlap 0.
+### - Audit: logs/data/seed_o2_action_v1_audit.json.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.1
+lora_target: all
+
+dataset: data_seed_o2_action_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/seed_o2_action_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_o2_action_r64_lr1e4_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_o2_action_r64_lr1e4_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-4
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

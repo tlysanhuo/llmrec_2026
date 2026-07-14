@@ -1,0 +1,79 @@
+### User-approved local checkpoint-search exception, 2026-07-11.
+### audit_workspace_exception: user_approved_r64_ep3_checkpoint_search_20260711
+### Goal: test LoRA capacity r64 across E1/E2/E3 without touching the retained
+### r32-E1 online-best adapter. This is a joint rank+horizon recipe versus the
+### 0.9177 model, not a clean estimate of either marginal effect. Within this
+### run, E1/E2/E3 are checkpoints on one r64 cosine trajectory.
+###
+### Asset ledger (formal-training gate):
+### - Base: O6 OneReason-0.8B.
+### - Dataset: data_riders_fk_clean, class D/MIXED(O1,O2.General,T), E removed.
+### - User authorized the surfaced riders/T comparison in this conversation.
+### - Builder: scripts/data/build_riders_fk_clean.py.
+### - Rows: 37,262; SHA256:
+###   ee12db531db8b1ab4ff6486f5e483d638b130f45ff3e3100c09bb5d33e9520ab
+### - Mix: Frinkleko-clean T 32,700 (87.756%); world_zh D(O2.General) 2,824
+###   (7.579%); P3 D/MIXED 1,500 (4.026%); world_mc_clean D 238 (0.639%).
+### - Delta from the 0.9177 data: remove exactly five documented E rows;
+###   every retained row and relative order are byte-identical.
+###
+### Deliberate repository-rule exception requested by user:
+### - num_train_epochs=3 and adapter-only save at each epoch.
+### - Single GPU only; W&B enabled; no failed-checkpoint warm start.
+### - No checkpoint will be uploaded automatically. Local task gates choose at
+###   most one candidate.
+###
+### Pre-registered win shape:
+### - material beam64 lock/fan >= 50/17 (8-question signature),
+### - visible action 5/5 closed JSON, zero token-limit hits/misrouting,
+### - world format 8/8, itemic structural breaks 0,
+### - online submission considered only if predicted gain is >0.03.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_riders_fk_clean
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/riders_fk_clean
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/riders_fk_clean_r64_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: riders_fk_clean_r64_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

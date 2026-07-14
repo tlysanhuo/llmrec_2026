@@ -1,0 +1,84 @@
+### HISTORICAL_ONLY_AFTER_SUCCESS: completed 1,971/1,971 steps; do not overwrite.
+### I-14 clean rerun 1: O1-only single-adapter r80 trajectory.
+###
+### This is a clean restart after the original launcher session ended at step
+### 1,886/1,971. It must start directly from O6 in a new output directory.
+### The failed run's E1/E2 checkpoints are evidence only and are forbidden as
+### resume, warm-start, merge, evaluation, or submission inputs.
+###
+### Goal and single-model boundary:
+### - Train one LoRA adapter directly from O6; no warm start or adapter merge.
+### - Remove all teacher/rule/third-party/evaluation rows from the I-10 recipe.
+### - Preserve the O1 targets and I-10 format-only transformations, then test
+###   whether a single r80 adapter can carry material, user, and recommendation
+###   behavior without the I-13 parameter-concatenation audit ambiguity.
+###
+### Trajectory rationale:
+### - I-10 r64 crossed the material 7-to-8-hit boundary at E2 and improved
+###   again in aggregate at E3 under its original protocol.
+### - r80 is the smallest direct single-adapter capacity match to I-13.
+### - Keep I-10 peak LR, cosine horizon, batch, cutoff, dropout, and seed.
+### - Save adapter-only E1/E2/E3 to observe the trajectory; no optimizer,
+###   scheduler, or RNG state may be retained.
+###
+### Finalized asset ledger before launch:
+### - Base: O6 OneReason-0.8B, config SHA256
+###   5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4.
+### - Dataset: data_seed_clean_v1, class D(O1); O2/T/E rows are all zero.
+### - Upstream: data_final.jsonl, 32,480 rows, SHA256
+###   995efe62ee98b44c28175a444849e51c3ebbbc9c1b9e83fc83146f09024f8f71.
+### - Builder: scripts/data/build_seed_clean_v1.py.
+### - Output: 32,480 rows, SHA256
+###   e526caea4a1afd8befbd5d266fb80d0378a5bf7eff90fdacd14934332d64d309.
+### - Row mix: O1 32,480/32,480 (100%); O2/T/E 0.
+### - Targets preserved: 32,480/32,480.
+### - Transformations: 12,744 redundant recommendation CoTs converted to
+###   no-think; 602 topic rows aligned to no-think.
+### - Target tokens: 5,845,479 total; action 138,680 (2.372432%).
+### - Audit: logs/data/seed_clean_v1_audit.json.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 80
+lora_alpha: 80
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_seed_clean_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/seed_clean_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_clean_r80_lr1e4_ep3_rerun1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_clean_r80_lr1e4_ep3_rerun1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-4
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

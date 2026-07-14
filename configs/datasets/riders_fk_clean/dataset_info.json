@@ -1,0 +1,12 @@
+{
+  "data_riders_fk_clean": {
+    "file_name": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/derived/processed/data_riders_fk_clean.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output",
+      "history": "history"
+    }
+  }
+}

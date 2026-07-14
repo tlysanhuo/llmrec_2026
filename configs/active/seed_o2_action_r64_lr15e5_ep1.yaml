@@ -1,0 +1,92 @@
+### I-09: user-approved O1 + low-dose O2 action performance candidate.
+### audit_workspace_exception: prior approved artifacts remain retained; this
+### run neither loads nor modifies them and starts only from registered O6.
+###
+### This is one analysis-driven performance package, not a causal ablation:
+### - Preserve all 32,480 O1 rows and all targets; do not crop action histories.
+### - Compress redundant recommendation CoT and align topic to /no_think.
+### - Add 164 unique teacher/judge 5/5 O2 action rows once each, not 8x.
+### - Add 1,000 unique O2 rule rows after leakage exclusion, full-history QC,
+###   target-length/density filtering, and chronological target reordering.
+### - Increase capacity/update dose to r64/alpha64 and lr1.5e-4 for one epoch.
+###
+### Score estimate before training, official order:
+### material/action/topic/video/prod/ad/live/world
+### expected weighted midpoint ~= 0.215/0.090/0.045/0.080/0.128/0.138/0.110/0.143
+### total midpoint ~= 0.949; practical range 0.91-0.99. The upper branch
+### requires material to recover 8 hits while action remains near 0.09-0.10.
+### This is a forecast for one candidate, not a stable anchor or guarantee.
+###
+### Asset ledger, finalized before launch:
+### - Base: O6 OneReason-0.8B.
+### - Dataset: data_seed_o2_action_v1, class
+###   D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag); no T/E rows.
+### - O1 upstream data_final.jsonl: 32,480 rows, SHA256
+###   995efe62ee98b44c28175a444849e51c3ebbbc9c1b9e83fc83146f09024f8f71.
+### - O2 rule upstream r2_base_v3.jsonl: 4,200 rows, SHA256
+###   2ba91b019dd9c0a445af96165fc36c1c1b7939c98b730a6890ca34e9bf59aeb1.
+### - O2 teacher upstream action_distill_v5.jsonl: 164 rows, SHA256
+###   cb020185132c9ad06ee847798bc8d78e546cd8f5a77cae323f5d802f2dd3f189.
+### - Builders: scripts/data/build_r2_actionselect.py,
+###   scripts/data/distill_action_v5.py, scripts/data/build_seed_o2_action_v1.py.
+### - Output: 33,644 rows, SHA256
+###   ffb865e6a29d746ea609d041ee0906bda7fb2236712bd09bdee8cbe271f294d8.
+### - Row mix: O1 32,480 (96.540245%); O2 teacher unique once 164
+###   (0.487457%); O2 rule unique 1,000 (2.972298%). No repeated O2 labels.
+### - Target tokens: 5,897,456 total; action 190,657 (3.232869%).
+### - Rule QC: 1,000/1,052 eligible selected; all 1,000 target arrays changed
+###   from score order to chronological order; target median 7, history median
+###   180, positive-density median 4.02%.
+### - Leakage gate: all 354 registered E source indices excluded; overlap 0.
+### - Audit: logs/data/seed_o2_action_v1_audit.json.
+###
+### Dose rationale:
+### - At roughly 700 packed steps, lr1.5e-4 cosine has estimated integrated
+###   LR area around 0.0525: above I-07 r32/lr1e-4 (~0.0370), below the old
+###   r64 trajectory's first-epoch dose (~0.0626).
+### - r64 supplies the action capacity seen in the prior single E2 observation;
+###   dropout 0.1 and one epoch limit memorization/forgetting risk.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.1
+lora_target: all
+
+dataset: data_seed_o2_action_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/seed_o2_action_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_o2_action_r64_lr15e5_ep1
+logging_steps: 5
+save_strategy: "no"
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_o2_action_r64_lr15e5_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.5e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

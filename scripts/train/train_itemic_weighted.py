@@ -11,7 +11,7 @@ itemic token id 布局(OneReason-0.8B, added_tokens.json 已核实,三段连续)
   → itemic 全区 = [151669, 176252](含 think 标记 151667/151668 之前的区间不含)
 
 用法(和 llamafactory-cli train 相同,yaml 照常):
-  ITEMIC_W=5.0 python scripts/train/train_itemic_weighted.py configs/recipe2_itemic_w5.yaml
+  ITEMIC_W=5.0 python scripts/train/train_itemic_weighted.py configs/history/recipe2_itemic_w5.yaml
 环境变量:
   ITEMIC_W      itemic 区 loss 权重(默认 5.0)
   ITEMIC_LO/HI  区间覆盖(默认 151669/176252)

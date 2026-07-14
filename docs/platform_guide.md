@@ -89,6 +89,23 @@
 - **Q10** 允许蒸馏;**不鼓励模型融合**;复赛须交单模型。
 - **Q12** pretrain 锚点 **0.6655**(物料0.1533/用户0.0000,0.0055/推荐0.0864,0.0544,0.1372,0.0900/世界0.1387);vLLM 波动~1%(⚠️07-04 选手实测方差远大于此,见上)。
 
+### 本地 LoRA 上传表单固定模板
+
+官方“上传模型”页面的三个字段含义如下，不能互换：
+
+| 字段 | 本地 LoRA 候选固定值 | 说明 |
+|---|---|---|
+| 模型来源 | 本地上传 | 上传已验收的本地目录 |
+| 上传文件 | 文件夹 | 文件夹内只放 `adapter_config.json`、`adapter_model.safetensors` |
+| 训练方法 | LoRA | 与本地训练制度一致 |
+| 模型类型 | 文本生成 | OneReason 是文本生成模型，不选视频理解/向量/重排 |
+| 保存方式 | 新建模型 | 首次上传一个实验族时使用 |
+| 模型名称 | 使用实验索引登记的上传名 | 不附加平台自动生成的版本号 |
+| 模型版本 | V1 | 新建模型时由平台显示；同名模型追加版本时顺延 |
+| 模型描述 | 数据血统 + LoRA规格 + checkpoint步数 | 不写未验证分数 |
+
+以后交付任何候选包时，必须同时给出：SCP命令、包路径、两文件SHA256、上述表单逐项值。若同一实验族后续上传另一个checkpoint，才选择“已有模型新增版本”；不同实验族仍选择“新建模型”。
+
 ## 四、官方 baseline 配方(demo/,我们的本地底座)
 
 框架 LLaMA-Factory 0.9.6.dev0,全参 SFT:`qwen3_nothink` 模板 / cutoff 32768 / packing+neat / lr 2e-5 / cosine / warmup 0.03 / wd 0 / 1ep / batch 1×4 / bf16 / seed 19260817 / liger+fa2。环境 pin:torch 2.7.1+cu126、flash-attn 2.7.4.post1、liger 0.8.0(`scripts/baseline/00_install.sh`,现装于 lustre `ai_runtime/llmrec_2026/LLaMA-Factory/.venv`)。
@@ -103,15 +120,19 @@
 - 常识:采样,max_tokens 60000,thinking disabled;**单选,Accuracy**。
 - 评分:SID+PID 双模式,sid2pid 映射 video_ad 共用 1.66M / prod 131k / live 35k(**ad 与 video 共享 codebook**)。
 
-## 六、数据资产(官方,HF OpenOneRec/Explorer_LLM_Rec_Competition)
+## 六、官方数据资产
 
-种子 SFT 32480 条(=data_final);原始素材:UserProfile 50万用户 / Pid2Sid 3591万 / Pid2Caption 2106万 / Pid2Tag 541万 / General 通识。详见 `docs/DATA_INVENTORY.md` 与队友全量调研 `docs/hf_raw_data_analysis.md`。
+官方资产包括：平台种子 SFT 32,480 条；`Explorer_LLM_Rec_Competition` 17GB 五表；推荐对齐 Caption/Tag；`OpenOneRec-General-Pretrain`；`OpenOneRec-General-SFT`；指定基座。完整来源、revision、规模和路径只看 `docs/reference/ASSETS.md`。
+
+`Explorer_LLM_Rec_Competition` 五表：UserProfile 50万用户 / Pid2Sid 3591万 / Pid2Caption 2106万 / Pid2Tag 541万 / OneReason_General 15.2万。原始表分析见 `docs/reference/hf_raw_data_analysis.md`。
+
+`OpenOneRec-General-Pretrain` 和 `OpenOneRec-General-SFT` 均为 OpenOneRec 官方发布，与 17GB 五表中的 `OneReason_General` 是不同资产。General-SFT 即使汇集多个开源上游，也不能归类为第三方。
 
 ### ★★2026-07-09 晚官方新发布:SFT 对齐 Caption/Tag 数据(HF `SFT/` 目录)
 
 官方原话:"为便于参赛选手更好地理解预制的懂推荐数据,并进一步构造推荐任务样本。我们在 Hugging Face 发布了与预制 SFT 数据中'懂推荐'部分对齐的 Caption/Tag 数据。该数据提供物料 token 对应的内容描述与类目信息,选手可据此分析用户历史行为和目标内容语义,并**探索不同 CoT 构造方式对推荐任务表现的影响**。"
 
-- **文件**:`SFT/baseline_caption_tag_lists.parquet`(730MB;本地已下 `data/hf_sft_aligned/`)。官方 README 字段:`record_id`(0-19203)/`messages`(原始 SFT messages JSON)/`sid_token_list`/`caption_list`/`tag_list`(三 list 按位置一一对齐,未找到为 null)。
+- **文件**:`SFT/baseline_caption_tag_lists.parquet`(730MB;本地已下 `assets/official/sft_aligned/`)。官方 README 字段:`record_id`(0-19203)/`messages`(原始 SFT messages JSON)/`sid_token_list`/`caption_list`/`tag_list`(三 list 按位置一一对齐,未找到为 null)。
 - **官方口径规模**:19,204 行(=种子懂推荐行 1:1)、SID token 位置 3,539,794。
 - **我方实测(07-09)**:caption 位置覆盖 98.3%、tag 38.3%;**唯一 SID 568,944、其中 97.7% 有 caption**(分域 video 98%/ad 97%/prod 100%/living 99%);caption 长度中位 234、p90 338(叙述式,与评测物料 desc 同风格带 259-424);41,110 个 SID 有多视角 caption;⚠️living 域 caption 多为标签列表体非散文。**与 SFT 对齐 ⇒ 不受 Q5 码本墙约束**(区别于旧 Pid2Sid 的"另一批采样")。
 - **首个衍生品**:`data/processed/cap_grounding_v1.jsonl`(5,441 行 desc→SID 增料,构建器 `scripts/data/build_cap_grounding.py`,md5 `092f7ba5`;模板逐字采样自官方种子物料行,散文过滤+同域同 caption 去矛盾+input 全局唯一,QC 全绿)。

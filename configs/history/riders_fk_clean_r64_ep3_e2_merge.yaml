@@ -1,0 +1,10 @@
+# Temporary merged model for the registered E2 submission gate; delete the
+# export after evaluation, retain this config for reproducibility.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/riders_fk_clean_r64_ep3/checkpoint-706
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/.eval_tmp_riders_fk_clean_r64_ep3/e2
+export_size: 5
+export_device: cpu
+export_legacy_format: false

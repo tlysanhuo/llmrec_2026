@@ -12,7 +12,7 @@
   D. + p2_tail_cover 子集4000(尾部s_a覆盖;控物料总占比防挤占,seed采样)
   E. + p4_evolution 60(演化链首批,欠产待扩)
   F. + world_mc_clean 238(评测逐字模板MC;world已饱和,守格式不图分)
-超参配套 configs/rebal_pstack_ep3.yaml = lr2e-5/3ep/全参(唯一登顶0.9009且物料上过2453的配方)。
+超参配套 configs/history/rebal_pstack_ep3.yaml = lr2e-5/3ep/全参(唯一登顶0.9009且物料上过2453的配方)。
 预登记(07-05):action(±0.005噪声)≥0.095⇒P3生效;物料(零噪声)>0.2146⇒P1/P2×全参生效,
   ≥0.2453⇒历史新高;topic≥0.048⇒P4/P3迁移;ad不指望(0.05±);挤占检查=live/prod/video对0.9009锚点。
 用法: python scripts/data/build_rebal_pstack.py

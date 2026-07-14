@@ -18,7 +18,7 @@ from collections import Counter, defaultdict
 import pyarrow.parquet as pq
 
 SEED = 'data/processed/data_final.jsonl'
-PARQ = 'data/hf_sft_aligned/baseline_caption_tag_lists.parquet'
+PARQ = 'assets/official/sft_aligned/baseline_caption_tag_lists.parquet'
 OUT  = 'data/processed/data_capcot_v1.jsonl'
 TRIP = re.compile(r'<\|\w+?_begin\|><s_a_\d+><s_b_\d+><s_c_\d+>')
 THINK = re.compile(r'<think>(.*?)</think>', re.S)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""build_global_v1_assembly.py — P4 总装(2026-07-07,docs/global_recipe_v1.md 的落地)。
+"""build_global_v1_assembly.py — P4 总装(2026-07-07,ideas/archive/global_recipe_v1.md 的落地)。
 
 合流全部块 → data/processed/data_global_v1.jsonl,并输出对账表。
 质检:①剥内部元数据键;②rec/mat 答案侧 itemic 三元组完整性(T2红线:<s_a 必须跟全 b/c);

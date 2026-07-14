@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 
-ENV = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/deepseek_api.env"
+ENV = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/secrets/deepseek_api.env"
 cfg = dict(l.strip().split("=", 1) for l in open(ENV) if "=" in l and not l.startswith("#"))
 KEY, BASE, MODEL = cfg["YUNWU_API_KEY"], cfg["YUNWU_BASE_URL"], cfg["YUNWU_MODEL"]
 import os as _os

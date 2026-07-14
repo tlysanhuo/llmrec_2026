@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """build_world_mc_clean.py — 清洗队友的 懂世界_from_mc.jsonl(2026-07-05)。
 
-输入: llmrec_2026/懂世界_from_mc.jsonl(272条,队友从评测集样例+公开案例风格蒸馏生成)
+输入: assets/third_party/teammate/懂世界_from_mc.jsonl(272条,队友从评测集样例+公开案例风格蒸馏生成)
 缺陷: ①268/272 think含teacher元叙述(JSON转换指令泄漏) ②34条答案越界(H/BCD多选)
       ③prompt无/no_think尾缀但think为filled(破坏全库不变量,评测强制空think)
 清洗: 剥掉脏think → 逐字节对齐 Frinkleko/评测已证格式:
@@ -15,9 +15,9 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SRC = ROOT / "懂世界_from_mc.jsonl"
-EVAL5 = ROOT / "懂世界.jsonl"
-DST = ROOT / "data" / "processed" / "world_mc_clean.jsonl"
+SRC = ROOT / "assets" / "third_party" / "teammate" / "懂世界_from_mc.jsonl"
+EVAL5 = ROOT / "assets" / "evaluation" / "visible" / "懂世界.jsonl"
+DST = ROOT / "assets" / "derived" / "processed" / "world_mc_clean.jsonl"
 
 ANS = re.compile(r"正确答案是\s*\(?([A-Z]+)\)?\s*$")
 SYS = "你是一个非常聪明的助手，请直接遵循指示作答。"

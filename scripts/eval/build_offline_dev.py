@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """build_offline_dev.py — 离线评测台 v3 的 dev 集构建(一次性,幂等)。
 
-产物 → data/offline_eval/:
-  dev_mat_fresh.jsonl   543  队友 mat_probe_fresh 重排为评测模板(圈外性核验:与 fresh_mat 3000 去重叠)
+产物 → assets/evaluation/offline_eval/:
+  dev_mat_fresh.jsonl   542  队友 mat_probe_fresh 重排为评测模板(圈外性核验:与 fresh_mat 3000 去重叠)
   dev_mat_train.jsonl   300  block_mat 抽样(圈内记忆化对照,不判决)
   dev_rec_{video,prod,ad,live}.jsonl 各1000  rec_loo_v2 分域抽样
   dev_action.jsonl      ~325 r2_gold_v4 + r2_gold_local
@@ -23,7 +23,7 @@ import zipfile
 
 PROJ = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026"
 P = f"{PROJ}/data/processed"
-OUT = f"{PROJ}/data/offline_eval"
+OUT = f"{PROJ}/assets/evaluation/offline_eval"
 os.makedirs(OUT, exist_ok=True)
 rng = random.Random(2026)
 SID = re.compile(r"<\|(video|ad|prod|living)_begin\|><s_a_(\d+)><s_b_(\d+)><s_c_(\d+)>")

@@ -8,20 +8,22 @@
 规则(铁律):任何新训练配置在启动前必须跑本脚本对账锚配置;
 每个差异字段必须能在配置头注释里找到明确理由,找不到=不许启动。
 
-用法: python scripts/train/config_diff.py configs/<新配置>.yaml [configs/rebal_world_ep3.yaml]
+用法: python scripts/train/config_diff.py configs/<新配置>.yaml [configs/history/rebal_world_ep3.yaml]
 退出码: 0=关键字段全部一致或差异已知;1=存在关键字段差异(逐条打印,人工确认后方可启动)
 """
 import sys
 import yaml
 
-ANCHOR = "configs/rebal_world_ep3.yaml"   # 当前线上最高分(0.9009)的完整配方
+ANCHOR = "configs/history/rebal_world_ep3.yaml"   # 当前线上最高分(0.9009)的完整配方
 # 关键字段:改了就可能改变训练物理,必须显式论证
 CRITICAL = [
     "enable_liger_kernel", "bf16", "pure_bf16", "flash_attn",
     "template", "cutoff_len", "packing", "neat_packing",
+    "dataset", "dataset_dir", "val_size",
     "learning_rate", "num_train_epochs", "lr_scheduler_type", "warmup_ratio",
     "weight_decay", "per_device_train_batch_size", "gradient_accumulation_steps",
-    "finetuning_type", "seed", "model_name_or_path", "stage",
+    "finetuning_type", "lora_rank", "lora_alpha", "lora_dropout", "lora_target",
+    "max_grad_norm", "seed", "model_name_or_path", "stage",
 ]
 
 def load(p):

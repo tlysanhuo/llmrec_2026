@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""build_p0_blocks.py — 全局配方v1 的 P0 零成本块(2026-07-07,依据 docs/global_recipe_v1.md)。
+"""build_p0_blocks.py — 全局配方v1 的 P0 零成本块(2026-07-07,依据 ideas/archive/global_recipe_v1.md)。
 
 产出 data/processed/blocks_v1/:
   block_rec_ad.jsonl     ad 全量,CoT行80%转nothink直出(Frinkleko字节机制),20%保留CoT

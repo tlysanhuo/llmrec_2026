@@ -22,6 +22,22 @@ __pycache__/
 # 密钥
 /configs/deepseek_api.env
 /configs/secrets/
+!/configs/evaluation/score_direction_ledger_v1.jsonl
 # 大 PDF 参考文献(公开可下)
 /docs/reference/*
 !/docs/reference/DATA_INVENTORY.md
+!/docs/reference/ASSETS.md
+!/docs/reference/OFFICIAL_DATA_EDA.md
+!/docs/reference/hf_raw_data_analysis.md
+# 官方资产只跟踪稳定符号链接，不跟踪链接指向的大文件内容。
+!/assets/official/seed_sft/*.jsonl
+!/assets/official/seed_sft/dataset.tar.gz
+# data/ 只跟踪分类入口和说明，不跟踪实际数据文件。
+!/data/
+/data/*
+!/data/README.md
+!/data/official
+!/data/derived
+!/data/third_party
+!/data/evaluation
+!/data/processed

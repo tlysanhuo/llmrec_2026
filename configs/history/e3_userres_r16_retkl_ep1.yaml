@@ -1,0 +1,85 @@
+### ABORTED 2026-07-13 UTC: stopped at step 8/1527 with no adapter saved.
+### Root cause: the strict task router incorrectly required </think> on every
+### retention answer, while 101 registered O2.General retention rows have no
+### think wrapper. Never resume or launch this historical config.
+###
+### I-12 v1: task-isolated user residual with E3 behavior retention.
+### User approved implementation on 2026-07-13 UTC.
+###
+### Mechanism:
+### - Load I-10 E3 and merge it into the frozen O6 base.
+### - Create a fresh r16/alpha16 residual; only this residual is trainable.
+### - action/topic rows use per-example gold CE, 2x weight only on the final
+###   closing token and EOS, plus weak 0.05 parent KL.
+### - material/rec/world rows use 2.0 parent KL only. Gold responses define
+###   teacher-forced positions but contribute no CE.
+### - Parent logits come from the same model with the new residual disabled;
+###   only response-region logits are materialized.
+###
+### Registered assets and exact mix:
+### - Base O6 config SHA256:
+###   5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4.
+### - Parent I-10 E3 online 0.9849, adapter SHA256:
+###   37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2.
+### - Dataset data_user_residual_retention_v1, class
+###   D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General),
+###   6,106 rows, SHA256
+###   bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0.
+### - Builder: scripts/data/build_user_residual_retention_v1.py; audit:
+###   logs/data/user_residual_retention_v1_audit.json.
+### - User CE branch: 3,053 rows = action1,752 + topic1,301; all action
+###   histories/targets unchanged; 164 teacher rows unique once; three six-step
+###   topic rows excluded rather than truncated.
+### - Parent-KL branch: 3,053 rows = material desc2sid281 + sid2desc281 +
+###   video/prod/ad/live565 each + D(O2.General) world231.
+### - O2 rule/T/E rows: 0.
+###
+### Decision target, not a score forecast:
+### - Improve action+topic by 0.008-0.012 while keeping the other six displayed
+###   items within 0.002-0.003 of E3. Safety/retention probes do not estimate
+###   online score. This run emits one final residual adapter.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995
+create_new_adapter: true
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 16
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_user_residual_retention_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/user_residual_retention_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/e3_userres_r16_retkl_ep1_residual
+logging_steps: 5
+save_strategy: "no"
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: e3_userres_r16_retkl_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 5.0e-5
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260821

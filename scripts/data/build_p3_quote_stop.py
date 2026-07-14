@@ -60,7 +60,7 @@ from collections import Counter
 import pandas as pd
 
 ROOT = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026"
-HF = f"{ROOT}/data/hf_full/data"
+HF = f"{ROOT}/assets/official/hf_raw"
 OUT_TRAIN = f"{ROOT}/data/processed/p3_quote_stop.jsonl"
 OUT_VAL = f"{ROOT}/data/processed/p3_quote_stop_val.jsonl"
 

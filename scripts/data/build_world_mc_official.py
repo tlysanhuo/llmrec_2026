@@ -3,7 +3,7 @@
 
 源: /tmp/mc_candidates.jsonl(821 条候选,07-04 HF 审计产出;字段 uuid/shard/type/lang/ans)
     → 只取 ans 已机械提取成功(A-D)的 245 条(作答型 84 + 模糊型 161;zh42/en196/other7),
-    按 uuid 回 data/hf_full/data/OneReason_General 的 parquet 取全文。
+    按 uuid 回 assets/official/hf_raw/OneReason_General 的 parquet 取全文。
 若候选文件缺失: --reextract 按同口径直接从 General 重扫(题干含 A-D 选项行 +
     assistant 正文(剥 think)可正则唯一提取答案字母)。
 
@@ -152,9 +152,9 @@ def reextract(src_dir):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--candidates", default="/tmp/mc_candidates.jsonl")
-    ap.add_argument("--src_dir", default=f"{ROOT}/data/hf_full/data/OneReason_General")
+    ap.add_argument("--src_dir", default=f"{ROOT}/assets/official/hf_raw/OneReason_General")
     ap.add_argument("--mc_clean", default=f"{ROOT}/data/processed/world_mc_clean.jsonl")
-    ap.add_argument("--eval_sample", default=f"{ROOT}/懂世界.jsonl")
+    ap.add_argument("--eval_sample", default=f"{ROOT}/assets/evaluation/visible/懂世界.jsonl")
     ap.add_argument("--out", default=f"{ROOT}/data/processed/world_mc_official.jsonl")
     ap.add_argument("--reextract", action="store_true")
     args = ap.parse_args()

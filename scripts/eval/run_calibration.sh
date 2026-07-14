@@ -33,8 +33,8 @@ if [ "$QUEUE" = "A" ]; then LIST=("${A_LIST[@]}"); else LIST=("${B_LIST[@]}"); f
 
 for M in "${LIST[@]}"; do
   TAG=$(basename "$M")
-  if ls logs/offline_eval/"${TAG}"_*.json >/dev/null 2>&1; then
-    echo "[skip] $TAG 已有读数"
+  if ls logs/offline_eval/"${TAG}"_v4_*.json >/dev/null 2>&1; then
+    echo "[skip] $TAG 已有 v4 读数"
     continue
   fi
   echo "[run ] $TAG on GPU$GPU $(date +%H:%M:%S)"

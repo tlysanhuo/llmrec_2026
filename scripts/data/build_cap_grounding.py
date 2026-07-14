@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """build_cap_grounding.py — 官方 Caption → 物料 grounding 增料行 v1(2026-07-09)
 
-原料:官方 SFT 对齐数据 data/hf_sft_aligned/baseline_caption_tag_lists.parquet
+原料:官方 SFT 对齐数据 assets/official/sft_aligned/baseline_caption_tag_lists.parquet
      (19,204 行=种子 rec 行 1:1;56.9 万唯一 SID,97.7% 带官方 caption)。
 产出:data/processed/cap_grounding_v1.jsonl —— desc→SID 增料行,形态与种子物料行
      逐字段同构(instruction/user前缀 采样自种子物料行真实模板;/no_think;空 think;
@@ -14,7 +14,7 @@ import json, re, random, hashlib
 import pyarrow.parquet as pq
 
 SEED_PATH = 'data/processed/data_final.jsonl'
-PARQUET   = 'data/hf_sft_aligned/baseline_caption_tag_lists.parquet'
+PARQUET   = 'assets/official/sft_aligned/baseline_caption_tag_lists.parquet'
 OUT       = 'data/processed/cap_grounding_v1.jsonl'
 QUOTA     = {'video': 2500, 'ad': 2500, 'prod': 500, 'living': 500}
 TRIP_FULL = re.compile(r'^<\|(\w+?)_begin\|><s_a_\d+><s_b_\d+><s_c_\d+>$')

@@ -1,0 +1,10 @@
+### Disposable full-model export for I-12 v3 structural safety gates only.
+### Delete /tmp/e3_userres_r80_retkl_v3_ep1_merged after evaluation.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/e3_userres_r80_retkl_v3_ep1
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/e3_userres_r80_retkl_v3_ep1_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

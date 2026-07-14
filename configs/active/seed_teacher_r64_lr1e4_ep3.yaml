@@ -1,0 +1,98 @@
+### I-10 revised performance trajectory: O1 plus accepted teacher labels only.
+###
+### The previous 1,000 O2 rule labels are excluded. On 164 accepted teacher
+### labels from the same source pool, the rule generator has mean set-F1 0.0429;
+### among rows matching the I-09 filter, mean F1 is 0.0813 with 32/42 zero
+### overlap. This is a label-level rejection, not a model-output heuristic.
+###
+### Expected score shape (analysis, not a guarantee or stable anchor):
+### - center 0.96-0.98, downside around 0.92, upside near 0.99;
+### - the main branches are material 7/8 hits and action 0.09-0.115;
+### - recommendation/topic targets are all preserved and world relies on the
+###   frozen O6 base plus low-rank adaptation.
+###
+### Training trajectory:
+### - Start from O6; do not warm-start either aborted or locally rejected runs.
+### - r64/alpha64/dropout0.05 follows the only r64 trajectory with an online E2.
+### - cutoff16k gives about twice the optimizer steps per epoch of the old 32k
+###   trajectory, so peak lr1e-4 approximately matches its lr2e-4 cumulative
+###   cosine dose at each epoch.
+### - Save adapter-only E1/E2/E3. E2 is the prior primary candidate; E3 is kept
+###   because the user explicitly requested all three checkpoints.
+###
+### Asset ledger finalized before launch:
+### - Base: O6 OneReason-0.8B.
+### - Dataset: data_seed_teacher_v1, class
+###   D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag); no T/E rows.
+### - O1 upstream data_final.jsonl: 32,480 rows, SHA256
+###   995efe62ee98b44c28175a444849e51c3ebbbc9c1b9e83fc83146f09024f8f71.
+### - O2 teacher upstream action_distill_v5.jsonl: 164 rows, SHA256
+###   cb020185132c9ad06ee847798bc8d78e546cd8f5a77cae323f5d802f2dd3f189.
+### - Builder: scripts/data/build_seed_o2_action_v1.py --rule-rows 0.
+### - Output: 32,644 rows, SHA256
+###   13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f.
+### - Row mix: O1 32,480 (99.497611%); O2 teacher 164 (0.502389%);
+###   O2 rule 0. All O2 labels are unique and used once per epoch.
+### - Target tokens: 5,854,621 total; action 147,822 (2.524877%).
+### - O1 transformations: 12,744 redundant recommendation CoTs converted to
+###   no-think while all targets remain; 602 topic rows aligned to no-think.
+### - Leakage gate: all 354 registered E source indices excluded; overlap 0.
+### - Audits: logs/data/seed_teacher_v1_audit.json and
+###   logs/data/action_rule_vs_teacher_audit.json.
+###
+### Completed 2026-07-12 UTC:
+### - GPU1, 2,657 packed examples, 665 optimizer steps/epoch, 1,995 total.
+### - Runtime 4,711.6822s; train loss 1.3583397495; exit code 0.
+### - W&B online run ev401ys9:
+###   https://wandb.ai/3120252125-/llmrec-2026/runs/ev401ys9
+### - E1 step665 SHA256 c1bfb4dada8260560327a5ce3a9a15cbb29c0249421616bb1a9d95d9dc11add8.
+### - E2 step1330 SHA256 c4902871c31f1a29b895b3990b2af573808cfecef2a5e483720ce1e60b1ac267.
+### - E3 step1995 SHA256 37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2.
+### - The root final adapter is byte-identical to E3. No optimizer, scheduler,
+###   or RNG-state files were retained.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_seed_teacher_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/seed_teacher_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_r64_lr1e4_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_teacher_r64_lr1e4_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-4
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

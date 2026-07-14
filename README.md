@@ -1,72 +1,99 @@
-# 快手 LLM-Rec 2026 — 团队工作仓(初赛)
+# LLM-Rec 2026 竞赛工程
 
-> 本仓 = 文档 + 全部可复现脚本/配方。**不含**数据成品与权重(用 `scripts/data/` 重建)、评测日志、任何密钥。
-> 当前最高分:**riders_fk_lora_ep1 = 0.9177**(2026-07-06)。
-> 当前最新实验:`stage2_gold_v1_lora_ep1`(2026-07-11)已训练并在提交前门禁中否决,**未上传**。它从 `seed_ep3` 8题物料基座增量 LoRA,真实 action 可见题 0/5 JSON,物料样例3签名由 `55/18` 降至 `14/7`;不得作为候选包或 warm start。
-> `quality_swap_v1_lora_ep1` 线上 0.8235 已证伪；`official_rec_v3_lora_ep1` 线上 0.7948 已证伪；`global_v1_lora_ep1` 线上 0.8246 已证伪；`evalform_v1_lora_ep1` 线上 0.7571 已证伪(2026-07-09)。不要继续沿“替换 riders 底盘官方形态数据/官方 UserProfile 推荐重构/rec 行评测形态转写”加码；`ally_map_v2_lora_ep1` 只保留为独立候选,启动前必须重审。
+基座为 `OneReason-0.8B`。目标是通过 SFT/LoRA 提升 8 个加权子项：懂物料 1 项、懂用户 2 项、懂推荐 4 项、懂世界 1 项。
 
-## ★ 先读:面板域序重标(2026-07-06 官方 FAQ 定案)
+## 当前状态
 
-平台评测面板四个"懂推荐"列从左往右 = **短视频(video)、电商(prod)、广告(ad)、直播(live)**。
-在此之前我们(可能也包括你)按 ad/live/prod/video 误读。**读任何历史记录先过换算表**:
+- 2026-07-13下午平台修复评测不稳定问题。仓内日志证明协议切换发生在I-10 E3（11:45，旧）与I-11（16:40，新）之间：旧日志action上限4096且itemic只跑1次beam64；新日志action上限1024且itemic执行7次`Race averaged evaluation`。两边虽然都打印`version: v3.1`，仍必须隔离为`platform-pre-fix-v3.1`与`platform-stable-v3.1-20260713`，禁止直接做分数差。
+- 旧协议最高单次显示分是`seed_teacher_r64_lr1e4_e3 = 0.9849`；I-10同轨迹E1/E2/E3=`0.9100/0.9680/0.9849`只保留为旧协议内部剂量曲线。E3的固定协议桥仍未建立，不能用旧0.9849直接压过新协议候选；用户已裁定不消耗本轮最后一次配额做重测。
+- 固定协议结果为I-11/I-12/I-13/I-14 E3=`0.9618 → 0.9768 → 0.9978 / 0.9518`。I-13相对I-12总分`+0.0210`，action/topic=`-0.0023/-0.0003`，video/prod/ad/live=`+0.0288/-0.0068/0/+0.0009`，world=`+0.0007`；当前固定协议主模型为I-13。I-14按评测时间归入修复后协议，但原始日志指纹尚未复核。
+- I-13只把I-12的r16用户残差缩到`0.875`，不重训。线上结果验证了本地Pareto选择的总分方向，但收益来自推荐四项合计`+0.0229`抵消用户两项合计`-0.0026`，不能解释成用户能力提升；E3固定协议桥仍缺失，继续禁止与旧协议0.9849作差。
+- I-14从O6干净训练纯`D(O1)`单体r80，E3线上0.9518；它不含teacher、第三方、评测回灌或参数拼接。相对I-13的差值只回答榜分替换问题，不能拿融合灰区模型作纯O1路线的科学基线；更接近的I-11仍有teacher、续训和rank混杂。
+- 2026-07-14复读官方赛题解析、HF数据说明和OneReason技术报告后，暂停“相近SFT adapter之间的朴素蒸馏”。I-14推荐CoT/UnCoT=`6,460/12,744`，与官方SFT报告的`29.56万/58.80万`几乎同配比；下一步先审计R1、itemic instruction、通用保持、官方三阶段CoT与RFT/MOPD的结构缺口，不照搬论文比例，也不启动未准入训练。
+- `seed_scoremax_r32_ep1` 已完成单卡 1 epoch 训练和结构门禁：action 可见题 0/5 闭合、5/5 触顶，material 单题签名 41/14 未进入历史 8 题档；后验中点约 0.92，本地不建议占用提交次数。
+- 90%涨跌判决仍为 `NOT_CERTIFIED`。E1 的冻结输出是 `ABSTAIN`，没有声称错误方向；但本地门禁选 E1、拒 E2，而线上排序相反，证明现有门禁不能可靠选择 checkpoint。协议与台账见 `docs/offline_eval.md` §9。
+- O1–O6 官方数据 EDA 已封板；I-07 已验证“仅提高 action 样本/target 占比”仍不能解决长数组终止。Caption/Tag 与 General 均保持研究项，不据此自动启动下一轮训练。
 
-| 面板列 | 真实域 | 每命中分值(量子) | 观测天花板 |
-|---|---|---|---|
-| rec 第1列 | video | 0.0096 | 10 命中(lr1e-4 制度) |
-| rec 第2列 | prod | 0.0034 | 40(seed 3ep) |
-| rec 第3列 | ad | 0.0014 | 107(lr1e-6 LoRA) |
-| rec 第4列 | live | 0.0009 | 122(riders) |
+活跃假设、选手分享和失败方案统一见 [`ideas/`](ideas/README.md)。
 
-物料量子 0.0307(1 题=3.2 个 video 命中)。各 rec 域题量相同(~1000/域),量子差=官方难度权重。
-**核心矛盾改写:跷跷板 = 物料 ↔ video**(低 lr 多 epoch 全参把 video 打到 4-7;LoRA/高 lr 保 video)。ad 从来没塌过。
+## 官方资产
 
-## 当前最优配方(0.9177,可全复现)
+唯一台账：[`docs/reference/ASSETS.md`](docs/reference/ASSETS.md)。
 
-数据(37267 条,`scripts/data/build_riders_fk.py`):
-- Frinkleko 重组种子 32705(同 prompt 同 think 组留 1 条、其余转 nothink 直出 + CEval 1573)——HF 公开数据集,0.9107 线上验证
-- - world_zh 2824(通识,两次线上验证 +0.011/+0.013)
-- - P3 quote-and-stop 1500(action 专项)+ world_mc 238(MC 格式锚,治复制训练把选择题带崩)
+| ID | 官方资产 | 固定入口 |
+|---|---|---|
+| O1 | 平台预制种子 SFT，12 文件、32,480 条 | `assets/official/seed_sft/` |
+| O2 | Explorer 17GB 原始五表 | `assets/official/hf_raw/` |
+| O3 | 与预制“懂推荐”对齐的 Caption/Tag | `assets/official/sft_aligned/` |
+| O4 | `OpenOneRec-General-Pretrain` | `assets/official/general_pretrain/` |
+| O5 | `OpenOneRec-General-SFT` | `assets/official/general_sft/` |
+| O6 | 竞赛指定 OneReason-0.8B 基座 | `assets/official/base_model/` |
 
-训练(`configs/riders_fk_lora_ep1.yaml`):LoRA r32/α32/dropout0.05,lr 2e-4,**1 epoch**,seq32768,packing,qwen3_nothink 模板,liger on。30 分钟/单卡。
-面板(重标后):mat 7题 / action 0.0655 / topic 0.0427 / video 8 / prod 37 / ad 99 / live 122 / world 0.1439。
+注意：O4/O5 是 OpenOneRec 官方发布。即使 O5 内部汇集多个开源数据源，也仍属于官方资产，不能归为第三方。
 
-## 毒物清单(都有线上真分尸检,勿再踩)
+## 训练铁律
 
-1. **重复上采样**(纯复制样本 2.76×):物料 2146→1840,全线下跌(rebal_mat 0.8454)。上采样必须造新样本。
-2. **HF 墙外物料数据**(desc→SID 的 item 不在种子分布内):把映射函数整体拽偏,物料直坠 1533(pstack_v2 0.8265)。官方 FAQ Q5 已解释:SFT/评测物料与 HF 是两批采样,**HF 物料永远覆盖不到评测题**。48k/8947 物料数据同判。
-3. **全域剥 CoT**:懂世界归零(recipe3)。ad 域单独剥未测。
-4. **focal loss γ=2**:itemic 结构断裂+选择题崩,零收益(rebal_focal)。
-5. **解冻 embedding/lm_head**:接口层漂移打断全部冻结回路,物料掉档+video 跌回(fk_lora_embed 0.8672)。
-6. **答案截断式数据**(答案止于 s_b 无 s_c):教会模型提前终止,ad −13 命中(tokengeo 0.8338)。
-7. **低 lr(2e-5)多 epoch 全参**:物料最强(8 题)但 video 交死税(4-7 命中,−0.03)。
-8. **复制类训练(P3 等)不配 MC 锚**:选择题吐占位符,world 崩(rebal_pstack 未传)。P3:MC 锚 ≈ 1500:1800 安全。
-9. **rec 行评测形态转写**(题面模板+答案前缀换成评测形态,gold/历史/CoT 不动):被转写的 rec 四域全部大跌(video −3/prod −14/ad −25/live −23 命中)+物料陪跌 1 题,未动的域持平(evalform_v1 0.7571)。“训练形态贴评测形态”在 0.8B×LoRA1ep 下是毒不是药。
-10. **平台精调 loss × 过高 lr(2e-4)**:精度任务全塌(物料 7→5 题、video −2、prod −8),ad/live 反升,总分 −0.095(riders_fk_plat_ep1 0.8229)。⚠️07-09 判决修正:平台加权 loss 本身未定罪——剂量倒 U(lr1e-6=7 题欠冲 / OneThree 平台 1ep=8 题 / 我方 2e-4=5 题过冲),**毒的是"加权 loss×大 lr"组合**;平台臂按"找内部最优剂量"重开。focal 不治复读已定案。
-11. **P3-v2 长 k/搜索合成加码**:在 riders 上追加2,599行后 action 0.0655→0.0573、action耗时34m45s→41m42s(`riders_act_v1` 0.8835)。程序筛选任务不能替代官方语义主题选择;P3只能作小剂量格式锚。
-12. **8题物料基座上的高剂量全任务 no-think 增量 LoRA**:`stage2_gold_v1_lora_ep1` 用8,030行、lr1e-4×1ep继续训练 `seed_ep3`,虽不含物料行,仍把真实 action 可见题打成0/5 JSON,物料 beam 签名降至14/7。"增量集不含物料即可冻结物料能力"在当前挂载方式/剂量下不成立。
+1. 单卡训练；epoch 数与学习率日程必须由训练轨迹决定，不设统一的 1 epoch 上限。
+2. 单点实验只保留最终 adapter；连续多 epoch 轨迹可按 epoch 保存 adapter-only checkpoint，用于选择训练时点。
+3. 默认只使用官方资产；`assets/third_party/` 未经明确批准禁止引用。
+4. 每次实验只改变一个主要变量，先在 `ideas/README.md` 写预期子项和失败条件。
+5. 正式训练必须记录 W&B，训练结束立即登记数据、配置、adapter 哈希和门禁结论。
+6. 门禁失败的模型不续训、不 warm start、不占线上配额。
 
-## 有效部件(线上验证,可叠加)
+## 快速入口
 
-- Frinkleko nothink 重组(官方 Tips 点名 CoT/UnCoT 配比方向)/ LoRA r32 lr2e-4 1ep 制度(保 video+ad 先验)
-- world_zh 2824(+0.011~0.013)/ CEval+world_mc 选择题锚 / P3 1500(action +0.02~0.035,制度相关)
-- 多 epoch(3-5)全参:物料 8 题唯一持有者,但 video 交税——制度二选一
-- 纯种子 5ep:ad +6 命中(95→101),物料墙 8 题(4/5ep 分毫不差,遍数手段报废)
+训练环境：
 
-## 读分纪律
+```bash
+source /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/.venv/bin/activate
+nvidia-smi
+```
 
-- 每日 3 次评测,**账号级共享**,北京 15:00 刷新;**评估须 12:00 前结束**→上传实操截止≈10:30。只收 **bf16**。
-- 方差(自测标定+官方承认):总分 ±0.03 内比较无效;video 列 ±2 命中不作数;物料/ad/live 接近零噪声;分项同涨才可信。
-- 格点读分:分数 = 命中数 × 量子,先换算成整数命中数再比较。
+获批配置的单卡启动形式：
+
+```bash
+WANDB_ENTITY=3120252125- WANDB_PROJECT=llmrec-2026 \
+  scripts/train/launch_wandb_online.sh 0 configs/active/<approved_run>.yaml
+```
+
+启动器会拒绝任何非 online 模式，并在训练前验证 W&B 登录。正式训练只有在 W&B 服务端显示 `running` 且收到首个指标点后，才登记为“已启动”。训练配置必须使用单卡并设置 `report_to: wandb`；多轮轨迹如按 epoch 保存，必须使用 adapter-only checkpoint 并限制保留数量。
+
+开始工作前的结构门禁：
+
+```bash
+scripts/audit_workspace.sh
+```
 
 ## 目录
 
-- `docs/experiment_log.md` 全部实验+归因(顶部有重标警告);`docs/EXPERIMENT_INDEX.md` 产物对账
-- `docs/platform_guide.md` 平台/官方 FAQ/评测机制;`docs/TODO.md` 在制品
-- `scripts/data/` 全部数据构建器(R2/P3/world_zh/rebal/riders/蒸馏);`scripts/eval/` precheck+offline_probe+日志分析
-- `configs/` 全部训练配方 yaml(锚配置 config_diff 对账:`scripts/train/config_diff.py`)
+```text
+assets/       官方、派生、第三方、评测资产的固定入口
+data/         兼容入口，不存独立副本
+ideas/        活跃 idea、选手/队友分享、EDA 与历史方案
+configs/      训练与合并配置
+scripts/      数据构造、训练、评测和打包脚本
+docs/         平台规则、实验台账、评测规范和工作区说明
+models/       官方基座链接
+checkpoints/  仅保留当前需要的最终 checkpoint
+submissions/  运行卷提交包链接
+logs/         训练、门禁和线上评测日志链接
+wandb/        W&B 本地运行记录链接
+```
 
-## 环境速记
+## 必读文档
 
-训练:LLaMA-Factory 0.9.6 + torch2.7 venv,单卡 H100 即可;推理探针:vllm 0.12 env。
-数据原料:HF `OpenOneRec/Explorer_LLM_Rec_Competition`(17G)+ 官方种子 SFT;index 用 `scripts/data/build_item_index.py` 重建。
-蒸馏 teacher:DeepSeek v4-flash(合规:官方允许蒸馏,需留数据供复现——脚本+产物都在)。
+- [`ideas/README.md`](ideas/README.md)：下一步做什么以及为什么。
+- [`docs/platform_guide.md`](docs/platform_guide.md)：官方规则与评测机制。
+- [`docs/experiment_log.md`](docs/experiment_log.md)：线上分数和实验归因。
+- [`docs/EXPERIMENT_INDEX.md`](docs/EXPERIMENT_INDEX.md)：当前模型、配置和提交包。
+- [`docs/reference/ASSETS.md`](docs/reference/ASSETS.md)：官方数据边界与物理位置。
+- [`docs/reference/OFFICIAL_DATA_EDA.md`](docs/reference/OFFICIAL_DATA_EDA.md)：O1–O6 全量 EDA、数据漏洞、可用 trick、禁止路线与复现口径。
+- [`docs/offline_eval.md`](docs/offline_eval.md)：离线门禁、历史校准和90%选择性判决协议。
+
+## 当前禁止事项
+
+- 不保存未登记、无训练时点选择用途或包含 optimizer state 的中间 checkpoint。
+- 不从失败 checkpoint 继续训练。
+- 不把平台可见题或离线评测题回灌训练。
+- 不因为数据已下载就自动混入 General 或第三方数据。
+- 不使用未经登记的数据文件启动正式训练。

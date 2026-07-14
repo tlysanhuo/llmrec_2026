@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""calibrate_offline.py — 离线台 v3 保真度报告(docs/offline_eval.md §3 协议)。
+"""calibrate_offline.py — 同协议离线台保真度报告。
 
 读 logs/offline_eval/*.json(每锚取最新)× 内嵌线上真值表 → 逐维:
   Spearman ρ + 超噪声对判对率 → 判定(可判决/仅方向/盲区)
-真值表:15 次平台面板,rec 四域已按 07-06 官方列序重标(video/prod/ad/live),
+真值表:历史平台面板,rec 四域已按 07-06 官方列序重标(video/prod/ad/live),
        题数 = 分数/量子(mat .030693 video .009614 prod .003401 ad .0014 live .0009)。
 rebal_world 同 ckpt 两面板取均值(方差标定对)。
 输出:控制台 markdown + logs/offline_eval/calibration_report.md
@@ -12,6 +12,7 @@ import glob
 import json
 import os
 import re
+import argparse
 from collections import defaultdict
 
 PROJ = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026"
@@ -47,7 +48,11 @@ TRUTH = {
         dict(total=0.8672, mat=6, video=7, prod=35, ad=95, live=115, action=0.0756, topic=0.0429, world=0.1420),
     "riders_fk_lora_ep1_merged":
         dict(total=0.9177, mat=7, video=8, prod=37, ad=99, live=122, action=0.0655, topic=0.0427, world=0.1439),
-    # global_v1_lora_ep1_merged: 仅总分 0.8246,无分项面板,不入逐维校准
+    "global_v1_lora_ep1_merged":
+        dict(total=0.8246, mat=7, video=7, prod=29, ad=87, live=115, action=0.0438, topic=0.0357, world=0.1394),
+    # 该模型只完成了 legacy-v3 world，其他离线维度会自动跳过。
+    "seed_cotfix_v1_lora_ep1":
+        dict(total=0.8674, mat=7, video=8, prod=36, ad=97, live=123, action=0.0683, topic=0.0452, world=0.0937),
 }
 
 # 维度: (离线读数取值函数, 线上键, 超噪声判据 = 线上|Δ|下限)
@@ -89,18 +94,31 @@ def spearman(a, b):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--protocol",
+        default="legacy-v3",
+        help="legacy-v3 accepts only reports without protocol_version; otherwise require an exact version",
+    )
+    args = parser.parse_args()
     latest = {}
     for fp in sorted(glob.glob(f"{PROJ}/logs/offline_eval/*.json")):
         try:
             r = json.load(open(fp))
         except Exception:
             continue
+        report_protocol = r.get("protocol_version")
+        if args.protocol == "legacy-v3":
+            if report_protocol is not None:
+                continue
+        elif report_protocol != args.protocol:
+            continue
         tag = r.get("tag", "")
         if tag.startswith("smoke"):
             continue
         latest[tag] = r  # sorted → 后者覆盖 = 最新
 
-    lines = ["# 离线台 v3 校准报告", "",
+    lines = [f"# 离线台校准报告 ({args.protocol})", "",
              f"锚数(有离线读数且有线上面板): 见各维 n | 生成: {__import__('datetime').datetime.now().isoformat()[:19]}", "",
              "| 维 | n锚 | Spearman ρ | 超噪声对 | 判对率 | 判定 |", "|---|---|---|---|---|---|"]
     verdicts = {}
@@ -147,9 +165,11 @@ def main():
 
     out = "\n".join(lines)
     print(out)
-    with open(f"{PROJ}/logs/offline_eval/calibration_report.md", "w") as f:
+    suffix = "" if args.protocol == "legacy-v3" else "_" + re.sub(r"[^a-zA-Z0-9_-]+", "_", args.protocol)
+    report_path = f"{PROJ}/logs/offline_eval/calibration_report{suffix}.md"
+    with open(report_path, "w") as f:
         f.write(out + "\n")
-    print(f"\nsaved -> logs/offline_eval/calibration_report.md")
+    print(f"\nsaved -> {os.path.relpath(report_path, PROJ)}")
 
 
 if __name__ == "__main__":

@@ -44,7 +44,7 @@ def extract_text(content):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--src_dir", default="/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/data/hf_full/data/OneReason_General")
+    ap.add_argument("--src_dir", default="/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/official/hf_raw/OneReason_General")
     ap.add_argument("--out", required=True)
     ap.add_argument("--cn_ratio", type=float, default=0.5)
     ap.add_argument("--min_len", type=int, default=50)

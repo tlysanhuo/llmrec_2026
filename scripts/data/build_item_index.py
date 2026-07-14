@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """build_item_index.py — 从官方 17GB 原始数据建 pid -> sid / caption / tag 全局索引。
 
-产出(存运行区 data/index/):
+产出(存运行区 assets/derived/index/):
   pid2sid.parquet   : columns [key, s_a, s_b, s_c]   key = f"{domain}|{pid}"
   pid2caption.parquet: columns [key, caption]
   pid2tag.parquet   : columns [key, tag_lv3]
@@ -22,8 +22,8 @@ import time
 
 import pandas as pd
 
-HF = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/hf_full/data"
-OUT = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/index"
+HF = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/official/hf_raw"
+OUT = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/derived/index"
 
 # 原始 domain -> itemic-token 前缀域
 DOMAIN_MAP = {

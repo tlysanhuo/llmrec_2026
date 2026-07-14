@@ -174,7 +174,7 @@ for pid, raw, desc, sid, dom in descs:
     need[pid] = (raw, tuple(sid), desc)
 assert len(need) == len(descs), "pid 重复!"
 sid_ok, cap_ok = set(), set()
-for f in sorted(glob.glob(f"{base}/data/hf_full/data/OneReason_Pid2Sid/*.parquet")):
+for f in sorted(glob.glob(f"{base}/assets/official/hf_raw/OneReason_Pid2Sid/*.parquet")):
     t = pq.read_table(f)
     for p, dm, s in zip(t["pid"].to_pylist(), t["domain"].to_pylist(),
                         t["sid_three"].to_pylist()):
@@ -182,7 +182,7 @@ for f in sorted(glob.glob(f"{base}/data/hf_full/data/OneReason_Pid2Sid/*.parquet
         if got and dm == got[0] and s and len(s) == 3 \
                 and tuple(int(x) for x in s) == got[1]:
             sid_ok.add(p)
-for f in sorted(glob.glob(f"{base}/data/hf_full/data/OneReason_Pid2Caption/*.parquet")):
+for f in sorted(glob.glob(f"{base}/assets/official/hf_raw/OneReason_Pid2Caption/*.parquet")):
     t = pq.read_table(f)
     for p, dm, cp in zip(t["pid"].to_pylist(), t["domain"].to_pylist(),
                          t["caption"].to_pylist()):

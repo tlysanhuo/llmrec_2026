@@ -28,7 +28,7 @@ spec.loader.exec_module(v1)
 
 OUT_TRAIN = f"{ROOT}/data/processed/p3_v2_extra.jsonl"
 OUT_VAL = f"{ROOT}/data/processed/p3_v2_extra_val.jsonl"
-CAP_PARQUET = f"{ROOT}/data/hf_sft_aligned/baseline_caption_tag_lists.parquet"
+CAP_PARQUET = f"{ROOT}/assets/official/sft_aligned/baseline_caption_tag_lists.parquet"
 
 FEWSHOT_V2 = (
     "输出示例为（注意：以下案例来自其他用户，仅供参考输出格式，与上述用户交互历史无关）： "

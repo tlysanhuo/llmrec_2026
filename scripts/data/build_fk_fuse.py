@@ -8,7 +8,7 @@ fresh_mat 6000 条训练集外新物料样本,攻"物料=多样曝光量"阶梯)
 
 输入(全部既有产物,各自可复现):
   1. data/processed/frinkleko_alpaca_32705.jsonl — 官方 convert_jsonl.py 转换自
-     data/frinkleko_sft_091/train.jsonl(不 shuffle,保持其 seed=42 原序)
+     assets/third_party/frinkleko_sft_091/train.jsonl(不 shuffle,保持其 seed=42 原序)
   2. data/processed/world_zh.jsonl      — 16237 条中文通识池,采样 N_WORLD 条(seed 固定)
   3. data/processed/fresh_mat.jsonl     — 6000 条全部并入;修正:input 补 '/no_think' 尾缀
      (其 output 为空think直出,按全库不变量 /no_think⇔空think;原文件漏了尾缀)

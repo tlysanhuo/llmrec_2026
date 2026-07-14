@@ -2,6 +2,7 @@
 """Replay the visible action-select prompts printed in a platform eval log."""
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -20,14 +21,19 @@ ITEM_RE = re.compile(
 def parse_visible_prompts(log_path: Path, limit: int) -> list[dict]:
     text = ANSI_RE.sub("", log_path.read_text(encoding="utf-8", errors="replace"))
     task_match = re.search(
-        r"Task \[\d/8\]: challenge_evolution_action_select", text
+        r"Task \[\d/8\]:\s*challenge_evolution_action_select\s*\|\s*Split:\s*test",
+        text,
     )
     if task_match is None:
         raise ValueError(f"action-select task not found in {log_path}")
-    task_start = task_match.start()
-    samples_start = text.find("Sample ID:", task_start)
-    task_end = text.find("Task [3/8]", samples_start)
-    section = text[samples_start:task_end if task_end >= 0 else None]
+    samples_start = text.find("Sample ID:", task_match.end())
+    next_task = re.search(
+        r"Task \[\d/8\]:\s*challenge_evolution_topic_gen\s*\|\s*Split:\s*test",
+        text[samples_start:],
+    )
+    if samples_start < 0 or next_task is None:
+        raise ValueError(f"action-select sample boundaries not found in {log_path}")
+    section = text[samples_start:samples_start + next_task.start()]
 
     matches = list(re.finditer(r"Sample ID: (\d+)\nInput:\n", section))
     prompts = []
@@ -36,9 +42,16 @@ def parse_visible_prompts(log_path: Path, limit: int) -> list[dict]:
         if block_end < 0:
             continue
         prompt = section[match.end():block_end].strip("\n")
+        if "【用户交互历史】" not in prompt or "请回答以下问题" in prompt:
+            raise ValueError(
+                f"sample {match.group(1)} is not an action-select prompt in {log_path}"
+            )
         prompts.append({"sample_id": int(match.group(1)), "prompt": prompt})
-    if not prompts:
-        raise ValueError(f"no visible action prompts parsed from {log_path}")
+    expected = min(limit, 5)
+    if len(prompts) != expected or len({item["sample_id"] for item in prompts}) != expected:
+        raise ValueError(
+            f"expected {expected} unique action prompts, parsed {len(prompts)} from {log_path}"
+        )
     return prompts
 
 
@@ -56,30 +69,36 @@ def parse_array(output: str):
 
 
 def analyze_output(prompt: str, output: str, generated_tokens: int, max_new_tokens: int):
+    body = output.split("</think>", 1)[-1]
     values = parse_array(output)
-    strings = [value for value in values or [] if isinstance(value, str)]
-    positions = [prompt.find(value) for value in strings]
+    json_strings = None if values is None else [value for value in values if isinstance(value, str)]
+    occurrences = ITEM_RE.findall(body)
+    positions = [prompt.find(value) for value in occurrences]
     quoted = [position >= 0 for position in positions]
     ordered_positions = [position for position in positions if position >= 0]
-    ordered = all(
-        left <= right for left, right in zip(ordered_positions, ordered_positions[1:])
-    )
-    counts = Counter(strings)
-    item_values = [value for value in strings if ITEM_RE.fullmatch(value)]
+    ordered = None
+    if ordered_positions:
+        ordered = all(
+            left <= right for left, right in zip(ordered_positions, ordered_positions[1:])
+        )
+    counts = Counter(occurrences)
     return {
         "json_array": values is not None,
-        "n_values": len(strings),
-        "n_unique": len(counts),
-        "duplicate_values": len(strings) - len(counts),
+        "json_value_count": None if json_strings is None else len(json_strings),
+        "json_item_count": None
+        if json_strings is None
+        else sum(ITEM_RE.fullmatch(value) is not None for value in json_strings),
+        "item_occurrences": len(occurrences),
+        "unique_items": len(counts),
+        "duplicate_item_occurrences": len(occurrences) - len(counts),
         "max_repeat": max(counts.values(), default=0),
         "quoted_from_prompt": sum(quoted),
-        "quote_rate": sum(quoted) / len(strings) if strings else 0.0,
+        "quote_rate": sum(quoted) / len(occurrences) if occurrences else None,
         "quoted_in_history_order": ordered,
-        "item_values": len(item_values),
-        "text_values": len(strings) - len(item_values),
         "generated_tokens": generated_tokens,
         "hit_token_limit": generated_tokens >= max_new_tokens,
         "output_chars": len(output),
+        "output_sha256": hashlib.sha256(output.encode()).hexdigest(),
     }
 
 
@@ -132,14 +151,21 @@ def main():
             record["prompt"], output, len(new_ids), args.max_new_tokens
         )
         metrics["sample_id"] = record["sample_id"]
+        metrics["prompt_chars"] = len(record["prompt"])
+        metrics["prompt_md5"] = hashlib.md5(record["prompt"].encode()).hexdigest()
         metrics["seconds"] = round(elapsed, 3)
         metrics["output_preview"] = output[:500]
+        metrics["raw_output"] = output
         results.append(metrics)
         print(json.dumps(metrics, ensure_ascii=False))
 
     summary = {
+        "parser_version": "action-visible-v3-occurrence-safe",
+        "task": "challenge_evolution_action_select",
         "model": str(Path(args.model).resolve()),
         "source_log": str(Path(args.log).resolve()),
+        "prompt_source": "platform-log-display-reconstructed",
+        "backend": "transformers-flash_attention_2",
         "seed": args.seed,
         "max_new_tokens": args.max_new_tokens,
         "samples": results,
@@ -147,7 +173,9 @@ def main():
             "json_ok": sum(item["json_array"] for item in results),
             "token_limit": sum(item["hit_token_limit"] for item in results),
             "all_quoted": sum(item["quote_rate"] == 1.0 for item in results),
-            "all_ordered": sum(item["quoted_in_history_order"] for item in results),
+            "all_ordered": sum(item["quoted_in_history_order"] is True for item in results),
+            "item_occurrences": sum(item["item_occurrences"] for item in results),
+            "unique_items_across_samples_sum": sum(item["unique_items"] for item in results),
             "generated_tokens": sum(item["generated_tokens"] for item in results),
             "seconds": round(sum(item["seconds"] for item in results), 3),
         },

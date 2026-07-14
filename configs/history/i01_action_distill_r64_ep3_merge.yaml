@@ -1,0 +1,10 @@
+# Temporary merged model for post-training structural and action gates.
+# The export is disposable; the adapter and this config are retained.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i01_action_distill_r64_ep3
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/.eval_tmp_i01_action_distill_r64_ep3/final
+export_size: 5
+export_device: cpu
+export_legacy_format: false

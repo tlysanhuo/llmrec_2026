@@ -1,0 +1,82 @@
+### I-07: performance-first O1-only score-max run, approved 2026-07-12.
+### audit_workspace_exception: retained historical checkpoint is missing; this
+### run is independent and starts only from the registered O6 base.
+###
+### Mechanism:
+### - Preserve every O1 target and the recommendation multi-positive structure.
+### - Keep one original recommendation CoT per prompt group; route the other
+###   12,744 targets through /no_think for the evaluator's second beam path.
+### - Align all topic rows to the evaluator's /no_think path.
+### - Add two label-preserving, chronologically ordered hard-negative history
+###   views for each of the 1,539 monotonic O1 action rows. No teacher labels.
+###
+### Score estimate before training (official order):
+### material/action/topic/video/prod/ad/live/world
+### expected weighted midpoint ~= 0.230/0.100/0.044/0.086/0.129/0.137/0.110/0.140
+### total midpoint ~= 0.976; likely range 0.94-1.00; material 8-hit branch ~=0.99.
+### This is a performance estimate, not a claim of a stable reference score.
+###
+### Asset ledger, finalized before launch:
+### - Base: O6 OneReason-0.8B.
+### - Dataset: data_seed_scoremax_v1, class D(O1), no T/E rows.
+### - Upstream: D(O1) data_final.jsonl, 32,480 rows, SHA256
+###   995efe62ee98b44c28175a444849e51c3ebbbc9c1b9e83fc83146f09024f8f71.
+### - Builder: scripts/data/build_seed_scoremax_v1.py.
+### - Output: 35,558 rows, SHA256
+###   7df558a8c08517667f2eab4fc283f2eddfaf7efde16874099a61d63574861cb3.
+### - Row mix: O1 preserved 32,480 (91.343720%); O1 action views 3,078
+###   (8.656280%). Views change history negatives, not semantic labels.
+### - Target tokens: 6,115,749 total; action 408,950 (6.686834%);
+###   rec video/prod/ad/live 45.006818/10.223523/10.641673/9.594442%;
+###   topic 5.934760%; material desc2sid/sid2desc 1.744414/10.167536%.
+### - Audit: logs/data/seed_scoremax_v1_audit.json.
+###
+### Update-dose rationale:
+### - r32 limits forgetting while the data mix supplies action capacity.
+### - cutoff 16,384 covers the O1 max length (10,553) and provides more
+###   optimizer updates than 32,768 packing without truncating user examples.
+### - lr 1e-4 is a middle dose between weak-update and r32/lr2e-4 regimes.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_seed_scoremax_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/seed_scoremax_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_scoremax_r32_ep1
+logging_steps: 5
+save_strategy: "no"
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_scoremax_r32_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

@@ -1,0 +1,27 @@
+{
+  "experiment_id": "riders_fk_clean_r64_e1",
+  "baseline_id": "riders_fk_lora_ep1",
+  "family_id": "riders-clean-r64-trajectory",
+  "protocol_version": "score-direction-v1",
+  "benchmark_id": "llmrec-2026-visible-v2",
+  "calibration_artifact": null,
+  "hard_gate": {
+    "reject": false,
+    "reasons": [],
+    "observations": {
+      "material_visible_sample3": "51/64 locked, fanout 21",
+      "action_visible": "5/5 closed JSON, 0/5 token-limit",
+      "itemic_structure": "0/60 broken",
+      "world_format": "8/8"
+    }
+  },
+  "uncalibrated_diagnostic": {
+    "status": "uncertified",
+    "family_supported": false,
+    "drift_check_passed": true,
+    "estimated_coverage": null,
+    "p_up": null,
+    "p_down": null,
+    "reason": "No prospective score-direction labels exist for the rank-64 family; the material canary has a historical false positive and visible action prompts have no gold."
+  }
+}

@@ -1,0 +1,81 @@
+### I-11: one low-LR convergence epoch from the successful I-10 E3 adapter.
+### User approved launch on 2026-07-13 UTC.
+###
+### Experiment boundary:
+### - The only intended change from I-10 E3 is one additional optimizer epoch
+###   with a fresh optimizer/scheduler and a much lower peak LR.
+### - Load the trainable E3 LoRA through adapter_name_or_path. Do not use
+###   resume_from_checkpoint: I-10 intentionally retained no optimizer/RNG state.
+### - Keep the dataset byte-identical. No teacher repetition, new rows, T data,
+###   E data, task rebalance, or recommendation-domain rewrite is allowed.
+###
+### Registered assets and mix (finalized before launch):
+### - Base O6: OneReason-0.8B, config SHA256
+###   5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4.
+### - Parent M: I-10 E3 checkpoint-1995, online score 0.9849, adapter SHA256
+###   37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2.
+### - Dataset D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag):
+###   data_seed_teacher_v1, 32,644 rows, SHA256
+###   13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f.
+### - Builder: scripts/data/build_seed_o2_action_v1.py --rule-rows 0.
+### - Row mix: O1 32,480 (99.497611%); O2 teacher unique-once 164
+###   (0.502389%); O2 rule/T/E rows 0. Target-token action share 2.524877%.
+### - Audits: logs/data/seed_teacher_v1_audit.json and
+###   logs/data/action_rule_vs_teacher_audit.json.
+###
+### Dose rationale and preregistered expectation:
+### - I-10 epoch mean LR was 8.87e-5 / 5.22e-5 / 9.10e-6 while online score
+###   was 0.9100 / 0.9680 / 0.9849. A 2e-5 one-epoch cosine has mean LR near
+###   1e-5, approximating one more low-dose convergence pass without a high-LR
+###   restart.
+### - Model-side expected gain: +0.003 to +0.008, center near 0.990. This is a
+###   decision estimate, not a confidence interval, guarantee, or stable anchor.
+### - Local checks are hard safety gates only; they do not estimate score or
+###   select a checkpoint. This run emits one final adapter.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+create_new_adapter: false
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_seed_teacher_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/seed_teacher_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_e3_cont_r64_lr2e5_ep1
+logging_steps: 5
+save_strategy: "no"
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_teacher_e3_cont_r64_lr2e5_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+# I-10 used 19260817 for epochs 0-2; +3 gives the deterministic next-epoch shuffle.
+seed: 19260820

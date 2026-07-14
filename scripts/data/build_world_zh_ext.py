@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """build_world_zh_ext.py — world_zh 的合规官方源独立增补(2026-07-05)。
 
-源: data/hf_full/data/OneReason_General(158 shard / 152,005 条,100% stepfun_general,官方发布)。
+源: assets/official/hf_raw/OneReason_General(158 shard / 152,005 条,100% stepfun_general,官方发布)。
 定位: build_world_zh.py 清洗口径**排除掉**的两层高价值中文数据,单独成文件,
       不改动既有 world_zh.jsonl(其有 566 行历史过滤血统问题,保持只读)。
 
@@ -68,7 +68,7 @@ def first_qa(msgs):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--src_dir", default=f"{ROOT}/data/hf_full/data/OneReason_General")
+    ap.add_argument("--src_dir", default=f"{ROOT}/assets/official/hf_raw/OneReason_General")
     ap.add_argument("--world_zh", default=f"{ROOT}/data/processed/world_zh.jsonl")
     ap.add_argument("--out", default=f"{ROOT}/data/processed/world_zh_ext.jsonl")
     ap.add_argument("--cn_ratio", type=float, default=0.5)

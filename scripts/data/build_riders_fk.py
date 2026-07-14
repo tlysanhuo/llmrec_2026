@@ -6,7 +6,7 @@
   world_zh   2824             # 通识骑手,两次线上验证(+0.011/+0.013);取 rebal_world 同一批
   P3         1500             # action骑手,tokengeo 线上定案 action 0.0905(rng2026 采样与 tokengeo 同批)
   world_mc_clean 238          # MC格式锚(fk 自带 CEval 1573,合计 MC≈1811,pstack_v2 验证量级)
-合计 37267 条。训练 = configs/riders_fk_lora_ep1.yaml(LoRA r32/lr2e-4/1ep,抄 fk_fuse_lora_ep1)。
+合计 37267 条。训练 = configs/retained/riders_fk_lora_ep1.yaml(LoRA r32/lr2e-4/1ep,抄 fk_fuse_lora_ep1)。
 """
 import json, random
 from pathlib import Path

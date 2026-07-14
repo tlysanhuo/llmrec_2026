@@ -1,0 +1,50 @@
+### HISTORICAL ONLY: dataset key run_c_mix no longer exists; do not launch.
+### Run A — 懂用户 R2 增量 SFT (单卡)
+### = baseline_sft_v1 配方 + 混合数据(种子32480 + R2 13920, R2占30%)。仅改数据集/输出/单卡。
+
+### model
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+enable_liger_kernel: true
+
+### dataset
+dataset: run_c_mix
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+### output
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/run_c_material
+logging_steps: 5
+save_strategy: steps
+save_steps: 1000
+save_total_limit: 1
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: false
+report_to: tensorboard
+logging_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/run_c_material/tb
+
+### train
+# 单卡: bs1 * grad_accum4 = global batch 4 (对齐官方单卡)
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.0
+bf16: true
+pure_bf16: true
+seed: 19260817

@@ -1,0 +1,72 @@
+### OBSOLETE(2026-07-08): do not train this v1 config. It used the old mistaken rec panel
+### order and over-allocated rec_loo rows to ad/living. Use configs/ally_map_v2_lora_ep1.yaml.
+### ally_map_lora_ep1 —— Ally 0.99 方向复刻:riders 底盘 + 映射表弹药(2026-07-07,平台名=本名)
+### 情报:Ally「LoRA+加了那几个映射」=0.99(ideas/competitor_shares.md 07-07晚);其分片组合实测 caption join=0,
+###   故按"表选择"复刻:UserProfile⋈Pid2Sid(rec_loo_v2)+ Pid2Caption⋈Pid2Sid(fresh_mat),join 全表做对。
+### 数据 = scripts/data/build_ally_map.py 产出 45267 条(seed=2026):
+###   data_riders_fk 37267(0.9177 底盘原样)
+###   + rec_loo_v2 抽 5000(ad2000 含 139 deep_target 金标/living1500/prod800/video700,格点量子加权)
+###   + fresh_mat 抽 3000(750/域,/no_think 尾缀已修)
+###   QC:外加行 triple已曝光 32.1%/s_a未曝光 0.1%(P2毒型27%,墙内安全);包内零重复;nothink不变量零违例
+### 训练 = 照抄 riders_fk_lora_ep1(唯一 diff = dataset/output_dir/run_name)
+### 出分前预登记(vs riders 0.9177):
+###   预期中位 0.92-0.93,上行 0.95(rec 多域同涨),下行 0.89(稀释击穿 mat 7题)
+###   ①ad(量子0.0096)≥9题 ⇒ rec_loo ad(deep_target+click LOO)有效;仍8题±2噪声不作数
+###   ②live ≥39题 ⇒ living LOO 有效(riders 37题);③物料(零噪声)=硬判据:仍 0.2146(7题)⇒ fresh_mat 3000
+###     在 LoRA 制度下无效但无害;0.2453(8题)⇒ 映射物料立大功;≤6题 ⇒ +8000 行稀释击穿,下版砍量
+###   ④video 已 122 题史高,预期持平即胜(700条只为防跷跷板回撤);⑤world ≥0.142(未加通识,预期持平 0.1439)
+### 已知死法(红队,按 forecast-redteam 纪律列全):
+###   a) 码本墙:fresh_mat 收益预期打 3-5 倍折扣(HF 仅覆盖种子 gold 18-35%)——故物料判据①以"无害"为及格线
+###   b) rec_loo 单域历史形态 vs 评测多域历史形态的协议差(build 时称对齐评测日志,riders 未验证过此形态)
+###   c) "ad gold∉历史分桶"机制(07-04 日志定案:模型新候选 67-100% 仍是历史 s_a 变体)可能让 ad LOO 数据
+###      教不动押注策略——ad 判据①不达即此机制杀,不加码
+###   d) +8000 行(+21.5%)稀释:riders 实证 1ep LoRA 耐 +4562(+14%),+21.5% 未探——mat≤6题即此死法
+### 训完流程: export merge LoRA → precheck(仅当下限保险丝) → 打包 submissions/ally_map_lora_ep1_platform/ → 用户传平台
+### 启动: source scripts/env.sh; CUDA_VISIBLE_DEVICES=<空闲卡> llamafactory-cli train configs/ally_map_lora_ep1.yaml
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true   # ★配方血统:true(07-05事故后锚定)
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_ally_map
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/data
+template: qwen3_nothink
+cutoff_len: 32768
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0.05
+eval_strategy: steps
+eval_steps: 40
+per_device_eval_batch_size: 1
+compute_accuracy: true
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/ally_map_lora_ep1
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: ally_map_lora_ep1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

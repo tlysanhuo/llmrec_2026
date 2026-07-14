@@ -18,10 +18,10 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SRC = ROOT / "懂世界final.jsonl"
-OUT_NOTHINK = ROOT / "data" / "processed" / "world_final_nothink.jsonl"
-OUT_THINK = ROOT / "data" / "processed" / "world_final_think.jsonl"
-RIDERS = ROOT / "data" / "processed" / "data_riders_fk.jsonl"
+SRC = ROOT / "assets" / "third_party" / "teammate" / "懂世界final.jsonl"
+OUT_NOTHINK = ROOT / "assets" / "derived" / "processed" / "world_final_nothink.jsonl"
+OUT_THINK = ROOT / "assets" / "derived" / "processed" / "world_final_think.jsonl"
+RIDERS = ROOT / "assets" / "derived" / "processed" / "data_riders_fk.jsonl"
 
 CONTAM = re.compile(r"is_valid|is_multi|options_seen|answer_letter|自包含|分析原文|是否合法|json|JSON")
 SYS = "你是一个非常聪明的助手，请直接遵循指示作答。"

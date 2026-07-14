@@ -19,7 +19,7 @@ OUT = f"{ROOT}/data/processed/data_riders_act_v1.jsonl"
 seen = set()
 n_base = n_new = 0
 dev_inputs = set()
-for p in glob.glob(f"{ROOT}/data/offline_eval/dev_*.jsonl"):
+for p in glob.glob(f"{ROOT}/assets/evaluation/offline_eval/dev_*.jsonl"):
     for line in open(p, encoding="utf-8"):
         try:
             dev_inputs.add(hashlib.md5(json.loads(line).get("input", "").encode()).hexdigest())

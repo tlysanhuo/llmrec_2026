@@ -6,11 +6,11 @@
 ## 做了什么
 
 **数据构造管线(全脚本化,`scripts/`):**
-1. `data/build_item_index.py` — 扫官方 17GB 的 Pid2Sid/Caption/Tag 全部分片,建 pid→sid/caption/tag 全局索引(3591万/2106万/542万 keys),存 `ai_runtime/.../data/index/`。域映射 video/video→video, video/ad→ad, goods→prod, live→living。
+1. `data/build_item_index.py` — 扫官方 17GB 的 Pid2Sid/Caption/Tag 全部分片,建 pid→sid/caption/tag 全局索引(3591万/2106万/542万 keys),存 `ai_runtime/.../assets/derived/index/`。域映射 video/video→video, video/ad→ad, goods→prod, live→living。
 2. `data/build_r2_actionselect.py` — 从 UserProfile 序列造抽取式 action-select 样本:多域行为按时间戳合并成 `【日期】[域-行为] <token>` 历史块(格式与评测逐字对齐,9/9 锚点通过);选一个 tag 焦点生成主题(`从泛化X到聚焦Y`);确定性打分选正样本(`0.60·tag_jaccard + 0.30·同s_a/b + 0.10·同域 + recency`,阈值0.45,top-K 3..40);extractive 强校验(答案 100% ∈ 历史);~12% 空 `[]` 样本。分布对齐种子(历史中位179,答案中位3)。产 20000 训练 + 1000 dev(dev 用 `--shard_offset 8` 避免与 train 用户重叠)。
 3. `eval/proxy_r2_f1.py` — 本地 F1 proxy(HF transformers 批量生成),算 F1/复读率/JSON可解析率/子集率/空样本答对率。
 
-**训练:** `configs/run_a_r2.yaml`。种子 32480 + 自造 R2 13920(30%)= 46400 混合,单卡(GPU1),配方同 v1(全参 qwen3_nothink cutoff32768 lr2e-5 1ep seed19260817),bs1×accum4。715步,51分钟,**train_loss 1.487**(v1 是 1.573)。
+**训练:** `configs/history/run_a_r2.yaml`。种子 32480 + 自造 R2 13920(30%)= 46400 混合,单卡(GPU1),配方同 v1(全参 qwen3_nothink cutoff32768 lr2e-5 1ep seed19260817),bs1×accum4。715步,51分钟,**train_loss 1.487**(v1 是 1.573)。
 
 ## Proxy 门禁结果(160 dev 样本,与 v1 同 dev 同参数)
 

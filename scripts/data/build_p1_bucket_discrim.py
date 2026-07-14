@@ -114,8 +114,8 @@ def load_exclusion(seed_glob, fresh_path):
 def main():
     ap = argparse.ArgumentParser()
     base = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026"
-    ap.add_argument("--sid_dir", default=f"{base}/data/hf_full/data/OneReason_Pid2Sid")
-    ap.add_argument("--cap_dir", default=f"{base}/data/hf_full/data/OneReason_Pid2Caption")
+    ap.add_argument("--sid_dir", default=f"{base}/assets/official/hf_raw/OneReason_Pid2Sid")
+    ap.add_argument("--cap_dir", default=f"{base}/assets/official/hf_raw/OneReason_Pid2Caption")
     ap.add_argument("--seed_mat_glob", default=f"{base}/data/懂物料part*.jsonl")
     ap.add_argument("--fresh_mat", default=f"{base}/data/processed/fresh_mat.jsonl")
     ap.add_argument("--out", default=f"{base}/data/processed/p1_bucket_discrim.jsonl")

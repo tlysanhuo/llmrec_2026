@@ -1,0 +1,45 @@
+### Official seed only, task-balanced weighted CE, one-epoch LoRA.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 32
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_seed_taskbal
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/seed_taskbal
+template: qwen3_nothink
+# Custom weighted CE materializes vocabulary logits. 16K keeps every source
+# sample intact (observed max < 11K) while halving the single-card logit peak.
+cutoff_len: 16384
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/checkpoints/seed_taskbal_lora_ep1
+logging_steps: 5
+save_strategy: "no"
+save_only_model: false
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_taskbal_lora_ep1
+
+per_device_train_batch_size: 1
+# Preserve the approved ~131K packed tokens per optimizer update: 16K * 8.
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-4
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

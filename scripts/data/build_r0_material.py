@@ -26,7 +26,7 @@ import sys
 
 import pandas as pd
 
-IDX = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/index"
+IDX = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/derived/index"
 
 # 官方各域 system 池(从种子采样 top,每域取代表若干)
 SYSTEM_POOL = {

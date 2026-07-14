@@ -22,8 +22,8 @@ import sys
 
 import pandas as pd
 
-HF = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/hf_full/data"
-IDX = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/index"
+HF = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/official/hf_raw"
+IDX = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/derived/index"
 
 VIDEO_ORDER = ["关注", "转发", "评论", "收藏", "点赞"]  # + 长播/浏览 结尾
 

@@ -1,0 +1,10 @@
+### Temporary merge for I-11 hard safety gates only.
+### Delete /tmp/seed_teacher_e3_cont_r64_lr2e5_ep1_merged after gate completion.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_e3_cont_r64_lr2e5_ep1
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/seed_teacher_e3_cont_r64_lr2e5_ep1_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

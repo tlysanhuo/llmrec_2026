@@ -4,7 +4,7 @@
 OBSOLETE(2026-07-08): this v1 builder used the old mistaken rec panel order
 and over-allocated rec_loo rows to ad/living. Use build_ally_map_v2.py.
 
-情报依据(docs/competitor_intel.md 07-07 晚):Ally = LoRA + "加了那几个映射"(Pid2Sid/
+情报依据(ideas/competitor_shares.md 07-07 晚):Ally = LoRA + "加了那几个映射"(Pid2Sid/
 Pid2Caption/Pid2Tag/UserProfile/General 五张表)→ 0.99。实测其截图分片组合
 (Caption p3 全 goods × Sid p0 几乎全 video/ad)caption join=0,故按"表选择"复刻、join 用全表做对。
 我方对应物早已造好且从未线上测过:

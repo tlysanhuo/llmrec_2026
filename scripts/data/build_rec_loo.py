@@ -44,8 +44,8 @@ def tok(dom, sid):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--up_dir", default="/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/data/hf_full/data/OneReason_UserProfile")
-    ap.add_argument("--sid_dir", default="/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/data/hf_full/data/OneReason_Pid2Sid")
+    ap.add_argument("--up_dir", default="/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/official/hf_raw/OneReason_UserProfile")
+    ap.add_argument("--sid_dir", default="/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/official/hf_raw/OneReason_Pid2Sid")
     ap.add_argument("--out", required=True)
     ap.add_argument("--n_per_dom", type=int, default=3000)
     ap.add_argument("--hist_n", type=int, default=60)

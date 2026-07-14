@@ -4,7 +4,7 @@ import json, random, re, time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 
-cfg = dict(l.strip().split("=", 1) for l in open("/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/deepseek_api.env") if "=" in l and not l.startswith("#"))
+cfg = dict(l.strip().split("=", 1) for l in open("/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/secrets/deepseek_api.env") if "=" in l and not l.startswith("#"))
 KEY, BASE, MODEL = cfg["YUNWU_API_KEY"], cfg["YUNWU_BASE_URL"], "deepseek-v4-flash"
 ITEM = re.compile(r"<\|(video|prod|ad|living)_begin\|><s_a_(\d+)><s_b_(\d+)><s_c_(\d+)>")
 JUD_SYS = ("你是数据质检裁判。给你:一段推荐思考(CoT)、用户实际接下来交互的物料语义(gold)。"

@@ -437,7 +437,7 @@ def main() -> None:
     parser.add_argument("--official", type=Path, default=P / "data_final.jsonl")
     parser.add_argument("--ceval-dir", type=Path, default=P.parent / "offline_eval/_ceval_val")
     parser.add_argument("--cmmlu-zip", type=Path, default=P.parent / "offline_eval/_cmmlu.zip")
-    parser.add_argument("--world-eval", type=Path, default=ROOT / "懂世界.jsonl")
+    parser.add_argument("--world-eval", type=Path, default=ROOT / "assets" / "evaluation" / "visible" / "懂世界.jsonl")
     parser.add_argument("--dev-dir", type=Path, default=P.parent / "offline_eval")
     parser.add_argument("--out", type=Path, default=P / "data_stage2_gold_v1.jsonl")
     parser.add_argument("--holdout", type=Path, default=P / "stage2_gold_v1_holdout.jsonl")

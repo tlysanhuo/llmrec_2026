@@ -80,6 +80,6 @@
 | `papers/` | 12 篇必读论文 PDF |
 | `demo_baseline/` | 官方 baseline 源码(convertv2/demo.yaml/scripts) |
 
-**代码库**:`external_repos/`(MiniOneRec, SIDReasoner, ReRe, Rank-GRPO, RRec, LC-Rec, RPG, ReLLa, LETTER, RecZero)
+**代码库**:`ideas/reference_repos/`(MiniOneRec, SIDReasoner, ReRe, Rank-GRPO, RRec, LC-Rec, RPG, ReLLa, LETTER, RecZero)
 **数据**:`ai_runtime/llmrec_2026/data/hf_full/`(17GB 原始)、`data/extracted/`(种子 SFT)
 **模型/产物**:`models/OneReason-0.8B-pretrain-competition/`、`checkpoints/baseline_sft_v1/`、`submissions/baseline_sft_v1_platform/`

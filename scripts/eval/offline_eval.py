@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
-"""offline_eval.py — 离线评测台 v3(机制 1:1 + 圈外 dev 集 + 先校准后上岗)。
+"""offline_eval.py — 离线评测台 v4(平台参数镜像 + 圈外 dev 集)。
 
-设计/校准记录:docs/offline_eval.md。dev 集:data/offline_eval/(build_offline_dev.py 生成)。
+设计/校准记录:docs/offline_eval.md。dev 集:assets/evaluation/offline_eval/(build_offline_dev.py 生成)。
 八子项全覆盖:
   mat    dev_mat_fresh(圈外,判决候选) + dev_mat_train(圈内,记忆化对照) → beam64×3tok Pass@64
   rec    dev_rec_{video,prod,ad,live} 各≤1000 → 直通 nothink beam32 + 采样thinking→beam32,合并64候选
-  action dev_action → 采样 n=1 ≤3072tok,itemic 集合 F1
-  topic  dev_topic → 采样 ≤900tok,官方公式(action有序LCS匹配 + logic TokenF1/ROUGE-L)
-  world  dev_world(CMMLU圈外) → 采样 ≤128tok,「正确答案是 (X)」抽取 Acc
+  action dev_action → 平台参数采样 n=1 ≤4096tok,itemic 集合 F1
+  topic  dev_topic → 平台参数采样 ≤4096tok,官方公式(action有序LCS匹配 + logic TokenF1/ROUGE-L)
+  world  dev_world(CMMLU圈外) → 平台参数采样 ≤10240tok,「正确答案是 (X)」抽取 Acc
 
 用法:
   $V/miniconda3/envs/verl_v071/bin/python scripts/eval/offline_eval.py \
       --model checkpoints/xxx --gpu 3 [--dims mat,rec,action,topic,world] \
       [--n_rec 1000] [--tag xxx] [--think_suffix keep|switch]
-输出: logs/offline_eval/<tag>_<ts>.json(含按官方题量换算的预测命中数)
+输出: logs/offline_eval/<tag>_v4_<ts>.json(含协议版本与解码参数)
 绝对值永远不可信(题面分布≠平台),只用于**校准过的维度**上的版本排序。
+
+注意:v3 历史结果使用过较短生成上限和 rec top_k=20。v4 修正参数后与
+v3 不可混合校准；现有 v3 的“8维盲区+world仅方向”结论仍然有效。
 """
 import argparse
 import json
@@ -29,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 
 PROJ = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026"
-DEV = f"{PROJ}/data/offline_eval"
+DEV = "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/evaluation/offline_eval"
 DOM_TOKEN = {"video": "<|video_begin|>", "ad": "<|ad_begin|>", "prod": "<|prod_begin|>", "living": "<|living_begin|>"}
 ITEM = re.compile(r"<\|(?:video|prod|ad|living)_begin\|><s_a_\d+><s_b_\d+><s_c_\d+>")
 ITEM_CAPTURE = re.compile(
@@ -37,6 +40,10 @@ ITEM_CAPTURE = re.compile(
 )
 SIDPAT = re.compile(r"<s_([abc])_(\d+)>")
 OFFICIAL_N = {"mat": 574, "video": 1000, "prod": 1000, "ad": 1000, "live": 1000}
+PROTOCOL_VERSION = "offline-eval-v4-platform-params"
+REC_SAMPLE = {"max_tokens": 4096, "temperature": 0.6, "top_p": 0.95, "top_k": 50}
+USER_SAMPLE = {"max_tokens": 4096, "temperature": 0.6, "top_p": 0.95, "top_k": 20}
+WORLD_SAMPLE = {"max_tokens": 10240, "temperature": 0.7, "top_p": 0.8, "top_k": 20}
 
 
 def load(name):
@@ -160,8 +167,15 @@ def main():
     llm = LLM(model=args.model, dtype="bfloat16", max_model_len=40960,
               gpu_memory_utilization=0.85, enforce_eager=True, seed=42,
               enable_prefix_caching=True, trust_remote_code=True, max_logprobs=130)
-    report = {"model": args.model, "tag": tag, "date": datetime.now().isoformat()[:19],
-              "n_rec": args.n_rec, "think_suffix": args.think_suffix}
+    report = {
+        "protocol_version": PROTOCOL_VERSION,
+        "model": args.model,
+        "tag": tag,
+        "date": datetime.now().isoformat()[:19],
+        "n_rec": args.n_rec,
+        "think_suffix": args.think_suffix,
+        "sampling": {"rec": REC_SAMPLE, "action_topic": USER_SAMPLE, "world": WORLD_SAMPLE},
+    }
     stage2_holdout = load_stage2_holdout(args.stage2_holdout) if args.stage2_holdout else None
     if args.stage2_holdout:
         report["stage2_holdout"] = str(Path(args.stage2_holdout).resolve())
@@ -227,7 +241,7 @@ def main():
                 if args.think_suffix == "switch":
                     r2["user"] = re.sub(r"/no_think\s*$", "/think", r2["user"])
                 tp.append(prompt_of(r2, "think"))
-            thinks = sample(tp, 1024, stop=["</think>"])
+            thinks = sample(tp, stop=["</think>"], **REC_SAMPLE)
             staged = beam_decode([p + t.text + "</think>\n" + DOM_TOKEN[dom] for p, t in zip(tp, thinks)], 32)
             hit64 = hit_d = hit_t = copy_d = tot_d = 0
             sa_direct = []
@@ -261,7 +275,7 @@ def main():
         rows = load("dev_action.jsonl") if stage2_holdout is None else stage2_holdout["action"]
         if args.n_action:
             rows = rows[: args.n_action]
-        outs = sample([prompt_of(r, "nothink") for r in rows], 3072)
+        outs = sample([prompt_of(r, "nothink") for r in rows], **USER_SAMPLE)
         f1s, cnts, jok, trunc = [], [], 0, 0
         generated_lengths, duplicate_counts, max_repeats = [], [], []
         for r, o in zip(rows, outs):
@@ -274,7 +288,7 @@ def main():
                 jok += 1
             except Exception:
                 pass
-            trunc += len(o.token_ids) >= 3072
+            trunc += len(o.token_ids) >= USER_SAMPLE["max_tokens"]
             generated_lengths.append(len(o.token_ids))
             duplicate_counts.append(len(occurrences) - len(pred))
             max_repeats.append(max(occurrence_counts.values(), default=0))
@@ -295,7 +309,7 @@ def main():
     # ============ topic ============
     if "topic" in dims:
         rows = load("dev_topic.jsonl") if stage2_holdout is None else stage2_holdout["topic"]
-        outs = sample([prompt_of(r, "nothink") for r in rows], 900)
+        outs = sample([prompt_of(r, "nothink") for r in rows], **USER_SAMPLE)
 
         def parse_events(text):
             """先严格 JSON;失败退正则抽 action/logic 对(平台计分不至于因中文引号全灭)"""
@@ -332,7 +346,7 @@ def main():
         rows = load("dev_world.jsonl") if stage2_holdout is None else stage2_holdout["world"]
         if args.n_world:
             rows = rows[: args.n_world]
-        outs = sample([prompt_of(r, "nothink") for r in rows], 128)
+        outs = sample([prompt_of(r, "nothink") for r in rows], **WORLD_SAMPLE)
         pat = re.compile(r"正确答案是\s*[\(（]?\s*([A-D])")
         fb = re.compile(r"[\(（]([A-D])[\)）]|\b([A-D])\b")
         ok = alive = 0
@@ -350,7 +364,7 @@ def main():
 
     report["runtime_s"] = round(time.time() - t0, 1)
     os.makedirs(f"{PROJ}/logs/offline_eval", exist_ok=True)
-    out_path = f"{PROJ}/logs/offline_eval/{tag}_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
+    out_path = f"{PROJ}/logs/offline_eval/{tag}_v4_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
     json.dump(report, open(out_path, "w"), ensure_ascii=False, indent=1)
     print(json.dumps(report, ensure_ascii=False, indent=1))
     print(f"saved -> {out_path}", file=sys.stderr)

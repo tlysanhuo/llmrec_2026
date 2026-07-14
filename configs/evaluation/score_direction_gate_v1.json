@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "protocol_version": "score-direction-v1",
+  "target": {
+    "estimand": "next_platform_display_score_delta",
+    "direction_threshold": 0.0,
+    "practical_delta": 0.02,
+    "conditional_accuracy": 0.9,
+    "one_sided_confidence": 0.95,
+    "minimum_coverage": 0.3,
+    "required_classes": [
+      "UP",
+      "DOWN"
+    ]
+  },
+  "selection": {
+    "allow_abstain": true,
+    "up_probability_threshold": 0.9,
+    "down_probability_threshold": 0.9,
+    "require_frozen_calibration_artifact": true,
+    "require_supported_family": true,
+    "require_drift_check": true
+  },
+  "benchmark": {
+    "benchmark_id": "llmrec-2026-visible-v2",
+    "source_log": "logs/eval/riders_fk_lora_ep1_20260706.log",
+    "source_log_sha256": "22166c3cc1bb8ce02ba81d53294edcf7d674a5f6d6ffd9220437f66bccb72080",
+    "action_parser_version": "action-visible-v2",
+    "frozen_prompt_count": 40,
+    "role": "regression_and_behavior_canary_only"
+  },
+  "independence": {
+    "unit": "candidate_parent_experiment_family",
+    "same_training_trajectory_counts_once": true,
+    "repeated_platform_runs_do_not_create_new_checkpoint_units": true,
+    "require_decision_before_outcome": true
+  }
+}
