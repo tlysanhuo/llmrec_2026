@@ -1,0 +1,42 @@
+{
+  "status": "PREREGISTERED_BEFORE_I17_LAUNCH",
+  "experiment": "seed_teacher_e3_dpo_rec_o1hard_lowdose_v2",
+  "purpose": "Select the lowest lower-dose checkpoint that retains the I-16 recommendation ordering correction while satisfying the original gold-probability and action safeguards. This gate is not an online score estimator.",
+  "candidate_steps_in_order": [
+    100,
+    150,
+    200
+  ],
+  "locked_holdout": {
+    "path": "assets/evaluation/holdout/data_o1_reward_preference_v1_holdout.jsonl",
+    "sha256": "1c7292cb96d45e9d20c0b3add78d3e5a30ec7a559844217584408921f996696e",
+    "sample_manifest_sha256": "977f9cbc666e88824b44778d4de358b00a705628d20a3af2c1895f0f2799d064",
+    "samples_per_task": 64,
+    "sample_rows": 320,
+    "training_overlap_by_prompt_group": 0
+  },
+  "parent_raw_chosen_positive_rate": {
+    "rec_ad": 0.4375,
+    "rec_living": 0.328125,
+    "rec_prod": 0.171875,
+    "rec_video": 0.34375,
+    "rec_aggregate": 0.3203125,
+    "action": 0.9375
+  },
+  "parent_normalized_chosen_positive_rate": {
+    "action": 0.828125
+  },
+  "hard_candidate_requirements": {
+    "adapter_exists_and_hashes": true,
+    "training_has_no_nan_inf_oom_or_traceback_through_candidate_step": true,
+    "action_raw_chosen_positive_rate_min": 0.875,
+    "action_normalized_chosen_positive_rate_min": 0.75,
+    "each_recommendation_domain_raw_mean_margin_must_not_decrease_from_parent": true,
+    "recommendation_aggregate_raw_chosen_positive_rate_min": 0.421875,
+    "recommendation_aggregate_chosen_mean_logp_drop_max_nats_per_token": 0.01,
+    "each_recommendation_domain_chosen_mean_logp_drop_max_nats_per_token": 0.02,
+    "itemic_breakage_rate_max": 0.1
+  },
+  "selection_rule": "Evaluate step 100, 150, and 200 with the same deterministic script and locked manifest. Select the earliest checkpoint meeting every hard candidate requirement. Run the itemic structure precheck on the provisional earliest candidate; if it fails, continue to the next dose. If none passes, reject I-17 locally. Do not loosen a threshold after seeing results and do not use synthetic world accuracy or action repetition to rank checkpoints.",
+  "anti_overclaim": "I-17 was motivated by I-16 holdout trajectories, so this reused gate is adaptive and not an unbiased validation estimate. Passing supports only mechanism execution and disaster safety, not an expected online score or guaranteed gain."
+}

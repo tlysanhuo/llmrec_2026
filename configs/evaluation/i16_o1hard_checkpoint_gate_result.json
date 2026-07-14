@@ -1,0 +1,85 @@
+{
+  "status": "COMPLETE_LOCAL_REJECT_NO_CANDIDATE_PASSED_ALL_PREREGISTERED_GATES",
+  "experiment": "seed_teacher_e3_dpo_rec_o1hard_v1",
+  "preregister": "configs/evaluation/i16_o1hard_checkpoint_gate_preregister.json",
+  "preregister_source_runtime_sha256": "6c097f9c01d5c541ffc2f114833968ef7c5538a0e2c72aaa4fa0ed686d6cf223",
+  "training": {
+    "wandb_run_id": "packufor",
+    "wandb_state": "finished",
+    "global_step": 600,
+    "train_loss": 0.5818486901124319,
+    "train_runtime_seconds": 2190.5404,
+    "exit_code": 0,
+    "launch_config_sha256": "517d68645fd2af607cba89b487f5e9b5ef060fd748d2d4af5e9cf90b5e0c7f0a",
+    "train_log_sha256": "d0730bd1e13cfd298364585cb1f729c923187eae9f440540e6ca743236b63e4b",
+    "optimizer_scheduler_rng_files": 0
+  },
+  "parent": {
+    "adapter_sha256": "37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2",
+    "audit_sha256": "34f4f43557dbefb25ddeee2da910773316b2e5cb16150bb31881bb2d3da59fe3",
+    "rec_aggregate_raw_chosen_positive_rate": 0.3203125,
+    "raw_mean_margin": {
+      "rec_ad": -0.99968988,
+      "rec_living": -1.97989378,
+      "rec_prod": -6.11996178,
+      "rec_video": -1.58619215
+    }
+  },
+  "candidates": {
+    "200": {
+      "adapter_sha256": "96817d4c2633fb6c9aeb26d73eeb54214d94c6069642930e31ed2be6a89fac04",
+      "audit_sha256": "5a0447c56f56afa242c65a7b4e75415ed5ee27bb19f89320e2a5259ab758fa8e",
+      "action_raw_rate": 0.9375,
+      "action_normalized_rate": 0.828125,
+      "rec_aggregate_raw_rate": 0.52734375,
+      "rec_aggregate_chosen_mean_logp_drop": 0.0118529325,
+      "max_domain_chosen_mean_logp_drop": 0.02745775,
+      "ordering_requirements_pass": true,
+      "action_requirements_pass": true,
+      "gold_logp_requirements_pass": false,
+      "failure_reasons": [
+        "rec_aggregate_chosen_mean_logp_drop_gt_0.01",
+        "rec_ad_chosen_mean_logp_drop_gt_0.02",
+        "rec_prod_chosen_mean_logp_drop_gt_0.02"
+      ]
+    },
+    "400": {
+      "adapter_sha256": "291c0b3e7a1ef05d247c79b8a3f842df2cdea5ac75e6ddf07a7ef7f23046eb94",
+      "audit_sha256": "d5f5b9e267d7b5c6b46843077e3f855d4789339877ff4c01cce809dd594decff",
+      "action_raw_rate": 0.9375,
+      "action_normalized_rate": 0.828125,
+      "rec_aggregate_raw_rate": 0.5703125,
+      "rec_aggregate_chosen_mean_logp_drop": 0.0202978725,
+      "max_domain_chosen_mean_logp_drop": 0.04661955,
+      "ordering_requirements_pass": true,
+      "action_requirements_pass": true,
+      "gold_logp_requirements_pass": false,
+      "failure_reasons": [
+        "rec_aggregate_chosen_mean_logp_drop_gt_0.01",
+        "rec_ad_chosen_mean_logp_drop_gt_0.02",
+        "rec_prod_chosen_mean_logp_drop_gt_0.02"
+      ]
+    },
+    "600": {
+      "adapter_sha256": "85cb7f002f1bed48240b2f377a84c5fd3bf9848e1edb1dda8faa3a5c3c773f00",
+      "audit_sha256": "e1e3111e2549f061cd3766f9337a7730b6279b56b9ea6e9d1e7ac21f45a5b32e",
+      "action_raw_rate": 0.9375,
+      "action_normalized_rate": 0.828125,
+      "rec_aggregate_raw_rate": 0.5859375,
+      "rec_aggregate_chosen_mean_logp_drop": 0.02149041,
+      "max_domain_chosen_mean_logp_drop": 0.04899744,
+      "ordering_requirements_pass": true,
+      "action_requirements_pass": true,
+      "gold_logp_requirements_pass": false,
+      "failure_reasons": [
+        "rec_aggregate_chosen_mean_logp_drop_gt_0.01",
+        "rec_ad_chosen_mean_logp_drop_gt_0.02",
+        "rec_prod_chosen_mean_logp_drop_gt_0.02"
+      ]
+    }
+  },
+  "selected_step": null,
+  "itemic_gate_run": false,
+  "decision": "Reject I-16 locally. Do not package, upload, or use any I-16 checkpoint as a training parent.",
+  "anti_overclaim": "The preference holdout is a mechanism and safety audit, not an online-score estimate."
+}

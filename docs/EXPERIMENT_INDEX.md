@@ -14,6 +14,8 @@
 - I-12固定协议单次线上0.9768，八项为`0.2453/0.1206/0.0393/0.0672/0.1292/0.1316/0.1053/0.1383`。同协议相对I-11总分+0.0150、用户合计+0.0097、推荐合计+0.0038、world+0.0015；ad单项-0.0098。I-12现为I-13的同协议直接对照。
 - I-13保持E3 r64不变，仅将I-12 r16用户残差缩放到0.875；固定协议线上0.9978，八项为`0.2453/0.1183/0.0390/0.0960/0.1224/0.1316/0.1062/0.1390`。同协议相对I-12总分+0.0210、用户合计-0.0026、推荐合计+0.0229、world+0.0007；当前固定协议主模型。
 - I-14 E3按平台修复后的时间切点归入固定协议，单次线上0.9518。相对I-13逐项为`0/-0.0138/-0.0003/-0.0480/+0.0068/+0.0098/+0.0018/-0.0022`、面板总分差-0.0460，但这只回答“是否替换融合灰区主模型”的榜分问题，不支持纯O1单体路线的因果否决。更接近的非融合固定协议参考I-11为0.9618，I-14名义低0.0100；I-11仍使用164条teacher、从I-10 E3续训且rank不同，也不是干净基线。未提供I-14原始评测日志，action/itemic协议指纹尚未独立复核。
+- I-16于2026-07-14 12:19 UTC通过持久启动器在单卡启动，W&B [`packufor`](https://wandb.ai/3120252125-/llmrec-2026/runs/packufor)，600/600正常完成。policy从保留的I-10 E3继续同一个r64 adapter，reference为O6显式加载并合并同一E3 adapter；不新建adapter、不拼接参数、不做同容量蒸馏。step200/400/600使四推荐域聚合raw chosen胜率从32.03%升到52.73%/57.03%/58.59%，action始终保持93.75%，但推荐gold平均token logp分别下降0.01185/0.02030/0.02149，全部超过0.01保护线。I-16按原门槛本地否决，不上传；这些读数只作机制和剂量证据，不估线上分数。
+- I-17已在I-16 step400结果后、正式启动前注册，并于2026-07-14 12:57 UTC在I-16正常退出后顺序持久启动；W&B [`pfjlvm70`](https://wandb.ai/3120252125-/llmrec-2026/runs/pfjlvm70)服务端`finished`。它从原始I-10 E3重新开始，数据、beta和冻结E3 reference不变，只将峰值lr降至7e-7并用30步warmup后的constant日程把step200累计LR面积降为I-16 step200的74.8434%。step100/150/200全部满足量化保护线；按预注册“最早全通过”规则选step100，其推荐聚合raw chosen胜率32.03%→43.36%、gold平均token logp仅下降0.00327、action保持93.75%，itemic断裂0/60。该holdout被自适应复用，因此只支持机制/安全选择，不是无偏验证或线上涨分证据。
 - 撤回旧 I-09 规则数据资格：规则标签相对同源独立judge满分teacher参考的平均F1仅0.0429；匹配实际过滤条件的42条平均F1 0.0813且32条零交集。该teacher参考不是官方gold；`seed_o2_action_r64_lr1e4_ep3`因此在step16中止，W&B `sh96a1sq`，`checkpoints/seed_o2_action_r64_lr1e4_ep3/`无adapter且禁止resume。
 - 当前最高单次显示分和固定协议最高均为I-13 `0.9978`。I-10 E3旧协议0.9849仍只能作旧轨迹父模型记录；E3固定协议桥缺失不妨碍I-13在现有固定协议候选中确定为主模型，但仍禁止计算I-13相对E3的净增益。
 - r64 同一训练轨迹 E1/E2 已线上评测：E1=0.8839，E2=0.9187；E3未评测且不再建议上传。本地门禁原先只选 E1、拒绝 E2，线上排序相反，门禁不再承担正向 checkpoint 排名。
@@ -33,7 +35,16 @@
 | I-10 E1 LoRA上传包 | seed_teacher_r64_lr1e4_ep3 | `submissions/seed_teacher_r64_lr1e4_e1_platform/` | adapter SHA256 `c1bfb4dada8260560327a5ce3a9a15cbb29c0249421616bb1a9d95d9dc11add8`；config SHA256 `f27c697e8bb611802822ea44b156b672c63f6d2ec16a380d868395a9d0eb213f` | 已上传并评测为0.9100 |
 | I-10 已评测 E2 | seed_teacher_r64_lr1e4_ep3 | `checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1330/` | adapter SHA256 `c4902871c31f1a29b895b3990b2af573808cfecef2a5e483720ce1e60b1ac267` | 2 epoch；线上0.9680 |
 | I-10 E2 LoRA上传包 | seed_teacher_r64_lr1e4_ep3 | `submissions/seed_teacher_r64_lr1e4_e2_platform/` | adapter SHA256 `c4902871c31f1a29b895b3990b2af573808cfecef2a5e483720ce1e60b1ac267`；config SHA256 `f27c697e8bb611802822ea44b156b672c63f6d2ec16a380d868395a9d0eb213f` | 已上传并评测为0.9680 |
-| 固定协议桥接父模型 | seed_teacher_r64_lr1e4_ep3 | `checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995/` | adapter SHA256 `37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2` | 3 epoch；旧协议线上0.9849，固定协议待重评 |
+| 固定协议桥接/I-16与I-17获准父模型 | seed_teacher_r64_lr1e4_ep3 | `checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995/` | adapter SHA256 `37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2` | 3 epoch；旧协议线上0.9849，固定协议待重评；允许作为I-16/I-17同adapter policy初始化与冻结reference，仍禁止把旧分当固定协议基线 |
+| I-16轨迹候选/当前未过完整门禁 | seed_teacher_e3_dpo_rec_o1hard_v1 step200 | `checkpoints/seed_teacher_e3_dpo_rec_o1hard_v1/checkpoint-200/` | adapter SHA256 `96817d4c2633fb6c9aeb26d73eeb54214d94c6069642930e31ed2be6a89fac04` | adapter-only；推荐排序改善但gold-logp保护线略失败；仅作I-16评估候选和轨迹证据，禁止作为新训练父模型 |
+| I-16轨迹候选/当前未过完整门禁 | seed_teacher_e3_dpo_rec_o1hard_v1 step400 | `checkpoints/seed_teacher_e3_dpo_rec_o1hard_v1/checkpoint-400/` | adapter SHA256 `291c0b3e7a1ef05d247c79b8a3f842df2cdea5ac75e6ddf07a7ef7f23046eb94` | adapter-only；推荐排序进一步改善但gold-logp下降扩大；仅作I-16评估候选和轨迹证据，禁止作为新训练父模型 |
+| I-16轨迹候选/未过完整门禁 | seed_teacher_e3_dpo_rec_o1hard_v1 step600 | `checkpoints/seed_teacher_e3_dpo_rec_o1hard_v1/checkpoint-600/` | adapter SHA256 `85cb7f002f1bed48240b2f377a84c5fd3bf9848e1edb1dda8faa3a5c3c773f00` | adapter-only；推荐排序改善但gold-logp保护线失败；仅作I-16评估候选和轨迹证据，禁止作为新训练父模型 |
+| I-17最终训练输出/非选中末点 | seed_teacher_e3_dpo_rec_o1hard_lowdose_v2 | `checkpoints/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2/` | adapter/config SHA256 `b8667658...a492d` / `65b21290...90f3` | 与step200逐字节一致；W&B `pfjlvm70` finished；只保留为完整训练轨迹，不上传、不优先于最早通过的step100 |
+| I-17剂量轨迹审计点/非候选 | seed_teacher_e3_dpo_rec_o1hard_lowdose_v2 step50 | `checkpoints/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2/checkpoint-50/` | adapter SHA256 `4058a3fbfa7778e3a04eed27a258ed0d21f0e963d4de62908947e3452f0f91db` | adapter-only保存审计点；不在预注册候选集合，未运行偏好门禁、不参与选择 |
+| I-17本地选中候选 | seed_teacher_e3_dpo_rec_o1hard_lowdose_v2 step100 | `checkpoints/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2/checkpoint-100/` | adapter/config SHA256 `a3b2fc9c...2d1dc` / `65b21290...90f3` | 最早通过全部量化门槛与itemic 0/60硬门禁；本地候选，不代表线上必涨；允许打包评测，未授权自动上传 |
+| I-17通过但未选轨迹点 | seed_teacher_e3_dpo_rec_o1hard_lowdose_v2 step150 | `checkpoints/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2/checkpoint-150/` | adapter SHA256 `37a85b3af4f50abd612c11f8086b7a6ef58923a03154aed805dc57010d896661` | 量化门槛通过，但因晚于step100不选；仅作剂量轨迹，不上传、不作为父模型 |
+| I-17通过但未选轨迹点 | seed_teacher_e3_dpo_rec_o1hard_lowdose_v2 step200 | `checkpoints/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2/checkpoint-200/` | adapter SHA256 `b86676581d72fa68297d911b9be83476282c599238d41a488953d2d46f8a492d` | 量化门槛通过，但因晚于step100不选；与根目录最终adapter一致，仅作剂量轨迹 |
+| I-17本地候选LoRA包 | seed_teacher_e3_dpo_rec_o1hard_lowdose_v2 step100 | `submissions/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2_step100_platform/` | adapter/config SHA256 `a3b2fc9c...2d1dc` / `65b21290...90f3` | 严格两文件且与step100逐字节一致；尚未上传/评测，不得写线上分或涨分结论 |
 | E3 LoRA提交包 | seed_teacher_r64_lr1e4_ep3 | `submissions/seed_teacher_r64_lr1e4_e3_platform/` | adapter SHA256 `37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2`；config SHA256 `f27c697e8bb611802822ea44b156b672c63f6d2ec16a380d868395a9d0eb213f` | 可直接用于固定协议桥接重评 |
 | I-11 固定协议参考 | seed_teacher_e3_cont_r64_lr2e5_ep1 | `checkpoints/seed_teacher_e3_cont_r64_lr2e5_ep1/` | adapter SHA256 `6b2e4fbd7ee8e04b4704d31fb50e95dc60cf5a04f7537ee746e976d897b68626` | 固定协议线上0.9618；不与E3旧分作差 |
 | I-11 LoRA上传包 | seed_teacher_e3_cont_r64_lr2e5_ep1 | `submissions/seed_teacher_e3_cont_r64_lr2e5_ep1_platform/` | adapter/config SHA256 `6b2e4fbd...68626` / `0d5282cd...2f7b` | 严格两文件且与训练输出逐字节一致；已上传并评测为0.9618 |
@@ -54,9 +65,53 @@
 | 本地否决 checkpoint | i01_action_distill_r64_ep3 | `checkpoints/i01_action_distill_r64_ep3/` | adapter SHA256 `67273f14373b4f7ee14c6077cba3ebf0b6f75336abf0491137901d1241c8a875`；MD5 `6dc62479` | action 停止改善但语义未涨，world 方向性大退；禁止上传 |
 | 最新失败实验包 | seed_cotfix_v1_lora_ep1 | `submissions/seed_cotfix_v1_lora_ep1_platform/` | adapter MD5 `3bfc8803`；SHA256 `0b3bfea5...` | 线上 0.8674，已证伪；仅暂存交付 |
 
-`submissions/` 当前保留十份：riders历史单次参考、seed_cotfix失败交付、已评测r64 E1、I-10 E1/E2/E3、已评测I-11/I-12/I-13，以及已评测的纯O1单体I-14 E3两文件包。历史riders r64 E2的本地标准提交包仍缺失；历史提交分数、配置和日志保存在实验台账与归档总账中。
+`submissions/` 当前保留十一份：原十份已登记历史包，以及新增但尚未上传/评测的I-17 step100严格两文件候选包。历史riders r64 E2的本地标准提交包仍缺失；历史提交分数、配置和日志保存在实验台账与归档总账中。
 
 I-10 根目录最终产物为 `checkpoints/seed_teacher_r64_lr1e4_ep3/adapter_model.safetensors`，SHA256与E3同为 `37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2`。三个checkpoint和根目录均未保存optimizer、scheduler或RNG状态。
+
+## 已完成并本地否决：seed_teacher_e3_dpo_rec_o1hard_v1
+
+| 项 | 启动前记录 |
+|---|---|
+| 目的 | 在当前最高保留的非融合单adapter I-10 E3上只修正推荐金标与同域历史假负例的相对排序；输出仍是一个从O6可复现的r64 adapter，不采用I-13参数拼接路线 |
+| 父模型/允许角色 | I-10 E3 `checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995/`，adapter SHA256 `37678b2516...8fc2`；成功保留checkpoint，获准同时作为可训练policy初始化和冻结DPO reference；不是失败checkpoint |
+| reference机制 | LLaMA-Factory默认LoRA DPO会对policy调用`disable_adapter()`并错误锚到O6。本配置显式设置`ref_model=O6`与`ref_model_adapters=I-10 E3`，由加载器合并出冻结E3 reference；policy通过`create_new_adapter: false`继续同一E3 adapter |
+| 正式训练数据 | `assets/derived/processed/data_o1_reward_preference_v1_train.jsonl`，`D(O1)` 15,382对，SHA256 `579171020e764b9c360b94493257848e6408487c7ca6b0dd8ba1efa76c34b52e`；video/ad/prod/living=`11,845/1,420/1,349/768`；O1派生100%，O2/T/E/teacher/model-rollout 0 |
+| 构造 | `scripts/data/build_o1_reward_preference_v1.py` SHA256 `49c0cddd3b211a491b73eb692422de5bf2a2d9a5b0956584f4c32f1d365af475`；上游`data_seed_clean_v1` 32,480行/SHA256 `e526caea...d309`；构造审计`logs/data/o1_reward_preference_v1_audit.json` SHA256 `d95edce9...07f` |
+| pair语义 | chosen逐字节保留O1派生目标；rejected只替换答案最终SID，候选必须来自同一输入历史、同域，并排除完整题面组的全部已知正例；2,185条无合格同域负例的推荐行直接跳过，不跨域凑数 |
+| E类holdout | `assets/evaluation/holdout/data_o1_reward_preference_v1_holdout.jsonl`，1,784对，SHA256 `1c7292cb...696e`；按完整题面哈希与训练集切分，交集0；只作父偏好诊断和训练后漂移门禁，配置不引用、训练梯度为0 |
+| 父偏好审计 | `logs/probe/i16_e3_parent_preference_audit.json` SHA256 `d1790cff...eda6`；每任务确定性64对、共320对。chosen原始胜率action/ad/live/prod/video=`93.75%/43.75%/32.8125%/17.1875%/34.375%`；因此只训练四推荐域，阻断1,392个action训练候选 |
+| 截断/格式 | 全候选18,558对source/chosen/rejected截断均0，截断后负例SID缺失0；正式推荐prompt最大2,924 token、response最大1,085 token。LLaMA-Factory完整预处理15,382/15,382对，无drop；配置解析为DPO sigmoid beta0.1/max_steps600/lr1e-6/W&B |
+| 配置 | `configs/active/seed_teacher_e3_dpo_rec_o1hard_v1.yaml`，启动前SHA256 `517d68645fd2af607cba89b487f5e9b5ef060fd748d2d4af5e9cf90b5e0c7f0a`；完成后加历史禁启动头，当前SHA256 `15260f8b6c69705882c9e31b22f337aeb71d0685407c40c53740ab59e816ddef`；单卡、r64/alpha64、sigmoid DPO beta0.1、lr1e-6 cosine、warmup30步、effective batch8、600步 |
+| checkpoint策略 | step200/400/600各保存adapter-only，数据累计暴露约10.40%/20.80%/31.21%；最多三份，不保存optimizer/scheduler/RNG；训练后使用action与非推荐结构门禁否决漂移，不以本地指标估线上分数 |
+| 持久启动 | 2026-07-14 12:19:46 UTC；单卡`GPU-717b...98c2b`；detached session由PID1接管且无TTY，退出码单独落盘；W&B [`packufor`](https://wandb.ai/3120252125-/llmrec-2026/runs/packufor)。加载日志确认policy为可训练E3 adapter、reference为O6加载同一E3 adapter后冻结合并；15,382/15,382 pairs预处理成功 |
+| step200 | adapter SHA256 `96817d4c...fac04`；训练batch偏好accuracy 0.95/margin 0.2700。锁定320对审计：推荐聚合raw win 32.03%→52.73%，四域mean margin均提升，action raw/normalized win保持93.75%/82.8125%；但推荐gold mean-logp下降0.01185293（限0.01），ad/prod下降0.02745775/0.02071816（各限0.02），因此未过完整门禁 |
+| step400 | adapter SHA256 `291c0b3e...eb94`；推荐聚合raw win升至57.03125%，四域mean margin仍全部高于父模型，action raw/normalized仍为93.75%/82.8125%；推荐gold mean-logp下降扩大到0.02029787，ad/prod为0.04661955/0.02984328，因此未过完整门禁 |
+| 输出边界 | 不从任何中途状态resume。step200/400/600只作本实验候选与轨迹证据，禁止打包、上传或成为后续训练父模型；I-17已重新从I-10 E3启动 |
+| step600 | adapter SHA256 `85cb7f00...73f00`；推荐聚合raw win 58.59375%，四域mean margin均高于父模型，action raw/normalized仍为93.75%/82.8125%；推荐gold mean-logp下降0.02149041，ad/prod为0.04899744/0.03203897，因此未过完整门禁 |
+| 训练完成 | 600/600 steps；runtime 2,190.54s（36m30.54s）；train loss 0.58184869；退出码0；W&B服务端`finished`。三个checkpoint均无optimizer/scheduler/RNG；没有任何候选进入itemic provisional gate，因此按预注册规则直接拒绝，不打包、不上传 |
+| 冻结门禁 | 预注册镜像`configs/evaluation/i16_o1hard_checkpoint_gate_preregister.json` SHA256 `6c097f9c...f223`，与checkpoint200前运行时文件逐字节一致；结果`configs/evaluation/i16_o1hard_checkpoint_gate_result.json` SHA256 `69b38426...e0c7` |
+| 状态 | **COMPLETE_LOCAL_REJECT_ALL_CANDIDATES_FAILED_GOLD_LOGP_GATE** |
+
+## 已完成并选中step100：seed_teacher_e3_dpo_rec_o1hard_lowdose_v2
+
+| 项 | 启动前记录 |
+|---|---|
+| 目的 | I-16已经验证推荐排序方向，但step200的gold-logp保护线窄幅失败；I-17只降低累计更新量，寻找同时满足排序收益与父能力保护的剂量窗口 |
+| 父模型/隔离 | 重新从I-10 E3 `checkpoint-1995`启动，SHA256 `37678b2516...8fc2`；显式冻结同一E3作reference。禁止加载、resume、合并或热启任何I-16 checkpoint |
+| 数据 | 与I-16逐字节相同的`D(O1)`推荐pair 15,382对，SHA256 `57917102...52e`；O2/T/E/teacher/model-rollout均0，不新建数据资产 |
+| 唯一机制变量 | 峰值lr `1e-6→7e-7`；`cosine(600总步)`改为短程`constant_with_warmup(200总步)`，warmup仍30步。step200离散累计LR面积`1.2985e-4`，为I-16 step200 `1.73495529e-4`的74.8434%；beta0.1、effective batch8、reference、数据与adapter结构不变 |
+| 候选与门禁 | step100/150/200，对应800/1,200/1,600 pair暴露；完整门槛逐字沿用I-16，见`configs/evaluation/i17_o1hard_lowdose_checkpoint_gate.json`，SHA256 `01115844...9f1`。按最早全通过点选择；看见结果后不放宽阈值 |
+| 配置 | `configs/active/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2.yaml`，启动前SHA256 `04975b5a79191fd638d5d24d68c8c85607a6a9a414766dd04ee1839da99d419e`；完成后加历史禁启动头，当前SHA256 `648c59e330fca3d082e30b1e7f073512f562e56621bfa4a86f7e7552035168b5`；单卡W&B；adapter-only每50步保存，最多4份，不保存optimizer/scheduler/RNG |
+| 统计边界 | I-17由I-16同一holdout轨迹驱动，复用门禁属于自适应选择；通过只说明机制与灾难安全，不是无偏验证、线上估分或涨分保证 |
+| 持久启动 | 2026-07-14 12:57 UTC；I-16退出码0后在同一单卡`GPU-717b...98c2b`顺序启动；detached PID 2685166由PID1接管、无TTY；W&B [`pfjlvm70`](https://wandb.ai/3120252125-/llmrec-2026/runs/pfjlvm70)。加载日志确认policy可训练E3、reference合并冻结E3；15,382 examples、200 steps、40,370,176 trainable params |
+| 训练完成 | 200/200 steps；runtime 799.399s（13m19.40s）；train loss 0.63655710；退出码0；W&B服务端`finished`。step50/100/150/200与根目录均无optimizer/scheduler/RNG；根目录adapter与step200逐字节一致 |
+| 量化轨迹 | step100/150/200推荐聚合raw win=`43.359375%/48.046875%/50.0%`，gold平均token logp下降=`0.00326676/0.00560856/0.00798044`，最大单域下降=`0.00840225/0.01199127/0.01673081`；三点均过原门槛，action raw始终93.75%，normalized=`82.8125%/82.8125%/84.375%` |
+| 选点 | 按“最早全通过”规则选step100，adapter/config SHA256 `a3b2fc9c...2d1dc` / `65b21290...90f3`。四推荐域mean margin均高于父模型；不因step150/200排序更强而牺牲更大gold漂移 |
+| 硬门禁 | step100临时merge后itemic断裂0/60=`PASS`；action复读6/30、选择题格式6/8、简单题4/8只作diagnostic。日志SHA256 `b538bcef...aab9`，临时merge已删 |
+| 门禁结果 | `configs/evaluation/i17_o1hard_lowdose_checkpoint_gate_result.json` SHA256 `036280c2...af80`；明确记录同holdout自适应复用，不是线上估分 |
+| 候选包 | `submissions/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2_step100_platform/`严格两个文件，与step100逐字节一致；adapter/config SHA256 `a3b2fc9c...2d1dc` / `65b21290...90f3`；尚未上传或评测 |
+| 状态 | **COMPLETE_LOCAL_GATE_PASS_STEP100_PACKAGED_NOT_UPLOADED_NOT_SCORE_ESTIMATE** |
 
 ## 失败收档：seed_clean_r80_lr1e4_ep3
 

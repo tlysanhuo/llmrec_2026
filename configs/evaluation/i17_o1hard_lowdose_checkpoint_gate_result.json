@@ -1,0 +1,75 @@
+{
+  "status": "COMPLETE_SELECTED_EARLIEST_FULL_GATE_PASS_STEP100_NOT_A_SCORE_ESTIMATE",
+  "experiment": "seed_teacher_e3_dpo_rec_o1hard_lowdose_v2",
+  "preregister": "configs/evaluation/i17_o1hard_lowdose_checkpoint_gate.json",
+  "preregister_sha256": "01115844af93a569c27238a787798f085a1e37e384693fac61d5762a22d709f1",
+  "training": {
+    "wandb_run_id": "pfjlvm70",
+    "wandb_state": "finished",
+    "global_step": 200,
+    "train_loss": 0.6365571045875549,
+    "train_runtime_seconds": 799.399,
+    "exit_code": 0,
+    "launch_config_sha256": "04975b5a79191fd638d5d24d68c8c85607a6a9a414766dd04ee1839da99d419e",
+    "train_log_sha256": "a26556cdcd7c797a633a0a0ab8443d3f16b8144a77b7568b3685604766b8cd71",
+    "optimizer_scheduler_rng_files": 0
+  },
+  "candidate_results": {
+    "100": {
+      "adapter_sha256": "a3b2fc9c9f5a2ba8e0c2222bb45b48514c29bc62e4e07f522bd37bd44b02d1dc",
+      "audit_sha256": "8e9bcdba9b013c4f05e9203d04c1fd3f39b331611ea4ac35fa7e226cd3b07285",
+      "action_raw_rate": 0.9375,
+      "action_normalized_rate": 0.828125,
+      "rec_aggregate_raw_rate": 0.43359375,
+      "rec_aggregate_chosen_mean_logp_drop": 0.003266755,
+      "max_domain_chosen_mean_logp_drop": 0.00840225,
+      "every_rec_domain_raw_mean_margin_improved": true,
+      "quantitative_gate_pass": true
+    },
+    "150": {
+      "adapter_sha256": "37a85b3af4f50abd612c11f8086b7a6ef58923a03154aed805dc57010d896661",
+      "audit_sha256": "d3300571cd9da11652ed70203b428b22d67d7717a2a85acde4d18b163b93b192",
+      "action_raw_rate": 0.9375,
+      "action_normalized_rate": 0.828125,
+      "rec_aggregate_raw_rate": 0.48046875,
+      "rec_aggregate_chosen_mean_logp_drop": 0.0056085575,
+      "max_domain_chosen_mean_logp_drop": 0.01199127,
+      "every_rec_domain_raw_mean_margin_improved": true,
+      "quantitative_gate_pass": true
+    },
+    "200": {
+      "adapter_sha256": "b86676581d72fa68297d911b9be83476282c599238d41a488953d2d46f8a492d",
+      "audit_sha256": "b72b8e80362a55f71ed1411330b2e2a712c1ade7a502997b805cdc450556d285",
+      "action_raw_rate": 0.9375,
+      "action_normalized_rate": 0.84375,
+      "rec_aggregate_raw_rate": 0.5,
+      "rec_aggregate_chosen_mean_logp_drop": 0.0079804375,
+      "max_domain_chosen_mean_logp_drop": 0.01673081,
+      "every_rec_domain_raw_mean_margin_improved": true,
+      "quantitative_gate_pass": true
+    }
+  },
+  "selected_step": 100,
+  "selection_reason": "Step100 is the earliest preregistered candidate satisfying every quantitative requirement and the itemic hard gate.",
+  "selected_itemic_gate": {
+    "precheck_log": "logs/precheck/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2_step100_20260714.log",
+    "precheck_log_sha256": "b538bcef8738046fda4d156853ae83da3267764cc95d81b181fffd3b4b49aab9",
+    "itemic_breakage": 0,
+    "itemic_samples": 60,
+    "itemic_breakage_rate": 0.0,
+    "threshold_max": 0.1,
+    "pass": true,
+    "action_repetition_diagnostic": "6/30",
+    "multiple_choice_format_diagnostic": "6/8",
+    "simple_question_accuracy_diagnostic": "4/8"
+  },
+  "package": {
+    "path": "submissions/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2_step100_platform",
+    "file_count": 2,
+    "adapter_model_sha256": "a3b2fc9c9f5a2ba8e0c2222bb45b48514c29bc62e4e07f522bd37bd44b02d1dc",
+    "adapter_config_sha256": "65b212907950b93bc6478ecce6729869e08fbbe692315dc8a89da369b31690f3",
+    "byte_identical_to_selected_checkpoint": true
+  },
+  "decision": "Retain and package step100 as the I-17 candidate. Do not claim an expected online score or guaranteed gain from this local gate.",
+  "adaptive_validation_warning": "I-17 was designed after viewing I-16 results on the same holdout. The gate is therefore adaptive and supports mechanism/safety selection only, not an unbiased improvement estimate."
+}

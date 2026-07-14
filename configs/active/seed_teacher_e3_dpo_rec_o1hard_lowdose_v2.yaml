@@ -1,0 +1,92 @@
+### HISTORICAL_ONLY_AFTER_SUCCESS — DO NOT LAUNCH OR OVERWRITE.
+### I-17 completed 200/200 with exit 0. The preregistered gate selected
+### checkpoint-100; later trajectory points remain audit-only.
+###
+### I-17: preregistered lower-integrated-LR follow-up to the I-16 trajectory.
+### This run starts again from the successful I-10 E3 parent. It must never
+### resume from, merge with, or warm-start from an I-16 checkpoint.
+###
+### The only training-mechanism change from I-16 is optimizer dose:
+### - I-16 step 200 improved the four-domain aggregate raw preference win rate
+###   from 32.03125% to 52.734375%, while action stayed at 93.75%.
+### - It narrowly exceeded preregistered gold-logp protection: recommendation
+###   mean-token logp drop 0.01185293 (limit 0.01), ad drop 0.02745775
+###   (limit 0.02), and prod drop 0.02071816 (limit 0.02).
+### - I-16 step 400 strengthened ordering but enlarged those drops to
+###   0.02029787 / 0.04661955 / 0.02984328. This supports a smaller update,
+###   not a different dataset, parent, preference loss, or reference model.
+###
+### Peak LR is reduced from 1e-6 to 7e-7 and the short run uses a constant
+### post-warmup schedule. Through step 200 its discrete LR area is about
+### 1.2985e-4, 74.8434% of I-16 through step 200 (1.73495529e-4). Candidate
+### steps 100/150/200 expose 800/1,200/1,600 pairs (5.20%/7.80%/10.40% of
+### the registered set) and bracket progressively larger update areas.
+### Selection criteria were frozen in
+### configs/evaluation/i17_o1hard_lowdose_checkpoint_gate.json before launch.
+### The holdout remains a mechanism/safety gate, never an online score proxy.
+###
+### Asset and lineage ledger (unchanged from I-16):
+### - Parent/reference adapter SHA256
+###   37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2.
+### - Dataset data_o1_reward_preference_v1_train, class D(O1), 15,382 pairs,
+###   SHA256 579171020e764b9c360b94493257848e6408487c7ca6b0dd8ba1efa76c34b52e.
+### - Upstream data_seed_clean_v1 -> O1; 32,480 rows, SHA256
+###   e526caea4a1afd8befbd5d266fb80d0378a5bf7eff90fdacd14934332d64d309.
+### - Builder scripts/data/build_o1_reward_preference_v1.py, SHA256
+###   49c0cddd3b211a491b73eb692422de5bf2a2d9a5b0956584f4c32f1d365af475.
+### - Mix video/ad/prod/living = 11,845/1,420/1,349/768; O1-derived 100%;
+###   O2/T/E/teacher/model-rollout rows 0.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995
+ref_model: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+ref_model_adapters: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: dpo
+do_train: true
+finetuning_type: lora
+create_new_adapter: false
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target: all
+pref_loss: sigmoid
+pref_beta: 0.1
+pref_ftx: 0.0
+dpo_label_smoothing: 0.0
+
+dataset: data_o1_reward_preference_v1_train
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/o1_reward_preference_v1
+template: qwen3_nothink
+cutoff_len: 16384
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2
+logging_steps: 5
+save_strategy: steps
+save_steps: 50
+save_total_limit: 4
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_teacher_e3_dpo_rec_o1hard_lowdose_v2
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 7.0e-7
+max_steps: 200
+num_train_epochs: 1
+lr_scheduler_type: constant_with_warmup
+warmup_steps: 30
+weight_decay: 0.001
+bf16: true
+seed: 19260822

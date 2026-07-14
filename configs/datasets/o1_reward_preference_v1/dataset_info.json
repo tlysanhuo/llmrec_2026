@@ -1,0 +1,24 @@
+{
+  "data_o1_reward_preference_v1_train": {
+    "file_name": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/derived/processed/data_o1_reward_preference_v1_train.jsonl",
+    "ranking": true,
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "chosen": "chosen",
+      "rejected": "rejected"
+    }
+  },
+  "data_o1_reward_preference_v1_holdout": {
+    "file_name": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/evaluation/holdout/data_o1_reward_preference_v1_holdout.jsonl",
+    "ranking": true,
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "chosen": "chosen",
+      "rejected": "rejected"
+    }
+  }
+}

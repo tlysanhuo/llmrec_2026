@@ -53,9 +53,12 @@ done < <(jq -r 'to_entries[] | select((.value.file_name // "") | contains("llmre
 shopt -s nullglob
 for cfg in "$ROOT"/configs/active/*.yaml; do
   grep -Eq '^num_train_epochs:[[:space:]]*[0-9]+([.][0-9]+)?[[:space:]]*$' "$cfg" || fail "active config has invalid epoch count: $cfg"
-  if grep -Eq '^save_strategy:[[:space:]]*epoch[[:space:]]*$' "$cfg"; then
-    grep -Eq '^save_total_limit:[[:space:]]*[1-9][0-9]*[[:space:]]*$' "$cfg" || fail "epoch-saving config has no positive save limit: $cfg"
-    grep -Eq '^save_only_model:[[:space:]]*true[[:space:]]*$' "$cfg" || fail "epoch-saving config would retain optimizer state: $cfg"
+  if grep -Eq '^save_strategy:[[:space:]]*(epoch|steps)[[:space:]]*$' "$cfg"; then
+    grep -Eq '^save_total_limit:[[:space:]]*[1-9][0-9]*[[:space:]]*$' "$cfg" || fail "checkpoint-saving config has no positive save limit: $cfg"
+    grep -Eq '^save_only_model:[[:space:]]*true[[:space:]]*$' "$cfg" || fail "checkpoint-saving config would retain optimizer state: $cfg"
+    if grep -Eq '^save_strategy:[[:space:]]*steps[[:space:]]*$' "$cfg"; then
+      grep -Eq '^save_steps:[[:space:]]*[1-9][0-9]*[[:space:]]*$' "$cfg" || fail "step-saving config has no positive save cadence: $cfg"
+    fi
   else
     grep -Eq '^save_strategy:[[:space:]]*("no"|no)[[:space:]]*$' "$cfg" || fail "unsupported save strategy in active config: $cfg"
   fi

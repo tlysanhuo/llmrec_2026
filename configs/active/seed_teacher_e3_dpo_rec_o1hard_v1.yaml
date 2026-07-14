@@ -1,0 +1,110 @@
+### HISTORICAL_ONLY_AFTER_COMPLETION_LOCAL_REJECT — DO NOT LAUNCH OR RESUME.
+### I-16 completed 600/600 with exit 0, but every preregistered checkpoint
+### failed the gold-logp protection gate. It is retained only for audit.
+###
+### I-16: low-dose recommendation-only DPO continuation from I-10 E3.
+### User approved starting work on the highest retained non-fusion adapter on
+### 2026-07-14 UTC. This is one continued r64 adapter, not adapter fusion,
+### parameter concatenation, or same-capacity distillation.
+###
+### Parent and reference boundary:
+### - Policy starts from the successful I-10 E3 adapter and updates that same
+###   adapter (`create_new_adapter: false`). It never loads a failed checkpoint.
+### - DPO must not use LLaMA-Factory's implicit LoRA reference: that path calls
+###   `disable_adapter()` and would anchor to O6 rather than E3. The explicit
+###   `ref_model` + `ref_model_adapters` pair below creates a frozen E3 reference.
+### - Parent adapter: 161,533,160 bytes; SHA256
+###   37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2.
+###
+### Finalized asset ledger before launch:
+### - Base O6 config SHA256
+###   5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4.
+### - Dataset: data_o1_reward_preference_v1_train, class D(O1), 15,382
+###   recommendation pairs, SHA256
+###   579171020e764b9c360b94493257848e6408487c7ca6b0dd8ba1efa76c34b52e.
+### - Upstream: data_seed_clean_v1 -> O1; source 32,480 rows, SHA256
+###   e526caea4a1afd8befbd5d266fb80d0378a5bf7eff90fdacd14934332d64d309.
+### - Builder: scripts/data/build_o1_reward_preference_v1.py, SHA256
+###   49c0cddd3b211a491b73eb692422de5bf2a2d9a5b0956584f4c32f1d365af475.
+### - Builder audit: logs/data/o1_reward_preference_v1_audit.json, SHA256
+###   d95edce924a6cc9b5398bdf0b05ffc38361956d124a3bc6009112c20f79ed07f.
+### - Train task mix: video 11,845 (77.005591%), ad 1,420
+###   (9.231569%), prod 1,349 (8.769991%), living 768 (4.992849%).
+###   O1-derived 100%; O2/T/E/teacher/model-rollout rows 0.
+### - Chosen responses are byte-identical O1-derived targets. Rejected responses
+###   replace only the final target with a same-prompt, same-domain history item
+###   after excluding every known positive in that prompt group.
+### - E holdout is not referenced by this training config and contributes zero
+###   gradient rows.
+###
+### Parameter evidence and dose boundary:
+### - E3 audit uses 64 deterministic holdout pairs per task (320 total). Chosen
+###   raw-logp win rates are ad 43.75%, living 32.8125%, prod 17.1875%, video
+###   34.375%, versus action 93.75%. Therefore only recommendation enters
+###   training; action remains a drift gate. Audit SHA256
+###   d1790cffee5fc2a99e4e6463ece61e0f0a06ebebb9bcd8c5d51e5dacd766eda6.
+### - Full cutoff audit found 0/18,558 source/chosen/rejected truncations and
+###   0 missing negative SIDs. Formal recommendation prompts are <=2,924 tokens
+###   and responses <=1,085 tokens under the exact qwen3_nothink template.
+### - Sigmoid DPO beta=0.1 is the framework default. Peak LR 1e-6 is one fifth
+###   of the local LLaMA-Factory LoRA-DPO example's 5e-6 because E3 is already a
+###   strong task adapter and the goal is a small ordering correction.
+### - Effective batch 8 and 600 optimizer steps expose 4,800 pairs, 31.205305%
+###   of the registered train set. Adapter-only checkpoints at 200/400/600
+###   expose 10.40%/20.80%/31.21%, allowing a conservative trajectory gate.
+### - No positive online gain is guaranteed. Synthetic preference and local
+###   gates are mechanism/safety evidence only, never an online score estimate.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995
+ref_model: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+ref_model_adapters: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: dpo
+do_train: true
+finetuning_type: lora
+create_new_adapter: false
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target: all
+pref_loss: sigmoid
+pref_beta: 0.1
+pref_ftx: 0.0
+dpo_label_smoothing: 0.0
+
+dataset: data_o1_reward_preference_v1_train
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/o1_reward_preference_v1
+template: qwen3_nothink
+cutoff_len: 16384
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_e3_dpo_rec_o1hard_v1
+logging_steps: 5
+save_strategy: steps
+save_steps: 200
+save_total_limit: 3
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_teacher_e3_dpo_rec_o1hard_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-6
+max_steps: 600
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_steps: 30
+weight_decay: 0.001
+bf16: true
+seed: 19260821

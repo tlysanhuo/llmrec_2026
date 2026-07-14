@@ -1,0 +1,11 @@
+### Temporary merge for the preregistered I-17 step100 itemic safety gate only.
+### This is not a training config or a submission artifact. Delete the export
+### directory after the gate; retain this recipe for reproducibility.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2/checkpoint-100
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2_step100_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false
