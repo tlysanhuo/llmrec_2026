@@ -175,8 +175,8 @@ O3 官方页面：`https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_C
 
 - `assets/evaluation/visible/懂世界.jsonl` 实际 7 行。仅前 5 行是当前平台日志固定 common-sense 可见题，人工 gold 依次为 `A,D,A,B,A`；第 6 行无 `/no_think`，第 7 行是与当前“单项选择”规则不兼容的历史多选题。任何门禁必须锁定前 5 行的 prompt hash，禁止把 7 行混算准确率。
 - `assets/evaluation/offline_eval/` 当前冻结卷：mat_fresh 542、mat_train 300、rec 四域各 1,000、action 325、topic 110、world 500。旧卷缺稳定 user/PID/题源实体键，只能复现历史 v3 校准，不能据此做实体级 bootstrap。
-- `logs/eval/` 当前包含 28 个唯一线上评测日志及一个 `seed_ep3` 原始哈希名重复副本；去重必须按 evalTaskId，不能按文件数。最新五份为 `seed_teacher_r64_lr1e4_e2_20260713.log`、`seed_teacher_r64_lr1e4_e3_20260713.log`、`seed_teacher_e3_cont_r64_lr2e5_ep1_20260713.log`、`e3_userres_r80_retkl_v3_ep1_20260713.log` 与 `e3_userres_r80_retkl_v3_s875_20260714.log`。
-- 2026-07-13下午平台修复评测不稳定。仓内日志可证实切点位于I-10 E3（11:45）与I-11（16:40）之间：前25个唯一日志（含I-10 E1/E2/E3）使用action4096+itemic单跑的修复前协议；I-11/I-12/I-13使用action1024+itemic 7次race-average的固定协议。两边都打印`version: v3.1`，因此去重后还必须按协议指纹分层，禁止跨层校准或作差。
+- `logs/eval/` 当前包含 30 个唯一线上评测日志及一个 `seed_ep3` 原始哈希名重复副本；去重必须按evalTaskId，不能按文件数。最新五份为 `seed_teacher_e3_cont_r64_lr2e5_ep1_20260713.log`、`e3_userres_r80_retkl_v3_ep1_20260713.log`、`e3_userres_r80_retkl_v3_s875_20260714.log`、`seed_clean_r80_lr1e4_ep3_rerun1_20260714.log` 与 `seed_teacher_e3_dpo_rec_o1hard_lowdose_v2_step100_20260714.log`。
+- 2026-07-13下午平台修复评测不稳定。仓内日志可证实切点位于I-10 E3（11:45）与I-11（16:40）之间：前25个唯一日志（含I-10 E1/E2/E3）使用action4096+itemic单跑的修复前协议；I-11/I-12/I-13/I-14/I-17使用action1024+itemic 7次race-average的固定协议。两边都打印`version: v3.1`，因此去重后还必须按协议指纹分层，禁止跨层校准或作差。
 - `logs/offline_eval/` 和 `logs/probe/` 是评测运行产物，不是训练资产。旧 parser/protocol 结果必须按版本隔离，不能混入新校准。
 
 ## 6. 不再重复扫描协议
@@ -191,6 +191,8 @@ O3 官方页面：`https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_C
 
 ## 7. 维护记录
 
+- 2026-07-14：登记I-17 step100平台评测日志`logs/eval/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2_step100_20260714.log`，2,657,186 bytes，SHA256 `5e7a0dff1a9b9048862f00eed0f7a67094bb01acfc15b62f60d776c03dca3fc7`，evalTaskId `eval-task-eeve0r-1784036284`；固定协议指纹action1024+itemic 7次race-average，8/8任务完成、`Failed tasks 0`。该日志为E类，只作线上结果诊断与审计，不回灌训练。
+- 2026-07-14：补登记I-14平台评测日志`logs/eval/seed_clean_r80_lr1e4_ep3_rerun1_20260714.log`，2,905,022 bytes，SHA256 `046a2e53b009206b1b88306c99682cc1a9444cc711a7820212e55efedf324153`，evalTaskId `eval-task-lfrrhq-1784013605`；固定协议指纹action1024+itemic 7次race-average，8/8任务完成、`Failed tasks 0`。该日志为E类，只作线上结果诊断与审计，不回灌训练。
 - 2026-07-14：登记I-16 O1奖励对齐偏好资产。builder从`data_seed_clean_v1`构造17,019个推荐候选对和1,539个action候选对；推荐负例严格同题面同域并排除组内全部已知正例，action负例只增加一个保序非金标历史事件。E3父模型分层审计显示推荐chosen原始胜率17.19%–43.75%，action为93.75%，故正式D类训练集只保留推荐15,382对，阻断action训练桶1,392对；E类holdout保留推荐1,637+action147用于漂移门禁。训练/holdout题面交集0，训练侧O1派生占比100%，T/E/teacher/model rollout均为0；SHA256分别为`57917102...b52e`/`1c7292cb...696e`，完整构造审计见`logs/data/o1_reward_preference_v1_audit.json`。
 - 2026-07-14：登记I-14训练集`data_seed_clean_v1.jsonl`。上游仅O1的D格式入口`data_final.jsonl`，32,480行/100%；builder完整保留全部target，只压缩12,744条推荐冗余CoT并将602条topic对齐no-think；O2/T/E行0。builder、审计和输出SHA256分别为`2d01951d...dc214`、`15767552...c3b11`、`e526caea...d309`；正式训练配置与混合比例登记在`docs/EXPERIMENT_INDEX.md`。
 - 2026-07-14：登记I-13平台评测日志`logs/eval/e3_userres_r80_retkl_v3_s875_20260714.log`，2,777,778 bytes，SHA256 `9291f8bf87871bb93846dda4cfcf60d43812354fb87a18e6ef6a5a349bdb3315`，evalTaskId `eval-task-9ie86v-1783961075`；固定协议指纹action1024+itemic 7次race-average，8/8任务完成、`Failed tasks 0`。该日志为E类，只作线上结果诊断与审计，不回灌训练。
