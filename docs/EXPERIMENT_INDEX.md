@@ -38,7 +38,7 @@
 | 构造与质检 | `scripts/data/build_cotfix_v2.py` SHA256 `81aba7b962a4ad1c27d450d882a6774ab1771daae0fe7957e1f790a81227c9d0`；538/538为`TRUNCATED`且程序门0错误，独立judge全部score=5九项全真；新增非历史SID/重复前缀SID均0 |
 | 单变量不变量 | 恰改538条保留推荐CoT；其余32,106行逐字不变。instruction/input/history、最终答案、行序、任务数和164条O2 teacher均0变化；target token 5,867,041，仅推荐四域增加；raw最大约9,744 token、16,384 cutoff超限0 |
 | 审计 | `logs/data/seed_teacher_cotfix_v2_audit.json` SHA256 `bdea6db13a398dbcde973117dbf72d9ed81d5635bcbcbb7f1f1ba41fda79057c`；generation/judge审计SHA256 `05f5399b...5edf` / `994c8702...c861` |
-| 配置 | `configs/active/seed_teacher_cotfix_v2_r64_lr1e4_ep3.yaml`启动时SHA256 `2bd234bd3d58a553c3f9b304e718e73531bbdb2a192d195866ba09350d3042da`；与I-10关键训练字段完全相同，仅dataset/dataset_dir及非训练的output/run name变化。完成后添加`HISTORICAL_ONLY_AFTER_SUCCESS`防覆盖头，当前SHA256 `85b62d80e9654c7e8e6b1e910f6140ee85c63f4aeb55f9494053e3fd444791da` |
+| 配置 | `configs/active/seed_teacher_cotfix_v2_r64_lr1e4_ep3.yaml`启动时SHA256 `2bd234bd3d58a553c3f9b304e718e73531bbdb2a192d195866ba09350d3042da`；与I-10关键训练字段完全相同，仅dataset/dataset_dir及非训练的output/run name变化。完成后添加防覆盖头，并于GitHub数据发布时只将model/dataset/output三处路径改为仓库相对路径，训练字段不变；当前SHA256 `6722ffbe149c44031e3886fd3ecef79c1bc9005aba1e823a82365a66e630d622` |
 | 训练物理 | 单卡、r64/alpha64/dropout0.05、lr1e-4 cosine、warmup0.03、effective batch4、cutoff16384、3 epoch、W&B online；按epoch保存adapter-only E1/E2/E3且最多3份，不保存optimizer/scheduler/RNG |
 | 选择边界 | I-10旧协议轨迹只支持保留三轮剂量，不预测固定协议分数。主要预期在推荐四项；material/action/topic/world标签未改，结构灾难即否决。E1/E2/E3先保留，结构门只作硬失败保险丝，不本地估分排序；不自动消耗线上提交配额 |
 | 持久启动 | 2026-07-14 17:26 UTC；单卡`GPU-66333310-c796-4db6-6772-684087c24bc9`（物理GPU1）。detached wrapper PID `2813778`由PID1接管、SID `2813778`且无TTY；PID/日志/退出码分别持久化为同名`.pid`、`.log`、`.exit_code`，不是临时PTY会话 |
@@ -52,6 +52,7 @@
 | 训练结果文件 | `train_results.json` SHA256 `a2a2f9d46b51387d9d11a0113845babb1d461f89306f4548f6edeba60aea6d62`；根目录`trainer_state.json` SHA256 `8709cfcfd0d0174bbfc1cedff0418d6829042decc4f7677c30243b3369ffffaa` |
 | E3结构硬门禁 | 临时merge后itemic断裂0/60=`PASS`；action复读5/30、选择题格式3/8、占位符0/8、简单题2/8均按冻结规则只作diagnostic。日志`logs/precheck/seed_teacher_cotfix_v2_r64_lr1e4_ep3_e3_precheck.log`，1,683 bytes，SHA256 `2e6629cb4b3d7cd34443109967f27c7c2342c932ebe0c5338b48e4d5efa977c4`；临时merge与配置已删。门禁只排除结构灾难，不证明涨分 |
 | E3平台包 | `submissions/seed_teacher_cotfix_v2_r64_lr1e4_ep3_platform/`严格只有`adapter_config.json`（1,138 bytes，SHA256 `65732b4da48a0b2f93ea6d1bb3861e7e13bf0406635ae5e587de34a709ff26fa`）与`adapter_model.safetensors`（161,533,160 bytes，SHA256 `07cd662852ee1ef3654096adfce36891ce260129bdc68c7924c2b75554c2a9e3`）；两文件均与E3逐字节一致，尚未上传 |
+| GitHub数据发布 | `assets/derived/releases/seed_teacher_cotfix_v2/`包含完整确定性gzip、manifest、原始小型审计摘要和使用说明；gzip 52,199,218 bytes/SHA256 `193cd78f...07f9`，解压后32,644行/249,454,095 bytes/SHA256 `634c4805...c0e4`；`scripts/data/restore_seed_teacher_cotfix_v2.py`执行压缩与内容双校验及原子还原，无需API即可复现实训输入 |
 | 当前状态 | **PACKAGE_READY_LOCAL_GATE_PASS_E3_PENDING_UPLOAD**；E1/E2不选，只提交E3；尚未线上评测，本轮没有消耗提交次数 |
 
 ## 保留模型

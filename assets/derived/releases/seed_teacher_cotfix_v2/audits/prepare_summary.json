@@ -1,0 +1,58 @@
+{
+  "stage": "prepare",
+  "asset_class": "construction_intermediate_D(O1,O3)",
+  "upstream": {
+    "O1_D_format": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/derived/processed/data_final.jsonl",
+      "rows": 32480,
+      "sha256": "995efe62ee98b44c28175a444849e51c3ebbbc9c1b9e83fc83146f09024f8f71"
+    },
+    "O3": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/official/sft_aligned/baseline_caption_tag_lists.parquet",
+      "rows": 19204,
+      "sha256": "c307fe6d723ebdebc2d343de3481bdc878f6193d65456e3b933ae7f6b78b8d9d"
+    }
+  },
+  "candidate_audit": {
+    "recommendation_rows": 19204,
+    "prompt_groups": 6460,
+    "candidate_groups": 538,
+    "candidate_source_rows": 1845,
+    "prefix_chars": {
+      "min": 188,
+      "median": 295.0,
+      "p90": 1143,
+      "max": 1997
+    },
+    "ending_chars": {
+      "(": 142,
+      ",": 15,
+      ".": 36,
+      ">": 64,
+      "`": 40,
+      "、": 108,
+      "似": 2,
+      "发": 1,
+      "如": 126,
+      "播": 1,
+      "货": 1,
+      "，": 2
+    }
+  },
+  "history_only_evidence": {
+    "o3_rows_scanned": 19204,
+    "candidate_groups_aligned": 538,
+    "history_semantic_positions": {
+      "total": 73426,
+      "min_per_group": 24,
+      "median_per_group": 134.5,
+      "max_per_group": 327
+    }
+  },
+  "target_answer_or_metadata_in_requests": 0,
+  "requests": {
+    "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/cotfix_v2_requests.jsonl",
+    "rows": 538,
+    "sha256": "30bfd9910478c5d438dd3abd31642c4f35980e1890b4b50c6c7dea87b7f9cf13"
+  }
+}

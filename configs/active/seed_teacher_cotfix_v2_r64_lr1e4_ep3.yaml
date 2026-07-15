@@ -1,4 +1,6 @@
 ### HISTORICAL_ONLY_AFTER_SUCCESS: completed 1,995/1,995 steps; do not overwrite.
+### PORTABLE_RELEASE_PATHS_ADDED_AFTER_SUCCESS: path-only change for teammate reproduction;
+### the launch-time config SHA256 remains recorded below and in EXPERIMENT_INDEX.md.
 ### I-18 semantic repair of 538 upstream-truncated recommendation CoTs.
 ###
 ### Single-variable experiment relative to I-10:
@@ -46,7 +48,7 @@
 ### targets are byte-identical; structural regression in those branches is a
 ### rejection signal, not evidence that their training labels changed.
 
-model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+model_name_or_path: models/OneReason-0.8B-pretrain-competition
 trust_remote_code: true
 flash_attn: fa2
 
@@ -60,7 +62,7 @@ lora_dropout: 0.05
 lora_target: all
 
 dataset: data_seed_teacher_cotfix_v2
-dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/seed_teacher_cotfix_v2
+dataset_dir: configs/datasets/seed_teacher_cotfix_v2
 template: qwen3_nothink
 cutoff_len: 16384
 packing: true
@@ -72,7 +74,7 @@ dataloader_num_workers: 8
 val_size: 0
 eval_strategy: "no"
 
-output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3
+output_dir: checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3
 logging_steps: 5
 save_strategy: epoch
 save_total_limit: 3

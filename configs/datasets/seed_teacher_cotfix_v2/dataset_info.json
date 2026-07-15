@@ -1,6 +1,6 @@
 {
   "data_seed_teacher_cotfix_v2": {
-    "file_name": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/derived/processed/data_seed_teacher_cotfix_v2.jsonl",
+    "file_name": "../../../assets/derived/releases/seed_teacher_cotfix_v2/data_seed_teacher_cotfix_v2.jsonl",
     "formatting": "alpaca",
     "columns": {
       "prompt": "instruction",

@@ -1,0 +1,27 @@
+{
+  "stage": "generate",
+  "requests": 538,
+  "generator_model": "gpt-5.6-sol-max",
+  "judge_model": "gpt-5.6-terra-max",
+  "repair_attempts": 2,
+  "attempted_this_run": 2,
+  "accepted_this_run": 2,
+  "rejected_this_run": 0,
+  "accepted_total_latest": 538,
+  "rejected_total_latest": 0,
+  "unresolved_total": 0,
+  "usage_this_run": {
+    "prompt_tokens": 19278,
+    "completion_tokens": 1454,
+    "total_tokens": 20732
+  },
+  "elapsed_seconds": 18.48,
+  "generations": {
+    "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/cotfix_v2_generations.jsonl",
+    "sha256": "05f5399bf058d220cbaa276c894eb193280fc0abc08ea1dcd170ed489d9a5edf"
+  },
+  "audit_log": {
+    "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/cotfix_v2_generation_audit.jsonl",
+    "sha256": "994c8702be0f6292237d6cf3f08a4eaa7729042c51bdadfe4b09af22ec1c861a"
+  }
+}

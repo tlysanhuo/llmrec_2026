@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "release": {
+    "id": "seed_teacher_cotfix_v2",
+    "experiment_id": "I-18",
+    "created_utc": "2026-07-15",
+    "purpose": "GitHub-shareable, byte-reproducible training-data release for the I-18 implementation",
+    "storage": "normal Git; no Git LFS required"
+  },
+  "asset": {
+    "class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O3)",
+    "official_direct": false,
+    "file_name": "data_seed_teacher_cotfix_v2.jsonl",
+    "format": "JSONL (Alpaca columns: instruction, input, output, history)",
+    "rows": 32644,
+    "bytes": 249454095,
+    "sha256": "634c4805367308b35dd729c17f59a1a8b4bb473b84a80d21cc71931a2c29c0e4"
+  },
+  "archive": {
+    "path": "assets/derived/releases/seed_teacher_cotfix_v2/data_seed_teacher_cotfix_v2.jsonl.gz",
+    "format": "gzip",
+    "deterministic_build_command": "gzip -n -9",
+    "bytes": 52199218,
+    "sha256": "193cd78f1689a3ec2ffb2fc1d2167c8d55bfe364ddcb33ca61576939231807f9"
+  },
+  "lineage": {
+    "parent_I10_dataset": {
+      "asset_class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag)",
+      "rows": 32644,
+      "sha256": "13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f"
+    },
+    "O2_teacher_identity_source": {
+      "rows": 164,
+      "sha256": "cb020185132c9ad06ee847798bc8d78e546cd8f5a77cae323f5d802f2dd3f189"
+    },
+    "O3_history_evidence": {
+      "rows": 19204,
+      "sha256": "c307fe6d723ebdebc2d343de3481bdc878f6193d65456e3b933ae7f6b78b8d9d",
+      "role": "history-side Caption/Tag evidence only; target SID metadata excluded"
+    },
+    "repair_requests": {
+      "rows": 538,
+      "sha256": "30bfd9910478c5d438dd3abd31642c4f35980e1890b4b50c6c7dea87b7f9cf13",
+      "target_answer_or_metadata_rows": 0
+    },
+    "teacher_generations": {
+      "generator_model": "gpt-5.6-sol-max",
+      "judge_model": "gpt-5.6-terra-max",
+      "accepted_latest": 538,
+      "sha256": "05f5399bf058d220cbaa276c894eb193280fc0abc08ea1dcd170ed489d9a5edf"
+    },
+    "independent_judge_audit": {
+      "accepted_latest_with_score5_and_all_nine_checks_true": 538,
+      "sha256": "994c8702be0f6292237d6cf3f08a4eaa7729042c51bdadfe4b09af22ec1c861a"
+    }
+  },
+  "construction": {
+    "builder": "scripts/data/build_cotfix_v2.py",
+    "builder_sha256": "81aba7b962a4ad1c27d450d882a6774ab1771daae0fe7957e1f790a81227c9d0",
+    "build_audit": "assets/derived/releases/seed_teacher_cotfix_v2/audits/build_audit.json",
+    "build_audit_sha256": "bdea6db13a398dbcde973117dbf72d9ed81d5635bcbcbb7f1f1ba41fda79057c",
+    "prepare_summary": {
+      "path": "assets/derived/releases/seed_teacher_cotfix_v2/audits/prepare_summary.json",
+      "sha256": "86b33f3eb3d3dca4ce9186487b84c59b6f89efe6866f1aeebc6816e4e89bf1ab"
+    },
+    "generation_summary": {
+      "path": "assets/derived/releases/seed_teacher_cotfix_v2/audits/generation_summary.json",
+      "sha256": "3e8247775957b825e143b9dbaf57028d2ac0cfebd8cbeeb5cc54843d04a9f845"
+    },
+    "restore_script": "scripts/data/restore_seed_teacher_cotfix_v2.py",
+    "restore_script_sha256": "549c5e8242c843507b39fde84b71de7da2f92635240d2ec360abacc5c57908d8"
+  },
+  "row_mix": {
+    "O1_parent": {
+      "rows": 32480,
+      "ratio": 0.99497611
+    },
+    "O2_teacher_unique_once": {
+      "rows": 164,
+      "ratio": 0.00502389
+    },
+    "O2_rule_rows": 0,
+    "T_rows": 0,
+    "E_rows": 0
+  },
+  "change_audit": {
+    "retained_recommendation_CoT_rows_changed": 538,
+    "all_other_rows_unchanged": 32106,
+    "row_order_preserved": true,
+    "instruction_input_history_diffs": 0,
+    "answer_diffs": 0,
+    "task_count_diffs": 0,
+    "O2_teacher_rows_changed": 0,
+    "failed_checkpoint_inputs": 0,
+    "rows_over_cutoff_16384_with_margin": 0
+  },
+  "tracked_entrypoints": {
+    "dataset_registry": {
+      "path": "configs/datasets/seed_teacher_cotfix_v2/dataset_info.json",
+      "sha256": "9d03372e5618af78273f2830ecfe26129552783c73cfa48e4afdf16e1fccd8b5"
+    },
+    "training_config": {
+      "path": "configs/active/seed_teacher_cotfix_v2_r64_lr1e4_ep3.yaml",
+      "launch_time_sha256": "2bd234bd3d58a553c3f9b304e718e73531bbdb2a192d195866ba09350d3042da",
+      "portable_release_sha256": "6722ffbe149c44031e3886fd3ecef79c1bc9005aba1e823a82365a66e630d622",
+      "path_only_changes_after_success": true
+    }
+  },
+  "training_recipe": {
+    "base_asset": "O6 OneReason-0.8B",
+    "finetuning_type": "LoRA",
+    "lora_rank": 64,
+    "lora_alpha": 64,
+    "lora_dropout": 0.05,
+    "learning_rate": 0.0001,
+    "epochs": 3,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.03,
+    "cutoff_len": 16384,
+    "packing": true,
+    "seed": 19260817,
+    "single_gpu": true,
+    "wandb_required": true
+  }
+}

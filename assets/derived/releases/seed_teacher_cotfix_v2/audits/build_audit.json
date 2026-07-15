@@ -1,0 +1,146 @@
+{
+  "asset_class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O3)",
+  "builder": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/scripts/data/build_cotfix_v2.py",
+  "builder_sha256": "81aba7b962a4ad1c27d450d882a6774ab1771daae0fe7957e1f790a81227c9d0",
+  "upstream": {
+    "parent_I10_dataset": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/derived/processed/data_seed_teacher_v1.jsonl",
+      "rows": 32644,
+      "sha256": "13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f",
+      "asset_lineage": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag)"
+    },
+    "O2_teacher_identity_source": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/derived/processed/action_distill_v5.jsonl",
+      "rows": 164,
+      "sha256": "cb020185132c9ad06ee847798bc8d78e546cd8f5a77cae323f5d802f2dd3f189",
+      "matched_parent_rows": 164
+    },
+    "requests_D_O1_O3": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/cotfix_v2_requests.jsonl",
+      "rows": 538,
+      "sha256": "30bfd9910478c5d438dd3abd31642c4f35980e1890b4b50c6c7dea87b7f9cf13",
+      "target_answer_or_metadata_rows": 0
+    },
+    "teacher_generations": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/cotfix_v2_generations.jsonl",
+      "sha256": "05f5399bf058d220cbaa276c894eb193280fc0abc08ea1dcd170ed489d9a5edf",
+      "generator_model": "gpt-5.6-sol-max",
+      "judge_model": "gpt-5.6-terra-max",
+      "accepted_latest": 538
+    },
+    "independent_judge_audit": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/cotfix_v2_generation_audit.jsonl",
+      "sha256": "994c8702be0f6292237d6cf3f08a4eaa7729042c51bdadfe4b09af22ec1c861a",
+      "accepted_latest_with_score5_all_checks_true": 538
+    },
+    "O3_role": "history-side evidence only; target SID metadata excluded"
+  },
+  "rows": 32644,
+  "row_mix": {
+    "O1_parent_rows": {
+      "rows": 32480,
+      "ratio": 0.99497611
+    },
+    "O2_teacher_unique_once": {
+      "rows": 164,
+      "ratio": 0.00502389
+    },
+    "T": {
+      "rows": 0,
+      "ratio": 0.0
+    },
+    "E": {
+      "rows": 0,
+      "ratio": 0.0
+    }
+  },
+  "single_variable_change": {
+    "candidate_groups_resolved": 538,
+    "verdicts": {
+      "TRUNCATED": 538
+    },
+    "retained_CoT_rows_changed": 538,
+    "all_other_rows_unchanged": 32106,
+    "continuation_chars": {
+      "min": 2,
+      "median": 74.0,
+      "p90": 122,
+      "max": 293
+    }
+  },
+  "invariants": {
+    "row_count_preserved": 32644,
+    "row_order_preserved": true,
+    "instruction_input_history_diffs": 0,
+    "answer_diffs": 0,
+    "output_diff_count": 538,
+    "task_count_diffs": 0,
+    "O2_teacher_rows_changed": 0,
+    "failed_checkpoint_inputs": 0
+  },
+  "task_counts": {
+    "action": 1752,
+    "material_desc2sid": 5597,
+    "material_sid2desc": 4787,
+    "rec_ad": 1576,
+    "rec_living": 1271,
+    "rec_prod": 1489,
+    "rec_video": 14868,
+    "topic": 1304
+  },
+  "target_token_mix_before": {
+    "total_including_eos": 5854621,
+    "by_task": {
+      "action": 147822,
+      "material_desc2sid": 106684,
+      "material_sid2desc": 621821,
+      "rec_ad": 650818,
+      "rec_living": 586772,
+      "rec_prod": 625245,
+      "rec_video": 2752504,
+      "topic": 362955
+    },
+    "ratio_by_task": {
+      "action": 0.02524877,
+      "material_desc2sid": 0.01822219,
+      "material_sid2desc": 0.10621029,
+      "rec_ad": 0.11116313,
+      "rec_living": 0.10022374,
+      "rec_prod": 0.10679513,
+      "rec_video": 0.47014213,
+      "topic": 0.06199462
+    }
+  },
+  "target_token_mix_after": {
+    "total_including_eos": 5867041,
+    "by_task": {
+      "action": 147822,
+      "material_desc2sid": 106684,
+      "material_sid2desc": 621821,
+      "rec_ad": 652732,
+      "rec_living": 587791,
+      "rec_prod": 626699,
+      "rec_video": 2760537,
+      "topic": 362955
+    },
+    "ratio_by_task": {
+      "action": 0.02519532,
+      "material_desc2sid": 0.01818361,
+      "material_sid2desc": 0.10598545,
+      "rec_ad": 0.11125404,
+      "rec_living": 0.10018526,
+      "rec_prod": 0.10681688,
+      "rec_video": 0.47051606,
+      "topic": 0.06186338
+    }
+  },
+  "token_length_audit": {
+    "approx_full_tokens_max_without_chat_overhead": 9744,
+    "approx_full_tokens_p99_without_chat_overhead": 6423,
+    "output_tokens_max": 1101,
+    "rows_over_16000_with_8_token_margin": 0,
+    "rows_over_cutoff_16384_with_8_token_margin": 0
+  },
+  "output": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/derived/processed/data_seed_teacher_cotfix_v2.jsonl",
+  "output_sha256": "634c4805367308b35dd729c17f59a1a8b4bb473b84a80d21cc71931a2c29c0e4"
+}
