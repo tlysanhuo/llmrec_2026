@@ -1,6 +1,6 @@
 # Experiment And Artifact Index
 
-> 当前状态基线：2026-07-14 UTC。
+> 当前状态基线：2026-07-15 UTC。
 > 旧版完整历史表已归档到 `docs/archive/EXPERIMENT_INDEX_pre_cleanup_20260711.md`。
 
 本文件只登记当前仍存在、仍可使用的模型产物。历史分数和实验归因见 `experiment_log.md`。
@@ -203,6 +203,7 @@ I-10 根目录最终产物为 `checkpoints/seed_teacher_r64_lr1e4_ep3/adapter_mo
 | 审计证据 | `logs/probe/i13_userres_scale_pareto_full_20260714.json`，20,574 bytes，SHA256 `c937b9be...82fc`；小样本先导`logs/probe/i13_userres_scale_pareto_20260714.json`，17,073 bytes，SHA256 `a2e59102...f1e14` |
 | 硬门禁 | itemic断裂0/60=`PASS`；action复读2/30、选择题格式6/8、占位符0/8、简单题4/8，全部与I-12一致。日志`logs/precheck/e3_userres_r80_retkl_v3_s875_precheck.log`，SHA256 `cbd32b15...66bda`；临时merge已删、GPU1归零 |
 | 提交包 | `submissions/e3_userres_r80_retkl_v3_s875_platform/`严格两文件；adapter 201,903,440 bytes，SHA256 `71bc3c2c...ffd5b`；config 1,139 bytes，SHA256 `e3c3ace0...c4ac0`；组合审计`logs/model/e3_userres_r80_retkl_v3_s875_combine.json` |
+| GitHub最高分实现发布 | `assets/derived/releases/e3_userres_r80_retkl_v3_s875/`完整提交I-10父训练数据与I-12残差训练数据的确定性gzip、manifest和小型原始审计；`configs/active/i13_repro_parent_r64_ep3.yaml`与`i13_repro_residual_r16_retkl_ep1.yaml`保留历史训练字段并改为portable路径；`scripts/reproduce/i13_highscore.sh`覆盖双数据校验/还原、两阶段单卡W&B训练和0.875精确拼接。两份数据已从发布件完整解压并与历史输入逐字节一致；用历史r64/r16源adapter重新拼接也与线上r80包逐字节一致 |
 | 规则口径 | FAQ写明初赛基于OneReason-0.8B、允许蒸馏、全程不鼓励融合，并要求复赛结束提供单模型训练方案审核复现。该包运行时是单个r80 adapter，但参数由两个同基座LoRA拼接，存在融合认定灰区；没有官方书面确认，不把“初赛通常不审核”写成合规证明 |
 | 线上 | `e3_userres_r80_retkl_v3_s875_V1_eval_20260714004418`；平台记录时间2026-07-14 00:44:35；1h7m21s；总分0.9978；八项按material/action/topic/video/prod/ad/live/world为`0.2453/0.1183/0.0390/0.0960/0.1224/0.1316/0.1062/0.1390`；账号`SL1ACE8AD6710` |
 | 线上日志 | `logs/eval/e3_userres_r80_retkl_v3_s875_20260714.log`，2,777,778 bytes，SHA256 `9291f8bf87871bb93846dda4cfcf60d43812354fb87a18e6ef6a5a349bdb3315`；8/8任务、Failed tasks 0；evalTaskId `eval-task-9ie86v-1783961075` |

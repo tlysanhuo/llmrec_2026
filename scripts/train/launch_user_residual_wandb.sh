@@ -9,7 +9,10 @@ fi
 gpu_id=$1
 config=$2
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-python_bin=/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/.venv/bin/python3
+default_python=/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/.venv/bin/python3
+python_bin=${LLAMAFACTORY_PYTHON:-$default_python}
+
+[[ -x "$python_bin" ]] || { echo "python is not executable: $python_bin" >&2; exit 2; }
 
 [[ -f "$config" ]] || { echo "missing config: $config" >&2; exit 2; }
 [[ "$(realpath "$config")" == "$root"/configs/active/*.yaml ]] || {

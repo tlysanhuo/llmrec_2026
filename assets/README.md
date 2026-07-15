@@ -11,6 +11,6 @@ Legacy `fewshot_seed.json` and `fewshot_v2.json` are official-seed-derived annot
 
 Canonical registry: [`docs/reference/ASSETS.md`](../docs/reference/ASSETS.md).
 
-Current reproducible release: [`derived/releases/seed_teacher_cotfix_v2/`](derived/releases/seed_teacher_cotfix_v2/) contains the full compressed I-18 training input, manifest, and restore instructions. It is official-source derived (`D`), not official direct data.
+Current highest-score release: [`derived/releases/e3_userres_r80_retkl_v3_s875/`](derived/releases/e3_userres_r80_retkl_v3_s875/) contains both complete I-13 training inputs, manifest, audits, and restore instructions for the fixed-protocol `0.9978` implementation. The separate [`derived/releases/seed_teacher_cotfix_v2/`](derived/releases/seed_teacher_cotfix_v2/) release is an unscored I-18 candidate. Both contain official-source-derived (`D`) data, not official direct data.
 
 Official includes the platform seed SFT, Explorer 17GB raw data, aligned Caption/Tag SFT data, OpenOneRec General-Pretrain, OpenOneRec General-SFT, and the competition base model.

@@ -151,6 +151,14 @@ O3 官方页面：`https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_C
 
 派生数据进入训练前必须在配置或实验台账记录：`上游资产 ID + 构建脚本 + 行数 + 内容哈希 + 混合比例`。缺任何一项，不得启动正式训练。
 
+### I-13 最高分实现的 GitHub 数据发布
+
+- 固定入口：`assets/derived/releases/e3_userres_r80_retkl_v3_s875/`
+- 作用：复现当前固定协议最高分I-13 `0.9978`所需的两份完整训练输入；这里只登记D类数据发布，不把模型拼接产物误归为数据资产
+- 父训练数据：`data_seed_teacher_v1.jsonl.gz`，52,167,271 bytes，SHA256 `10991aca557359f873aa372c56cda8684d9cdb00a38b88712b398e7dc2b11d01`；解压后32,644行/249,379,075 bytes/SHA256 `13c40526...eee4f`
+- 残差训练数据：`data_user_residual_retention_v1.jsonl.gz`，14,327,379 bytes，SHA256 `b61e5578b4332b7e27db29f418cf0ddea9d8f7847191f6486ac6f4e25cb9cda4`；解压后6,106行/74,716,566 bytes/SHA256 `bd947aad...b08f0`
+- 恢复器：`scripts/data/restore_i13_highscore_data.py`；manifest登记两阶段数据来源、行数、混合比例、脚本/配置哈希及I-13参考产物哈希。父数据O1 32,480+O2 teacher 164；残差数据用户CE/父保持各3,053；两者O2规则/T/E均为0
+
 ## 4. 第三方资产 `T`（与官方物理分区）
 
 固定访问入口：`assets/third_party/`。
@@ -192,6 +200,7 @@ O3 官方页面：`https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_C
 
 ## 7. 维护记录
 
+- 2026-07-15：登记当前最高分实现I-13 `e3_userres_r80_retkl_v3_s875`的GitHub数据发布。两份正式训练输入以确定性gzip放入`assets/derived/releases/e3_userres_r80_retkl_v3_s875/`，总压缩字节66,494,650；恢复器同时校验压缩包与解压内容，portable dataset registry指向发布目录。发布manifest和审计明确I-13为I-10 r64父adapter+I-12 r16残差按0.875拼接的融合灰区模型；0.9978是固定协议最高显示分，不等于已获复赛方案书面合规确认。
 - 2026-07-15：为队友共享登记I-18 GitHub数据发布件`assets/derived/releases/seed_teacher_cotfix_v2/`。提交完整训练输入的确定性gzip（52,199,218 bytes，SHA256 `193cd78f...07f9`），解压后严格还原32,644行/249,454,095 bytes/SHA256 `634c4805...c0e4`；同目录manifest记录上游ID、builder、行数、内容哈希、混合比例和不变量，`audits/`保留与运行卷逐字节一致的prepare/generation摘要及最终build audit，恢复脚本先校验压缩文件再校验解压内容并原子落盘。数据注册和历史训练配置仅在成功后改为仓库相对路径，训练超参未变；原启动配置哈希继续保留在manifest和实验台账。
 - 2026-07-14：登记I-18官方源派生训练集`data_seed_teacher_cotfix_v2.jsonl`。上游为I-10 `D(O1,O2)`父数据与O3历史侧Caption/Tag；只修复538条保留推荐CoT，prompt/答案/行序/任务数和164条O2 teacher均不变，T/E/目标元数据为0。生成器/独立judge最终538/538通过程序门和score=5九项全真质检；构建审计确认16,384 cutoff超限0。builder、审计、输出SHA256依次为`81aba7b9...c9d0`、`bdea6db1...057c`、`634c4805...c0e4`；正式混合与训练配方登记在I-18配置和`docs/EXPERIMENT_INDEX.md`。
 - 2026-07-14：登记I-17 step100平台评测日志`logs/eval/seed_teacher_e3_dpo_rec_o1hard_lowdose_v2_step100_20260714.log`，2,657,186 bytes，SHA256 `5e7a0dff1a9b9048862f00eed0f7a67094bb01acfc15b62f60d776c03dca3fc7`，evalTaskId `eval-task-eeve0r-1784036284`；固定协议指纹action1024+itemic 7次race-average，8/8任务完成、`Failed tasks 0`。该日志为E类，只作线上结果诊断与审计，不回灌训练。

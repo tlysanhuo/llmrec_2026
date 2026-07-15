@@ -9,8 +9,18 @@ fi
 gpu_id=$1
 config=$2
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
-python_bin=/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/.venv/bin/python3
-trainer_bin=/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/.venv/bin/llamafactory-cli
+default_bin=/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/LLaMA-Factory/.venv/bin
+python_bin=${LLAMAFACTORY_PYTHON:-$default_bin/python3}
+if [[ -n "${LLAMAFACTORY_CLI:-}" ]]; then
+  trainer_bin=$LLAMAFACTORY_CLI
+elif [[ -n "${LLAMAFACTORY_PYTHON:-}" && -x "$(dirname "$python_bin")/llamafactory-cli" ]]; then
+  trainer_bin=$(dirname "$python_bin")/llamafactory-cli
+else
+  trainer_bin=$default_bin/llamafactory-cli
+fi
+
+[[ -x "$python_bin" ]] || { echo "python is not executable: $python_bin" >&2; exit 2; }
+[[ -x "$trainer_bin" ]] || { echo "llamafactory-cli is not executable: $trainer_bin" >&2; exit 2; }
 
 [[ -f "$config" ]] || { echo "missing config: $config" >&2; exit 2; }
 [[ "$(realpath "$config")" == "$root"/configs/active/*.yaml ]] || {

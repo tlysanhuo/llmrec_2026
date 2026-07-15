@@ -1,0 +1,111 @@
+{
+  "scope": "deterministic in-sample mechanism audit; not an online score predictor",
+  "seed": 19260821,
+  "requested": {
+    "action": 32,
+    "topic": 32,
+    "retention": 64
+  },
+  "skipped_too_long": 0,
+  "artifacts": {
+    "base": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/models/OneReason-0.8B-pretrain-competition",
+    "parent": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995",
+    "parent_adapter_sha256": "37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2",
+    "residual": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/checkpoints/e3_userres_r16_retkl_v3_ep1_residual",
+    "residual_adapter_sha256": "e8caf0a39fee133b2172f2e74a3ef64c53b3d46f2d8dc82acbc821a00b524f98",
+    "dataset": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/data/derived/processed/data_user_residual_retention_v1.jsonl",
+    "dataset_sha256": "bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0"
+  },
+  "metrics": {
+    "action": {
+      "kl": {
+        "n": 32,
+        "mean": 0.011450407037045807,
+        "median": 0.00941294664517045,
+        "p95": 0.038446806371212006,
+        "max": 0.04192997142672539
+      },
+      "top1_agreement": {
+        "n": 32,
+        "mean": 0.9739136099815369,
+        "median": 0.9814814925193787,
+        "p95": 1.0,
+        "max": 1.0
+      },
+      "parent_ce": {
+        "n": 32,
+        "mean": 0.3636767193675041,
+        "median": 0.3047454506158829,
+        "p95": 0.6777399182319641,
+        "max": 0.7817050814628601
+      },
+      "candidate_ce": {
+        "n": 32,
+        "mean": 0.3240750578697771,
+        "median": 0.27723170816898346,
+        "p95": 0.6518608331680298,
+        "max": 0.7145947813987732
+      },
+      "ce_delta": {
+        "n": 32,
+        "mean": -0.039601661497727036,
+        "median": -0.02697429060935974,
+        "p95": 0.020589008927345276,
+        "max": 0.02796006202697754
+      }
+    },
+    "topic": {
+      "kl": {
+        "n": 32,
+        "mean": 0.002327662798052188,
+        "median": 0.002282572095282376,
+        "p95": 0.002844315255060792,
+        "max": 0.003316454356536269
+      },
+      "top1_agreement": {
+        "n": 32,
+        "mean": 0.9819969087839127,
+        "median": 0.9821419417858124,
+        "p95": 0.9950980544090271,
+        "max": 1.0
+      },
+      "parent_ce": {
+        "n": 32,
+        "mean": 0.9066397864371538,
+        "median": 0.9070922434329987,
+        "p95": 1.126965045928955,
+        "max": 1.129525899887085
+      },
+      "candidate_ce": {
+        "n": 32,
+        "mean": 0.8917811680585146,
+        "median": 0.8866454064846039,
+        "p95": 1.1117483377456665,
+        "max": 1.126996636390686
+      },
+      "ce_delta": {
+        "n": 32,
+        "mean": -0.014858618378639221,
+        "median": -0.014346778392791748,
+        "p95": 3.159046173095703e-05,
+        "max": 0.0036257505416870117
+      }
+    },
+    "retention": {
+      "kl": {
+        "n": 64,
+        "mean": 0.0021130887644176255,
+        "median": 0.0017470834427513182,
+        "p95": 0.003381815506145358,
+        "max": 0.01709953509271145
+      },
+      "top1_agreement": {
+        "n": 64,
+        "mean": 0.986529903486371,
+        "median": 0.9873579144477844,
+        "p95": 1.0,
+        "max": 1.0
+      }
+    }
+  }
+}

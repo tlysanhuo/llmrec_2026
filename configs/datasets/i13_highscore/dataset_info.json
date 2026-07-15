@@ -1,0 +1,22 @@
+{
+  "data_seed_teacher_v1": {
+    "file_name": "../../../assets/derived/releases/e3_userres_r80_retkl_v3_s875/data_seed_teacher_v1.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output",
+      "history": "history"
+    }
+  },
+  "data_user_residual_retention_v1": {
+    "file_name": "../../../assets/derived/releases/e3_userres_r80_retkl_v3_s875/data_user_residual_retention_v1.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output",
+      "history": "history"
+    }
+  }
+}

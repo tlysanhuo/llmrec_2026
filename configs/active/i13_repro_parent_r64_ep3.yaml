@@ -1,0 +1,50 @@
+### I-13_REPRODUCTION_STAGE_1: rebuild the I-10 E3 r64 parent from O6.
+### This is a portable copy of the successful I-10 training recipe. Paths,
+### output name, run name, and overwrite protection differ; training fields do not.
+### Do not describe the historical 0.9849 as fixed-protocol parent performance.
+
+model_name_or_path: models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_seed_teacher_v1
+dataset_dir: configs/datasets/i13_highscore
+template: qwen3_nothink
+cutoff_len: 16384
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: checkpoints/i13_repro_parent_r64_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i13_repro_parent_r64_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-4
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

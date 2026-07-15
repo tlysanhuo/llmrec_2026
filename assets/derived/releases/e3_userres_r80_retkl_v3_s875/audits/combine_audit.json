@@ -1,0 +1,24 @@
+{
+  "parent": {
+    "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1995",
+    "rank": 64,
+    "alpha": 64,
+    "adapter_sha256": "37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2"
+  },
+  "residual": {
+    "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/checkpoints/e3_userres_r16_retkl_v3_ep1_residual",
+    "rank": 16,
+    "alpha": 16,
+    "multiplier": 0.875,
+    "adapter_sha256": "e8caf0a39fee133b2172f2e74a3ef64c53b3d46f2d8dc82acbc821a00b524f98"
+  },
+  "combined": {
+    "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/artifacts/submissions/e3_userres_r80_retkl_v3_s875_platform",
+    "rank": 80,
+    "alpha": 80,
+    "tensor_count": 392,
+    "adapter_sha256": "71bc3c2c86beb1c1aaafd41f98915ba94a7f964b6e8450079a883aebc32ffd5b",
+    "config_sha256": "e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0"
+  },
+  "identity": "delta_combined = delta_parent + 0.875 * delta_residual"
+}

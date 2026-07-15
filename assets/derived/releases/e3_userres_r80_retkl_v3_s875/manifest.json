@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "release": {
+    "id": "e3_userres_r80_retkl_v3_s875",
+    "experiment_id": "I-13",
+    "created_utc": "2026-07-15",
+    "status": "highest scored implementation in the repository",
+    "purpose": "GitHub-shareable data, code, configs, and audits for the 0.9978 implementation"
+  },
+  "online_result": {
+    "model_name": "e3_userres_r80_retkl_v3_s875",
+    "score": 0.9978,
+    "subscores_order": [
+      "material",
+      "action",
+      "topic",
+      "rec_video",
+      "rec_prod",
+      "rec_ad",
+      "rec_living",
+      "world"
+    ],
+    "subscores": [0.2453, 0.1183, 0.039, 0.096, 0.1224, 0.1316, 0.1062, 0.139],
+    "protocol": "platform-stable-v3.1-20260713; action max_tokens=1024; itemic 7 race averages",
+    "evaluated_at": "2026-07-14 00:44:35",
+    "eval_task_id": "eval-task-9ie86v-1783961075",
+    "eval_log_sha256": "9291f8bf87871bb93846dda4cfcf60d43812354fb87a18e6ef6a5a349bdb3315",
+    "tasks_completed": 8,
+    "failed_tasks": 0
+  },
+  "compliance_boundary": {
+    "submission_shape": "one rank-80 LoRA adapter relative to O6",
+    "construction": "rank-64 parent and rank-16 residual are concatenated in parameter space",
+    "competition_status": "model fusion is discouraged; review-round compliance remains an unresolved gray area",
+    "claim_limit": "highest displayed score does not mean this route has written organizer approval"
+  },
+  "datasets": {
+    "parent_training": {
+      "id": "data_seed_teacher_v1",
+      "asset_class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag)",
+      "rows": 32644,
+      "bytes": 249379075,
+      "sha256": "13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f",
+      "archive": {
+        "path": "assets/derived/releases/e3_userres_r80_retkl_v3_s875/data_seed_teacher_v1.jsonl.gz",
+        "bytes": 52167271,
+        "sha256": "10991aca557359f873aa372c56cda8684d9cdb00a38b88712b398e7dc2b11d01",
+        "compression": "gzip -n -9"
+      },
+      "row_mix": {
+        "O1": {"rows": 32480, "ratio": 0.99497611},
+        "O2_teacher_unique_once": {"rows": 164, "ratio": 0.00502389},
+        "O2_rule_rows": 0,
+        "T_rows": 0,
+        "E_rows": 0
+      }
+    },
+    "residual_training": {
+      "id": "data_user_residual_retention_v1",
+      "asset_class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General)",
+      "rows": 6106,
+      "bytes": 74716566,
+      "sha256": "bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0",
+      "archive": {
+        "path": "assets/derived/releases/e3_userres_r80_retkl_v3_s875/data_user_residual_retention_v1.jsonl.gz",
+        "bytes": 14327379,
+        "sha256": "b61e5578b4332b7e27db29f418cf0ddea9d8f7847191f6486ac6f4e25cb9cda4",
+        "compression": "gzip -n -9"
+      },
+      "row_mix": {
+        "user_gold_CE_plus_weak_parent_KL": {"rows": 3053, "ratio": 0.5},
+        "non_user_parent_KL_only": {"rows": 3053, "ratio": 0.5},
+        "O2_rule_rows": 0,
+        "T_rows": 0,
+        "E_rows": 0
+      }
+    }
+  },
+  "pipeline": {
+    "stage_1_parent": {
+      "description": "train rank-64 LoRA from immutable O6 for 3 epochs",
+      "historical_config": {
+        "path": "configs/active/seed_teacher_r64_lr1e4_ep3.yaml",
+        "sha256": "99a3899403edc929ba7452a8a6e23f38baa2cbcd9f2848ac37514a3879ebb9af"
+      },
+      "portable_config": {
+        "path": "configs/active/i13_repro_parent_r64_ep3.yaml",
+        "sha256": "b97661013201578d39508a4dbb0bd5ddfa0129053503aa8b269c29d2df37a45e"
+      },
+      "recipe": {
+        "rank": 64,
+        "alpha": 64,
+        "dropout": 0.05,
+        "learning_rate": 0.0001,
+        "epochs": 3,
+        "scheduler": "cosine",
+        "warmup_ratio": 0.03,
+        "cutoff_len": 16384,
+        "effective_batch": 4,
+        "seed": 19260817
+      },
+      "wandb_run": "ev401ys9",
+      "steps": 1995,
+      "reference_adapter_sha256": "37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2"
+    },
+    "stage_2_residual": {
+      "description": "merge the stage-1 adapter into O6, then train a fresh rank-16 residual for 1 epoch",
+      "historical_config": {
+        "path": "configs/history/e3_userres_r16_retkl_v3_ep1.yaml",
+        "sha256": "1b17a06551efdf6e90a9d7a797d774e87f9e5f658123f35cb0d2fd399b9d0556"
+      },
+      "portable_config": {
+        "path": "configs/active/i13_repro_residual_r16_retkl_ep1.yaml",
+        "sha256": "0138027f3f5e64e49ee9dc54ff985b9f5887625f27f1ec172bcc20eeed394fe6"
+      },
+      "loss": {
+        "user_CE": 1.0,
+        "user_parent_KL": 0.05,
+        "non_user_parent_KL": 2.0,
+        "terminal_token_multiplier": 2.0,
+        "logit_chunk": 16
+      },
+      "recipe": {
+        "rank": 16,
+        "alpha": 16,
+        "dropout": 0.05,
+        "learning_rate": 0.00005,
+        "epochs": 1,
+        "scheduler": "cosine",
+        "warmup_ratio": 0.03,
+        "effective_batch": 4,
+        "seed": 19260821
+      },
+      "wandb_run": "1xbo7k2e",
+      "steps": 1527,
+      "reference_adapter_sha256": "e8caf0a39fee133b2172f2e74a3ef64c53b3d46f2d8dc82acbc821a00b524f98"
+    },
+    "stage_3_combine": {
+      "identity": "delta_I13 = delta_stage1 + 0.875 * delta_stage2",
+      "parent_rank": 64,
+      "residual_rank": 16,
+      "combined_rank": 80,
+      "combined_alpha": 80,
+      "residual_scale": 0.875,
+      "tensor_count": 392,
+      "reference_adapter_bytes": 201903440,
+      "reference_adapter_sha256": "71bc3c2c86beb1c1aaafd41f98915ba94a7f964b6e8450079a883aebc32ffd5b",
+      "reference_config_sha256": "e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0"
+    }
+  },
+  "tracked_entrypoints": {
+    "one_command_driver": {
+      "path": "scripts/reproduce/i13_highscore.sh",
+      "sha256": "c1dbe3d7d4f7d6407070e32ab4c6fde57c53390651d7a06d634cec5056db2f97"
+    },
+    "data_restore": {
+      "path": "scripts/data/restore_i13_highscore_data.py",
+      "sha256": "73ecacd2352b4dc162a3923c2435bcd159d23205fbf8e51b5b8a776089588f96"
+    },
+    "portable_dataset_registry": {
+      "path": "configs/datasets/i13_highscore/dataset_info.json",
+      "sha256": "976e93306bffc81a4391a99e0f24717768eed49cbce8234434ae310d2c34f0fd"
+    },
+    "parent_data_builder": {
+      "path": "scripts/data/build_seed_o2_action_v1.py",
+      "sha256": "17519ab01fb74969b4cfea72f01aaaf947fd72d965efd2f4e99176d88c3c4fbc"
+    },
+    "residual_data_builder": {
+      "path": "scripts/data/build_user_residual_retention_v1.py",
+      "sha256": "454cf7d3f4cd1380886536406d0bd1730670041279431857d7b58ff2b66d6e43"
+    },
+    "residual_trainer": {
+      "path": "scripts/train/train_user_residual_retkl.py",
+      "sha256": "aaca959cc71fa9550b72ab36672a268d8cf8d758cbeac36056a8a97477f3de45"
+    },
+    "adapter_combiner": {
+      "path": "scripts/train/combine_lora_adapters.py",
+      "sha256": "80a2d1c1efc5920ccc4a026046cecff9a4998b68b7dac3a9596ce4d2a222de01"
+    },
+    "scale_auditor": {
+      "path": "scripts/eval/audit_user_residual_delta.py",
+      "sha256": "18cc88971630118632a3a17621070cfcec97973ec03d0be127d3ff6c2f3d064f"
+    },
+    "wandb_launcher": {
+      "path": "scripts/train/launch_wandb_online.sh",
+      "sha256": "c37af997ac9550701a740c6d8bb613d283d516466513b66ebbf79e49260631a4"
+    },
+    "residual_wandb_launcher": {
+      "path": "scripts/train/launch_user_residual_wandb.sh",
+      "sha256": "d76b88ae16f9048fd27feeffab370e8c93a5bf21297824f98910c3b092891b34"
+    }
+  },
+  "audits": {
+    "parent_data": {
+      "path": "assets/derived/releases/e3_userres_r80_retkl_v3_s875/audits/parent_data_audit.json",
+      "sha256": "f3276077837ecc4fdbd5d39719137cc6ec3acb9ad9da7a8c16ef05e4940cb651"
+    },
+    "residual_data": {
+      "path": "assets/derived/releases/e3_userres_r80_retkl_v3_s875/audits/residual_data_audit.json",
+      "sha256": "0437b70ba1b323707560aaae5fdaf1167b732375328fd84673fb99ba3904e054"
+    },
+    "residual_training": {
+      "path": "assets/derived/releases/e3_userres_r80_retkl_v3_s875/audits/residual_training_audit.json",
+      "sha256": "03caba63546c5c28d0ddda6b59e68f8eda43ada6769b75f173b9ceea11e45d45"
+    },
+    "combine": {
+      "path": "assets/derived/releases/e3_userres_r80_retkl_v3_s875/audits/combine_audit.json",
+      "sha256": "1648ac1a49c9816c7daa58396f1f819e9eb42c6f6a48d0491e6ff725df940d46"
+    },
+    "scale_pareto": {
+      "path": "assets/derived/releases/e3_userres_r80_retkl_v3_s875/audits/scale_pareto_audit.json",
+      "sha256": "c937b9be62728a87cd91b901c06af5c62b30604f6a821e8f7ca41e8de05f82fc"
+    },
+    "structural_gate": {
+      "path": "assets/derived/releases/e3_userres_r80_retkl_v3_s875/audits/structural_gate.log",
+      "sha256": "cbd32b15b2401acd9b233b38419c7acc91df4d4df6ca1a1333bb11066cf66bda"
+    }
+  },
+  "reproducibility_limit": "The checked-in datasets are byte-exact. Given the registered parent and residual adapters, concatenation is exact. Retraining weights can vary across CUDA, PyTorch, LLaMA-Factory, and hardware versions."
+}
