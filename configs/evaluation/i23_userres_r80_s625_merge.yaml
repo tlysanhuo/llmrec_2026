@@ -1,0 +1,10 @@
+### Disposable full-model export for the I-23 + 0.625 user-residual structural gate.
+### Delete /tmp/i23_userres_r80_s625_merged after evaluation.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i23_userres_r80_s625
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/i23_userres_r80_s625_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

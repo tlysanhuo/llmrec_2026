@@ -47,8 +47,11 @@ def combine(
     parent_dir: Path,
     residual_dir: Path,
     output_dir: Path,
+    parent_multiplier: float = 1.0,
     residual_multiplier: float = 1.0,
 ) -> dict[str, Any]:
+    if not math.isfinite(parent_multiplier) or parent_multiplier < 0:
+        raise ValueError("parent multiplier must be finite and non-negative")
     if not math.isfinite(residual_multiplier) or residual_multiplier < 0:
         raise ValueError("residual multiplier must be finite and non-negative")
     parent_config = load_config(parent_dir / "adapter_config.json")
@@ -94,7 +97,8 @@ def combine(
                 raise ValueError(f"B shape mismatch for {key}")
             combined[key] = torch.cat(
                 (
-                    parent_tensor * (parent_scale / combined_scale),
+                    parent_tensor
+                    * (parent_scale * parent_multiplier / combined_scale),
                     residual_tensor
                     * (residual_scale * residual_multiplier / combined_scale),
                 ),
@@ -131,6 +135,7 @@ def combine(
             "path": str(parent_dir.resolve()),
             "rank": parent_rank,
             "alpha": parent_config["lora_alpha"],
+            "multiplier": parent_multiplier,
             "adapter_sha256": sha256(parent_path),
         },
         "residual": {
@@ -149,7 +154,7 @@ def combine(
             "config_sha256": sha256(output_dir / "adapter_config.json"),
         },
         "identity": (
-            "delta_combined = delta_parent + "
+            f"delta_combined = {parent_multiplier:g} * delta_parent + "
             f"{residual_multiplier:g} * delta_residual"
         ),
     }
@@ -160,6 +165,7 @@ def run_self_test() -> None:
     in_features, out_features = 7, 5
     rank_a, rank_b = 3, 2
     alpha_a, alpha_b = 6, 1
+    parent_multiplier = 0.375
     residual_multiplier = 0.625
     a_a = torch.randn(rank_a, in_features)
     b_a = torch.randn(out_features, rank_a)
@@ -168,14 +174,14 @@ def run_self_test() -> None:
     a = torch.cat((a_a, a_b), dim=0)
     b = torch.cat(
         (
-            b_a * (alpha_a / rank_a),
+            b_a * (alpha_a / rank_a) * parent_multiplier,
             b_b * (alpha_b / rank_b) * residual_multiplier,
         ),
         dim=1,
     )
-    expected = (alpha_a / rank_a) * (b_a @ a_a) + residual_multiplier * (
-        alpha_b / rank_b
-    ) * (b_b @ a_b)
+    expected = parent_multiplier * (alpha_a / rank_a) * (
+        b_a @ a_a
+    ) + residual_multiplier * (alpha_b / rank_b) * (b_b @ a_b)
     actual = b @ a  # combined alpha/r is one
     assert torch.allclose(expected, actual, atol=1e-6)
     print("[combine-lora] self-test passed: concatenated adapter is exactly additive")
@@ -187,6 +193,7 @@ def main() -> None:
     parser.add_argument("residual", type=Path, nargs="?")
     parser.add_argument("output", type=Path, nargs="?")
     parser.add_argument("--audit", type=Path)
+    parser.add_argument("--parent-scale", type=float, default=1.0)
     parser.add_argument("--residual-scale", type=float, default=1.0)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
@@ -199,6 +206,7 @@ def main() -> None:
         args.parent,
         args.residual,
         args.output,
+        parent_multiplier=args.parent_scale,
         residual_multiplier=args.residual_scale,
     )
     if args.audit:

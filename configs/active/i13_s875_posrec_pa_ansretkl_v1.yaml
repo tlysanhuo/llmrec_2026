@@ -1,0 +1,87 @@
+### I-20: positive-only product/ad answer alignment on the fixed-protocol I-13 best.
+### Registered before formal launch on 2026-07-15 UTC.
+###
+### Causal target:
+### - Recover product/ad probability mass without changing I-13's strong video path.
+### - No history item is treated as a negative.  Gold CE is restricted to the
+###   final domain marker and three SID tokens; all other rows are frozen-I13 KL.
+### - O1 product/ad targets receive paired official thinking and /no_think views,
+###   making each target 50:50 across the evaluator's two recommendation routes.
+###
+### Asset ledger:
+### - Parent/reference M: I-13 e3_userres_r80_retkl_v3_s875, online 0.9978,
+###   adapter/config SHA256 71bc3c2c86beb1c1aaafd41f98915ba94a7f964b6e8450079a883aebc32ffd5b /
+###   e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0.
+### - Dataset: data_i20_prod_ad_positive_retkl_v1, class D(O1,O2.General),
+###   12,260 rows, SHA256 0c08b8f505fe55acbc0ec5a25a8efe90b25fccf1cec5188ea7cb7cf0461162fa.
+### - Upstream: D(O1) data_final 32,480 rows SHA256 995efe62...8f71;
+###   D(O1) data_seed_clean_v1 32,480 rows SHA256 e526caea...d309;
+###   D(O2.General) world retention 231 rows SHA256 fde647ba...3f05.
+### - Builder: scripts/data/build_i20_prod_ad_positive_retkl_v1.py,
+###   SHA256 5b9c5689530d8abc54656abe739376530ec4d2ff97246578928f8a6a2a25c26f.
+### - Mix: 6,130 prod/ad positive rows (50%) + 6,130 parent-retention rows
+###   (50%).  Positive source targets are prod 1,489/ad 1,576, each emitted once
+###   thinking and once no-thinking; final answers changed 0.
+### - Retention: video 2,099, live 800, material desc2sid/sid2desc 1,000/1,000,
+###   action/topic 500/500, world 231.  These rows receive no gold CE.
+### - Preference-negative/O2 pseudo-label/teacher-rollout/T/E training rows: 0.
+### - Trainer: scripts/train/train_i20_positive_retkl.py,
+###   SHA256 ed11aed3c71b529886d9632d5c8edc4bf5b51901113f61589ff11d40ff6bb642.
+###
+### Dose and checkpoints:
+### - Original r80 is updated in place; no new adapter/rank is added.
+### - lr2e-7, 20-step warmup then constant, effective batch 4, max 200 steps.
+### - Save every 20 steps.  The earliest aligned safe checkpoint wins; training
+###   loss or hard-negative margin is never treated as an online-score proxy.
+### - Formal gate: exact parent/reference fingerprint at step 0, finite losses,
+###   itemic structure, parent drift, then 32-thinking+32-no-thinking rollout
+###   diagnostics.  Any video/format collapse blocks platform submission.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/e3_userres_r80_retkl_v3_s875_platform
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+create_new_adapter: false
+lora_rank: 80
+lora_alpha: 80
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_i20_prod_ad_positive_retkl_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/i20_prod_ad_positive_retkl_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i13_s875_posrec_pa_ansretkl_v1
+logging_steps: 5
+save_strategy: steps
+save_steps: 20
+save_total_limit: 10
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i13_s875_posrec_pa_ansretkl_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-7
+max_steps: 200
+num_train_epochs: 1
+lr_scheduler_type: constant_with_warmup
+warmup_steps: 20
+weight_decay: 0.0
+bf16: true
+seed: 19260825

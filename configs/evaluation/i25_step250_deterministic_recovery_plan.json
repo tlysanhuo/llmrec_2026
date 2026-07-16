@@ -1,0 +1,179 @@
+{
+  "status": "PREREGISTERED_BEFORE_ONE_RECOVERY_REPLAY",
+  "registered_at_utc": "2026-07-16T07:18:00Z",
+  "purpose": "Recover only the I-25 optimizer-step-250 residual that was observed and hashed during formal training, then rotated when the terminal checkpoint made save_total_limit=6 retain only six of seven directories. This is incident recovery, not a new checkpoint search or training experiment.",
+  "incident": {
+    "formal_experiment": "i23_actionres_r16_ansretkl_ep1",
+    "formal_wandb_run_id": "x8fl7r86",
+    "formal_training_result": "the Trainer completed 1527/1527 optimizer steps and W&B finished; the outer launcher returned 1 only because checkpoint-250 had already been rotated before its postcondition check",
+    "formal_output_root": "checkpoints/i23_actionres_r16_ansretkl_ep1",
+    "formal_trainer_state_sha256": "33b6e19f8983e1ba52d0cebb44da204a28e02acaf459c2bdcc84fb55c88dbc25",
+    "formal_log": "logs/train/i23_actionres_r16_ansretkl_ep1.log",
+    "formal_log_sha256": "3cbefe68cfba632f901e6f2543ed463afd288569bf4e5d5e07e959f5123c693f",
+    "formal_exit_code": 1,
+    "formal_exit_code_interpretation": "artifact-postcondition failure after successful training; it must not be rewritten to 0",
+    "terminal_failure_line": "missing I-25 scheduled adapter checkpoint: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-250",
+    "root_adapter_sha256": "676d80fd32498d96487bf74fe04dfb5de2eefa60314a3ac4fd59665c795b67b7",
+    "root_config_sha256": "6c127a34b497e7a8672763b238a50801dd9a3e6cbb662c3c981f9a9b4a4e976a",
+    "observed_step250_before_rotation": {
+      "adapter_bytes": 40422168,
+      "adapter_sha256": "4af7296737209fb00df4908a09e21382ac6a9c987663b658e2f58e123fc928e9",
+      "config_sha256": "6c127a34b497e7a8672763b238a50801dd9a3e6cbb662c3c981f9a9b4a4e976a",
+      "microbatches": 1000,
+      "route_counts": {
+        "action": 278,
+        "retention": 722
+      }
+    },
+    "surviving_adapter_sha256": {
+      "500": "24f78bbbb592593652460a3c430d63ebfa684538f4230dda70c335928a8630d0",
+      "750": "e178452ea6d9d3a1b4789f5303d629cc92ebeae05c67f5fb85017bc7cee4cd67",
+      "1000": "caf97e25fa654197ad5c71bd661b56e200e49074d9cf82b2fa4caf79a7bfe2b0",
+      "1250": "5243fc7cff63d487285eb73339e49a3b8b6e632c357c09dabe709b0438063680",
+      "1500": "1f70adaa5f13bdd3654259e005c34bc9209a2844c4dde5b8ced2599268fc1200",
+      "1527": "676d80fd32498d96487bf74fe04dfb5de2eefa60314a3ac4fd59665c795b67b7"
+    }
+  },
+  "scientific_equivalence": {
+    "start_state": "clean O6 plus the retained I-23 adapter with create_new_adapter=true; no I-25 checkpoint is loaded, resumed, or used as a warm start",
+    "configuration_delta": "the recovery YAML is field-identical to the formal YAML except output_dir and run_name",
+    "scheduler_rule": "num_train_epochs remains 1 and max_steps remains absent, so Trainer computes state.max_steps=1527 and creates the cosine LambdaLR with num_training_steps=1527 and warmup_steps=46",
+    "stop_rule": "a callback with no pre-step RNG or model side effects sets should_save and should_training_stop only in on_step_end after global_step becomes 250",
+    "step250_scheduler_proof": {
+      "formula": "0.5 * (1 + cos(pi * (250-46)/(1527-46)))",
+      "multiplier": 0.9539104867294322,
+      "learning_rate": 0.00004769552433647162,
+      "required_scheduler_last_epoch": 250
+    },
+    "data_order_proof": "the callback requires exactly 1000 compute_loss calls and the originally observed action/retention route counts 278/722 at step 250",
+    "hardware_rule": "replay only on the same physical H100 UUID used by the formal run",
+    "identity_boundary": "CUDA kernels are not assumed reproducible merely because the recipe matches; only the recorded adapter/config SHA256 pair establishes successful recovery"
+  },
+  "locked_artifacts": {
+    "formal_config": {
+      "path": "configs/active/i23_actionres_r16_ansretkl_ep1.yaml",
+      "sha256": "da46f0b153a06244a4b8015c64055dbcab0e44788138db434bdff5f5605c5dbd"
+    },
+    "formal_trainer": {
+      "path": "scripts/train/train_i23_actionres_retkl.py",
+      "sha256": "0071a0885cff480222c5d905f68ccf22c3f90a54d7967df55b08b6d951907c02"
+    },
+    "recovery_config": {
+      "path": "configs/active/i25_step250_deterministic_replay.yaml",
+      "sha256": "da3345db8ee86a12f71a61374b8f36e12a5c2df510bbb4416beee4c567092346"
+    },
+    "recovery_trainer": {
+      "path": "scripts/train/train_i25_step250_deterministic_replay.py",
+      "sha256": "e6d3a0589eb2610b8db75912ff4dbe659fa364270b1b835157fcffa316b62cae"
+    },
+    "online_launcher": {
+      "path": "scripts/train/launch_i25_step250_recovery_online.sh"
+    },
+    "detached_launcher": {
+      "path": "scripts/train/launch_i25_step250_recovery_detached.sh"
+    }
+  },
+  "locked_inputs": {
+    "base_config": {
+      "path": "models/OneReason-0.8B-pretrain-competition/config.json",
+      "sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+    },
+    "i23_parent_adapter": {
+      "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform/adapter_model.safetensors",
+      "sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8"
+    },
+    "i23_parent_config": {
+      "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform/adapter_config.json",
+      "sha256": "b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7"
+    },
+    "training_data": {
+      "asset_id": "data_user_residual_retention_v1",
+      "class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General), official-source derived",
+      "path": "assets/derived/processed/data_user_residual_retention_v1.jsonl",
+      "rows": 6106,
+      "sha256": "bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0",
+      "training_rows_from_T": 0,
+      "training_rows_from_E": 0
+    },
+    "dataset_registry_sha256": "06b04bc3e29d5be783acd0867b831b87152ddbacb924cb80b18715e2c5c51608",
+    "builder_sha256": "454cf7d3f4cd1380886536406d0bd1730670041279431857d7b58ff2b66d6e43",
+    "upstream_audit_sha256": "0437b70ba1b323707560aaae5fdaf1167b732375328fd84673fb99ba3904e054"
+  },
+  "runtime_fingerprint": {
+    "gpu_uuid": "GPU-d3c522d6-ed0f-2579-01cd-2d97da749980",
+    "gpu_model": "NVIDIA H100 80GB HBM3",
+    "driver": "535.230.02",
+    "llamafactory_git_head": "a48af5cc690aa1f3a452526f5e30ec58b8c08eaa",
+    "python": "3.11",
+    "packages": {
+      "torch": "2.7.1+cu126",
+      "torch_cuda": "12.6",
+      "transformers": "5.6.0",
+      "peft": "0.18.1",
+      "accelerate": "1.11.0",
+      "datasets": "4.0.0",
+      "safetensors": "0.8.0"
+    },
+    "source_sha256": {
+      "llamafactory_hparams_parser": "0b378ce63cba37ebb9cc32a8dc3f882943db4421a9928c528ee8596e0c0f2ae1",
+      "llamafactory_tuner": "623d402abd50173e9496a5298778181b33f24bca809de1d461e2838ed59c2e38",
+      "llamafactory_sft_workflow": "aaa1f92b66c4985fe1c1d47a6c28831a1cd0b107d77e3819c2ea174e37a1384b",
+      "llamafactory_sft_trainer": "4016aa09576891d53f2f3ee8f0cd21cd0f5c80c8ee1f45ab964a00750253d7c9",
+      "transformers_trainer": "14efc56b1e3f0fc30f797c5fd15ca59a02bfb0745dcc4697713ed5778cacc476",
+      "transformers_optimization": "985f8bef608fa57dd2c01e93869424ad193ffe82f03390f22cfd3d3ca99dad27",
+      "transformers_trainer_callback": "a9703b60f3d585627054ed976eca3dbea69fddcfd4eb01b1cc19bff67bccf00a"
+    }
+  },
+  "prelaunch_requirements": [
+    "the formal output root and surviving checkpoint hashes still match this incident snapshot",
+    "the formal root trainer_state global_step is 1527 and checkpoint-1527 is byte-identical to the root adapter/config",
+    "the original formal exit-code file remains 1 and the locked log ends with the exact missing-checkpoint-250 failure",
+    "the formal checkpoint-250 destination does not exist",
+    "the recovery output directory, recovery runtime log, pid, exit-code, and receipt do not exist",
+    "the same physical GPU UUID is at the formal-run platform baseline (approximately 27113 MiB used, 0% utilization, and at least 50000 MiB free); the container-external baseline PID is not treated as a competing replay job",
+    "W&B is authenticated and WANDB_MODE is online"
+  ],
+  "execution": {
+    "planned_optimizer_steps": 1527,
+    "executed_optimizer_steps": 250,
+    "effective_batch_size": 4,
+    "executed_microbatches": 1000,
+    "fresh_start": true,
+    "resume_from_checkpoint": false,
+    "wandb_online": true,
+    "single_gpu": true,
+    "recovery_output": "checkpoints/i25_step250_deterministic_replay",
+    "recovery_log": "logs/train/i25_step250_deterministic_replay.log",
+    "recovery_exit_code": "logs/train/i25_step250_deterministic_replay.exit_code",
+    "recovery_receipt": "logs/train/i25_step250_deterministic_replay_receipt.json"
+  },
+  "acceptance_and_install": {
+    "required_global_step": 250,
+    "required_state_max_steps": 1527,
+    "required_checkpoint": "checkpoints/i25_step250_deterministic_replay/checkpoint-250",
+    "required_adapter_bytes": 40422168,
+    "required_adapter_sha256": "4af7296737209fb00df4908a09e21382ac6a9c987663b658e2f58e123fc928e9",
+    "required_config_sha256": "6c127a34b497e7a8672763b238a50801dd9a3e6cbb662c3c981f9a9b4a4e976a",
+    "root_must_equal_checkpoint": true,
+    "forbidden_state": [
+      "optimizer.pt",
+      "scheduler.pt",
+      "scaler.pt",
+      "rng_state*.pth"
+    ],
+    "install_destination": "checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-250",
+    "install_contents": [
+      "adapter_model.safetensors",
+      "adapter_config.json"
+    ],
+    "install_method": "copy to a new same-filesystem temporary directory, rehash, fsync files and directory, then rename atomically only while the destination is absent",
+    "original_exit_code_policy": "do not alter the original formal exit-code file; downstream Stage-1 preparation must validate the successful recovery exit code and receipt together with the exact formal incident signature"
+  },
+  "rejection_rules": [
+    "never install if either recovered hash differs, even if tensor shapes, loss, routes, or local scores appear plausible",
+    "never retry from the mismatching recovery output and never use it as a parent",
+    "never replace or merge any surviving formal checkpoint during this recovery",
+    "never change the scheduler horizon to 250 by setting max_steps=250",
+    "never select a checkpoint or run a GPU audit as part of recovery"
+  ]
+}

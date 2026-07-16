@@ -1,0 +1,10 @@
+### Temporary merge for the I-20 step100 generation and structure gate only.
+### This is not a training or submission artifact; delete the export afterward.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-100
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/i20_step100_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

@@ -1,0 +1,48 @@
+{
+  "status": "REJECTED_HASH_MISMATCH_NOT_INSTALLED",
+  "recorded_at_utc": "2026-07-16T07:15:00Z",
+  "recovery_plan": {
+    "path": "configs/evaluation/i25_step250_deterministic_recovery_plan.json",
+    "sha256": "94da5c04650ff71f9117502ae323bf1367aa67fc3837fc6ab613b74decaba1ec",
+    "registered_at_field": "2026-07-16T07:18:00Z",
+    "timestamp_correction": "The registered_at field was entered with a future-time typo. Filesystem mtime is 2026-07-16T06:57:47Z and the hash-locked plan is printed by the GPU preflight before the training process starts at 2026-07-16T07:03:45Z. The plan content and thresholds were not changed after launch."
+  },
+  "runtime": {
+    "wandb_run_id": "k3s0oig9",
+    "wandb_state": "finished",
+    "log": "logs/train/i25_step250_deterministic_replay.log",
+    "log_sha256": "f98916b4002a43a47aa45bcdd095cafec308557683131984a6e005e7a1e8a5c5",
+    "exit_code": 1,
+    "global_step": 250,
+    "planned_max_steps": 1527,
+    "microbatches": 1000,
+    "route_counts": {
+      "action": 278,
+      "retention": 722
+    },
+    "scheduler_last_epoch": 250,
+    "learning_rate_after_step": 0.00004769552433647162,
+    "gpu_uuid": "GPU-d3c522d6-ed0f-2579-01cd-2d97da749980",
+    "gpu_returned_to_platform_baseline": true
+  },
+  "identity_gate": {
+    "expected_adapter_sha256": "4af7296737209fb00df4908a09e21382ac6a9c987663b658e2f58e123fc928e9",
+    "observed_adapter_sha256": "9198538f6326fa5b12edf62dbb748b55e780823c2cfc5b5516cd1b35289668d9",
+    "adapter_bytes": 40422168,
+    "adapter_match": false,
+    "expected_config_sha256": "6c127a34b497e7a8672763b238a50801dd9a3e6cbb662c3c981f9a9b4a4e976a",
+    "observed_config_sha256": "70a62d4e3c2534f0f8f4e2958ebcfacdf82fade64b92b2bac216e7bcb229a771",
+    "config_match": false,
+    "config_semantic_difference": "target_modules list order only",
+    "pass": false
+  },
+  "side_effect_audit": {
+    "recovery_receipt_exists": false,
+    "formal_checkpoint_250_exists": false,
+    "formal_exit_code_was_modified": false,
+    "stage_1_was_run": false,
+    "candidate_was_packaged": false,
+    "recovery_output_role": "rejected evidence only; forbidden as a parent, candidate, or install source"
+  },
+  "decision": "Close the incomplete original I-25 trajectory. Any continuation must be a fresh run from O6 plus I-23 and must not load an I-25 or replay checkpoint."
+}

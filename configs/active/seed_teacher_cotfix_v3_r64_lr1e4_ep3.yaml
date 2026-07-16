@@ -1,0 +1,76 @@
+### I-23 answer-utility-filtered repair of upstream-truncated recommendation CoTs.
+###
+### Formal asset ledger frozen before launch:
+### - Base O6: models/OneReason-0.8B-pretrain-competition; clean start.
+### - Dataset: data_seed_teacher_cotfix_v3, class
+###   D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O3;
+###   M-I10 construction filter).
+### - Parent I-10 data: 32,644 rows, SHA256
+###   13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f.
+### - O1/O2 row mix: 32,480 (99.497611%) / 164 (0.502389%);
+###   O2 rule/T/E rows 0.
+### - I-18 request/generation upstream SHA256:
+###   30bfd9910478c5d438dd3abd31642c4f35980e1890b4b50c6c7dea87b7f9cf13 /
+###   05f5399bf058d220cbaa276c894eb193280fc0abc08ea1dcd170ed489d9a5edf.
+### - Frozen construction scorer: retained I-10 E3 adapter SHA256
+###   37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2.
+### - Builder: scripts/data/build_cotfix_v3.py, SHA256
+###   839334d03213f54dc0c70615beab7f77405d41c870181dd1bdb55a73a1292c1f.
+### - Batch-one selection ledger: 538 groups/1,836 unique known golds,
+###   SHA256 8ee28bbd51290a147bc1a35ded75d29e039cdb858d6ab5fea1e103fbd6f9ff9a.
+### - Output: 32,644 rows, SHA256
+###   19dadb7dc7f1348ef18d31423177edfbc79af79f6e954f85cb8196f946e8ec42.
+### - Exactly 83 retained CoT rows changed: video/prod/ad/living=32/35/11/5.
+###   All prompts, final answers, row order, task counts, and 164 O2 teacher rows
+###   are unchanged. Target tokens 5,856,383; cutoff-16,384 overflow 0.
+### - Build audit: logs/data/seed_teacher_cotfix_v3_audit.json, SHA256
+###   c87db7a226d5482defc286d5543c334081168162eded7ad4817396f3fd229f9a.
+###
+### Training physics intentionally match I-10/I-18. E3 is the sole primary
+### candidate; E1/E2 are dose trajectory only. No failed checkpoint is loaded.
+
+model_name_or_path: models/OneReason-0.8B-pretrain-competition
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_seed_teacher_cotfix_v3
+dataset_dir: configs/datasets/seed_teacher_cotfix_v3
+template: qwen3_nothink
+cutoff_len: 16384
+packing: true
+neat_packing: true
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3
+logging_steps: 5
+save_strategy: epoch
+save_total_limit: 3
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: seed_teacher_cotfix_v3_r64_lr1e4_ep3
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-4
+num_train_epochs: 3
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260817

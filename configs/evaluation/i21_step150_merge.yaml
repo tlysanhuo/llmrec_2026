@@ -1,0 +1,10 @@
+### Disposable full-model export for I-21 step150 structural safety gate only.
+### Delete /tmp/i21_step150_merged after evaluation.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i13_s875_topic_ansretkl_v1/checkpoint-150
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/i21_step150_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

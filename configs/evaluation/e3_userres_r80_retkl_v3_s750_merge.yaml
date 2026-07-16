@@ -1,0 +1,10 @@
+### Disposable full-model export for I-13 scale-0.75 structural safety gate only.
+### Delete /tmp/e3_userres_r80_retkl_v3_s750_merged after evaluation.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/e3_userres_r80_retkl_v3_s750_platform
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/e3_userres_r80_retkl_v3_s750_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

@@ -1,0 +1,12 @@
+{
+  "data_seed_teacher_cotfix_v3": {
+    "file_name": "../../../assets/derived/processed/data_seed_teacher_cotfix_v3.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output",
+      "history": "history"
+    }
+  }
+}

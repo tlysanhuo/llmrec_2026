@@ -1,0 +1,377 @@
+{
+  "status": "PREREGISTERED_BEFORE_I25_FORMAL_LAUNCH",
+  "registered_at_utc": "2026-07-16T05:42:38Z",
+  "registered_before_formal_launch": true,
+  "experiment": "i23_actionres_r16_ansretkl_ep1",
+  "purpose": "Train a fresh rank-16 action residual on the frozen I-23 effective model, then select one training time and one residual multiplier without a two-dimensional post-hoc search. The target is action recovery while preserving I-23 material, topic, and all four recommendation domains. This gate is a mechanism and safety protocol, not an online-score estimator.",
+  "causal_design": {
+    "parent_effective_model": "O6 base plus the retained I-23 rank-64 adapter",
+    "trainable_state": "fresh zero-effect rank-16 LoRA residual only; every I-23 parameter remains frozen",
+    "reference_model": "an identical frozen I-23 effective model",
+    "forbidden_warm_starts": [
+      "every I-24 checkpoint",
+      "the I-12 user residual",
+      "every failed or gate-rejected checkpoint"
+    ],
+    "single_primary_change": "move the action update out of the I-23 rank-64 adapter and into a separately trainable rank-16 residual whose multiplier can be reduced after one training checkpoint is frozen"
+  },
+  "prelaunch_lock": {
+    "pending_sentinel": "PENDING",
+    "required_json_pointers_before_launch": [
+      "/formal_training_artifacts/config/path",
+      "/formal_training_artifacts/config/sha256",
+      "/formal_training_artifacts/trainer/path",
+      "/formal_training_artifacts/trainer/sha256",
+      "/formal_training_artifacts/online_launcher/path",
+      "/formal_training_artifacts/detached_launcher/path",
+      "/training_invariants/learning_rate",
+      "/training_invariants/lr_schedule",
+      "/training_invariants/warmup_steps",
+      "/training_invariants/action_ce_weight",
+      "/training_invariants/action_kl_weight",
+      "/training_invariants/retention_kl_weight",
+      "/training_invariants/kl_position_protocol",
+      "/training_invariants/seed"
+    ],
+    "launcher_must_refuse_if": [
+      "this gate file is missing, its status is not PREREGISTERED_BEFORE_I25_FORMAL_LAUNCH, or its observed SHA256 is not printed into the immutable preflight log",
+      "any required JSON pointer is missing, empty, or exactly PENDING",
+      "any locked file is missing or its observed SHA256 differs",
+      "the training config is outside configs/active",
+      "the parent adapter, dataset, rank, total-step count, checkpoint schedule, single-GPU rule, or W&B-online rule differs from this gate",
+      "the output directory already contains artifacts from another run"
+    ],
+    "activation_rule": "Before formal launch, replace every required PENDING value with the final path, hash, or scalar, change only the status to PREREGISTERED_BEFORE_I25_FORMAL_LAUNCH, and make both launchers read this gate, enforce all checks above, and print the resulting gate SHA256 into the immutable preflight log. Launcher paths are locked here but launcher hashes are deliberately not stored here; both launchers embed and verify the final gate SHA256, avoiding a circular gate-launcher hash dependency. No threshold, candidate order, or scale may change during activation."
+  },
+  "formal_training_artifacts": {
+    "config": {
+      "path": "configs/active/i23_actionres_r16_ansretkl_ep1.yaml",
+      "sha256": "da46f0b153a06244a4b8015c64055dbcab0e44788138db434bdff5f5605c5dbd"
+    },
+    "trainer": {
+      "path": "scripts/train/train_i23_actionres_retkl.py",
+      "sha256": "0071a0885cff480222c5d905f68ccf22c3f90a54d7967df55b08b6d951907c02"
+    },
+    "online_launcher": {
+      "path": "scripts/train/launch_i25_wandb_online.sh"
+    },
+    "detached_launcher": {
+      "path": "scripts/train/launch_i25_wandb_detached.sh"
+    }
+  },
+  "parent": {
+    "id": "seed_teacher_cotfix_v3_r64_lr1e4_ep3",
+    "adapter": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+    "rank": 64,
+    "alpha": 64,
+    "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+    "adapter_config_sha256": "b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7",
+    "online_protocol": "platform-stable-v3.1-20260713",
+    "online_score": 0.9915,
+    "online_subscores": {
+      "material": 0.276,
+      "action": 0.1099,
+      "topic": 0.0383,
+      "video": 0.0576,
+      "prod": 0.1258,
+      "ad": 0.14,
+      "live": 0.1053,
+      "world": 0.1387
+    }
+  },
+  "training_data": {
+    "asset": "data_user_residual_retention_v1",
+    "path": "assets/derived/processed/data_user_residual_retention_v1.jsonl",
+    "class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General), official-source derived",
+    "rows": 6106,
+    "sha256": "bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0",
+    "mix": {
+      "action_answer_ce_rows": 1752,
+      "retention_kl_only_rows": 4354,
+      "action_fraction": 0.2869308877,
+      "retention_fraction": 0.7130691123
+    },
+    "training_rows_from_E": 0,
+    "training_rows_from_T": 0
+  },
+  "training_invariants": {
+    "single_gpu": true,
+    "wandb_enabled": true,
+    "wandb_mode": "online",
+    "epochs": 1,
+    "optimizer_steps": 1527,
+    "effective_batch_size": 4,
+    "residual_rank": 16,
+    "residual_alpha": 16,
+    "parent_is_frozen": true,
+    "reference_is_frozen": true,
+    "step0_policy_reference_max_abs": 0.0,
+    "action_supervision": "answer body only, including the real close/EOS termination positions defined by the locked trainer",
+    "non_action_supervision": "KL only; no gold CE",
+    "checkpoint_contents": "adapter-only; optimizer, scheduler, scaler, and RNG state are forbidden",
+    "learning_rate": 0.00005,
+    "lr_schedule": "cosine",
+    "warmup_steps": 46,
+    "action_ce_weight": 1.0,
+    "action_kl_weight": 0.05,
+    "retention_kl_weight": 2.0,
+    "kl_position_protocol": "parent-to-policy forward KL on every contiguous supervised assistant-response target position, from the first response token through the final formatter-supervised token; no KL position sampling; action gold CE remains restricted to the post-</think> answer body",
+    "seed": 19260821
+  },
+  "checkpoint_axis": {
+    "output_root": "checkpoints/i23_actionres_r16_ansretkl_ep1",
+    "candidates_in_ascending_order": [250, 500, 750, 1000, 1250, 1527],
+    "expected_paths": {
+      "250": "checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-250",
+      "500": "checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-500",
+      "750": "checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-750",
+      "1000": "checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1000",
+      "1250": "checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1250",
+      "1527": "checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1527"
+    },
+    "final_checkpoint_rule": "checkpoint-1527 must be saved explicitly and must be byte-identical to any adapter copied to the output root; never infer the final or latest checkpoint from modification time"
+  },
+  "i24_failure_evidence": {
+    "experiment": "i23_action_ansretkl_v1",
+    "action_topic_report": {
+      "path": "logs/probe/i24_action_topic_path_20260716.json",
+      "sha256": "90b9e946f34545b5d9deb8a720790e90628fcde5fe1608b0df99d978e63f3d24"
+    },
+    "recommendation_report": {
+      "path": "logs/probe/i24_rec_gold_path_20260716.json",
+      "sha256": "a4b26c239c277c237dcedb953e6bbd0b20c84cef12328190ecc013cf1cca1c3f"
+    },
+    "observed_failure": {
+      "action": "none of steps 25 through 200 passed the joint action gate; the maximum improved-row rate was 0.46875 versus the locked minimum 0.55, step50 was the only positive mean gold-sum-logp delta but still had negative top1 delta, and step200 was the only positive top1 delta but had negative mean and only 0.3125 improved rows",
+      "topic": "seven of eight checkpoints were below the -0.01 topic gold-sum-logp floor; the sole topic pass at step200 still failed action",
+      "recommendation": "even step25 had parent-to-candidate KL 0.01296/0.01008/0.01142/0.00986 for video/prod/ad/live, all above the locked 0.005 per-domain ceiling"
+    },
+    "design_response": "I25 does not continue or rescale an I24 checkpoint. It trains a new isolated rank-16 residual and freezes the training checkpoint before any residual-scale protection search."
+  },
+  "locked_audit_protocols": {
+    "base": {
+      "path": "models/OneReason-0.8B-pretrain-competition",
+      "config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+    },
+    "d_residual_mechanism_and_retention": {
+      "tool": "scripts/eval/audit_user_residual_delta.py",
+      "tool_sha256": "18cc88971630118632a3a17621070cfcec97973ec03d0be127d3ff6c2f3d064f",
+      "dataset": "assets/derived/processed/data_user_residual_retention_v1.jsonl",
+      "dataset_sha256": "bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0",
+      "retention_source": "assets/derived/processed/data_seed_teacher_v1.jsonl",
+      "retention_source_sha256": "13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f",
+      "exact_row_exclude": "assets/derived/processed/data_user_residual_retention_v1.jsonl",
+      "exact_row_exclude_sha256": "bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0",
+      "seed": 19260821,
+      "action_rows": 128,
+      "topic_rows": 128,
+      "heldout_rows_per_task": 96,
+      "heldout_tasks": [
+        "material_desc2sid",
+        "material_sid2desc",
+        "rec_video",
+        "rec_prod",
+        "rec_ad",
+        "rec_living"
+      ],
+      "boundary": "action/topic rows are D-class mechanism rows and do not prove generalization; all six held-out task buckets exclude exact I25 training rows"
+    },
+    "e_action_topic_path": {
+      "tool": "scripts/eval/audit_i21_topic_path.py",
+      "tool_sha256": "8a95a8331f7d235086551fa7dfa73a33fb944333378b6119e2961fbf6ca0ef68",
+      "parent_override": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+      "rows_per_task": 32,
+      "action_source_sha256": "3f99f0f2a1264edf9078880b5b1b6454c4ee169c18945d25214797aba269ff86",
+      "topic_source_sha256": "1204e407737b603ccba957401281042ac70463c9d571a87fcc423e99318c5ec5",
+      "route": "canonical /no_think teacher-forced path",
+      "training_use": false
+    },
+    "e_recommendation_path": {
+      "tool": "scripts/eval/audit_i20_gold_path.py",
+      "tool_sha256": "832ef09bfdd20dbce529b4baced716f797b25c0f72be341058721b168c6a4a24",
+      "parent_override": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+      "rows_per_domain": 64,
+      "batch_size": 4,
+      "sample_manifest_sha256": "3bcd7613ff338ef948b5e05dd3dcf24c2bd71055db6544741375af79c2b32362",
+      "source_sha256": {
+        "video": "755b8537ea85145dee4153f444298f559518014e48cbdda34d67569cc3cdaca5",
+        "prod": "578edb886e406add39863d4a8118714c921bffd5f5c2ec8a341e794905168338",
+        "ad": "18eade5d595a7a87883931e21dc8af112911834f55e1a5d3e68258c077399461",
+        "live": "1e53f06db0914bc1d8bf546ce0ee462b430607623e174619460734e4260d1c10"
+      },
+      "training_use": false
+    },
+    "d_material_exact_row_holdout": {
+      "tool": "scripts/eval/audit_i24_material_retention.py",
+      "tool_sha256": "8da940a4dac632b1817c7c97f207ee19afc1728b834e4eea03079b5d440fe899",
+      "parent_override": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+      "seed": 19260827,
+      "rows_per_direction": 96,
+      "combined_selected_manifest_sha256": "7963647b93c1efa227896fb92e7a4243e143f30dc17475c43b1721c8cfe58dc2",
+      "directions": ["material_desc2sid", "material_sid2desc"],
+      "training_use": false
+    },
+    "e_action_generation": {
+      "generator": "scripts/eval/offline_eval.py",
+      "generator_sha256": "e6826c6282e2fdcb89c3d4676cf68384011b92578bca5af7f8f28635b990b9fe",
+      "paired_checker": "scripts/eval/compare_i24_action_generation.py",
+      "paired_checker_sha256": "34f2484f5bcd08033f7b97a5415567aadf5d352d07f3459b4dc4714c9544cbf9",
+      "protocol": "offline-eval-v4-platform-params",
+      "stable_action_rows": 32,
+      "selection": "canonical_json_sha256_ascending",
+      "sampling": {
+        "max_tokens": 4096,
+        "temperature": 0.6,
+        "top_p": 0.95,
+        "top_k": 20
+      },
+      "training_use": false
+    },
+    "composition": {
+      "tool": "scripts/train/combine_lora_adapters.py",
+      "tool_sha256": "80a2d1c1efc5920ccc4a026046cecff9a4998b68b7dac3a9596ce4d2a222de01"
+    },
+    "structure": {
+      "tool": "scripts/eval/precheck.py",
+      "tool_sha256": "5c327ddd1226cb19034ddb8624bf094c141792c42b6309655688eb41fcf8fbfa",
+      "seed": 2026,
+      "action_rows": 30,
+      "recommendation_rows": 30,
+      "choice_rows": 8,
+      "parent_log": "logs/precheck/seed_teacher_cotfix_v3_r64_lr1e4_ep3_e3_precheck.log",
+      "parent_log_sha256": "5aeec99d8a3d9f39b622fbcb4cc468c427badd17ff40ab4195a1a30d36cccc87"
+    }
+  },
+  "stage_1_training_checkpoint_selection": {
+    "name": "freeze one training time using action mechanism only",
+    "evaluation_multiplier": 1.0,
+    "candidate_order": [250, 500, 750, 1000, 1250, 1527],
+    "temporary_candidate_identity": "I23 plus 1.0 times the checkpoint residual, composed deterministically only for the E action audit",
+    "hard_requirements": {
+      "checkpoint_adapter_exists_and_hashes": true,
+      "training_complete_to_step_1527_before_selection": true,
+      "training_has_no_nan_inf_oom_traceback_parent_fingerprint_error_or_route_error_through_candidate_step": true,
+      "observed_training_routes_include_action_and_retention": true,
+      "d_action_rows_scored": 128,
+      "d_action_weighted_ce_delta_mean_max": -0.01,
+      "d_action_weighted_ce_delta_median_max": 0.0,
+      "d_action_parent_to_candidate_kl_mean_max": 0.05,
+      "d_skipped_over_cutoff_max": 0,
+      "e_action_gold_sum_logp_delta_mean_min": 0.0,
+      "e_action_gold_sum_logp_improved_rate_min": 0.55,
+      "e_action_top1_agreement_delta_mean_min": 0.0,
+      "e_action_parent_to_candidate_kl_mean_max": 0.02
+    },
+    "selection_rule": "Evaluate checkpoints in ascending order and stop at the first checkpoint satisfying every Stage-1 requirement. Freeze that checkpoint and its adapter SHA256 before running or inspecting any scale-protection result. Topic, material, recommendation, generation, and structure fields emitted incidentally by a shared script are masked from Stage-1 and may not alter the choice. If no checkpoint passes, reject I25 locally.",
+    "prohibited_after_stage_1": [
+      "replace the frozen checkpoint with a later checkpoint because its scale curve looks better",
+      "rank checkpoints by training loss or by the magnitude of action improvement once the minimum mechanism gate is met",
+      "change Stage-1 thresholds after observing any result"
+    ]
+  },
+  "stage_2_residual_scale_selection": {
+    "name": "on the frozen Stage-1 checkpoint, choose the smallest fully safe multiplier",
+    "scale_order": [0.25, 0.375, 0.5, 0.625, 0.75],
+    "combined_identity": "delta_final = delta_I23 + scale * delta_frozen_I25_residual",
+    "combined_adapter_spec": {
+      "rank": 80,
+      "alpha": 80,
+      "runtime_form": "one LoRA adapter relative to O6",
+      "temporary_nonselected_scale_artifacts": "must be deleted after the gate result is frozen"
+    },
+    "hard_requirements": {
+      "action_mechanism": {
+        "d_weighted_ce_delta_mean_max": -0.005,
+        "d_weighted_ce_delta_median_max": 0.0,
+        "e_gold_sum_logp_delta_mean_min": 0.0,
+        "e_gold_sum_logp_improved_rate_min": 0.55,
+        "e_top1_agreement_delta_mean_min": 0.0,
+        "e_parent_to_candidate_kl_mean_max": 0.02
+      },
+      "topic_protection": {
+        "d_weighted_ce_delta_mean_max": 0.005,
+        "d_parent_to_candidate_kl_mean_max": 0.005,
+        "d_parent_top1_agreement_mean_min": 0.99,
+        "e_gold_sum_logp_delta_mean_min": -0.01,
+        "e_parent_to_candidate_kl_mean_max": 0.005,
+        "e_top1_agreement_delta_mean_min": 0.0
+      },
+      "material_two_direction_protection": {
+        "tasks": ["material_desc2sid", "material_sid2desc"],
+        "no_cross_direction_compensation": true,
+        "each_direction_d_scale_audit_kl_mean_max": 0.005,
+        "each_direction_d_scale_audit_parent_top1_agreement_mean_min": 0.99,
+        "each_direction_composed_adapter_kl_mean_max": 0.005,
+        "each_direction_composed_adapter_parent_top1_agreement_mean_min": 0.99,
+        "composed_adapter_selected_manifest_sha256": "7963647b93c1efa227896fb92e7a4243e143f30dc17475c43b1721c8cfe58dc2"
+      },
+      "recommendation_protection": {
+        "domains": ["prod", "ad", "video", "live"],
+        "no_cross_domain_compensation": true,
+        "each_domain_d_heldout_kl_mean_max": 0.005,
+        "each_domain_d_heldout_parent_top1_agreement_mean_min": 0.99,
+        "each_domain_e_gold_sum_logp_delta_mean_min": -0.03,
+        "each_domain_e_parent_to_candidate_kl_mean_max": 0.005,
+        "prod_e_all_token_rank_le_64_delta_min": 0.0,
+        "ad_e_all_token_rank_le_64_delta_min": 0.0,
+        "video_e_all_token_rank_le_64_delta_min": 0.0,
+        "live_e_all_token_rank_le_64_delta_min": 0.0
+      },
+      "action_generation_and_format": {
+        "paired_protocol_identity_all_true": true,
+        "generated_f1_delta_min": 0.0,
+        "generated_json_ok_delta_min": 0.0,
+        "generated_trunc_rate_delta_max": 0.0,
+        "generated_max_repeat_p95_delta_max": 0.0
+      },
+      "composition_integrity": {
+        "parent_adapter_sha256_must_match": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+        "residual_adapter_sha256_must_equal_frozen_stage_1_hash": true,
+        "combined_rank_must_equal": 80,
+        "combined_alpha_must_equal": 80,
+        "combined_tensor_count_must_equal": 392,
+        "target_module_and_tensor_key_sets_must_match": true,
+        "tensor_by_tensor_additive_identity_max_abs": 1e-06,
+        "identity_formula": "delta_combined = delta_I23 + scale * delta_residual"
+      },
+      "merged_structure": {
+        "itemic_breakage_count_max": 0,
+        "itemic_rows": 60,
+        "action_repeat_collapse_count_max": 3,
+        "action_rows": 30,
+        "choice_placeholder_count_max": 0,
+        "choice_format_survival_count_min": 7,
+        "choice_rows": 8
+      }
+    },
+    "selection_rule": "Evaluate scales in the listed ascending order on the one frozen Stage-1 checkpoint and stop at the first scale satisfying every hard requirement. That scale is selected because it is the smallest effective intervention, not because it has the largest local action metric. If no scale passes, reject I25; do not return to a later training checkpoint, interpolate a new scale, add scale 1.0, or relax a threshold.",
+    "required_result_record": [
+      "frozen Stage-1 checkpoint step and adapter SHA256",
+      "every evaluated scale in order and every hard-gate boolean",
+      "D/E report paths and SHA256 values",
+      "combined adapter/config SHA256 values and exact composition audit",
+      "the first full-pass scale or the explicit local rejection reason"
+    ]
+  },
+  "no_hindsight_constraints": [
+    "The training checkpoint axis is resolved before the scale axis is opened.",
+    "A protection failure at the frozen checkpoint cannot be repaired by choosing another checkpoint after scale results are known.",
+    "A passing smaller scale cannot be replaced by a larger scale with a prettier action diagnostic.",
+    "Aggregate material or recommendation averages cannot compensate for a failed direction or domain.",
+    "Training loss, E-class absolute scores, and any arithmetic online projection are forbidden selection inputs."
+  ],
+  "final_candidate_and_compliance": {
+    "preupload_requirement": "Only the first fully passing Stage-2 composition may proceed to packaging; this gate itself does not authorize packaging or upload.",
+    "artifact_shape": "I23 rank-64 plus the selected scaled rank-16 residual must be concatenated into one rank-80/alpha-80 adapter with the exact additive identity recorded above.",
+    "compliance_classification": "PARAMETER_CONCATENATION_OR_MODEL_FUSION_GRAY_AREA",
+    "required_wording": "The runtime submission is one adapter, but it was constructed by concatenating a separately trained residual with I23. It must not be described as a directly trained single-adapter model or as having written organizer approval.",
+    "final_round_rule": "Use in the preliminary round only as a disclosed gray-area probe unless the organizer gives written confirmation; a final-round reproducible solution requires that confirmation or a direct single-adapter training reproduction."
+  },
+  "online_success_rule": {
+    "primary": "material remains 0.2760 and total score exceeds the current 0.9978 leader",
+    "target_behavior": "retain I23 prod/ad advantages, do not lower video/live, and recover action without sacrificing topic",
+    "failure": "if material returns to 0.2453, close the branch even if action or total local diagnostics improve",
+    "online_results_are_training_data": false
+  },
+  "interpretation_boundary": "All E-class reports are selection or veto diagnostics only; the repository offline evaluator is NOT_CERTIFIED and no E metric may be converted into an expected online score. D-class mechanism and exact-row-excluded retention reports also do not guarantee I23's discontinuous ninth material hit. Passing this gate establishes a tightly scoped upload candidate, not a predicted gain."
+}

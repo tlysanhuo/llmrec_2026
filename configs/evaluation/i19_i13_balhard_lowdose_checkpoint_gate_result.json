@@ -1,0 +1,90 @@
+{
+  "status": "COMPLETE_SELECTED_STEP25",
+  "gate": "configs/evaluation/i19_i13_balhard_lowdose_checkpoint_gate.json",
+  "experiment": "i13_s875_dpo_rec_balhard_lowdose_v1",
+  "training": {
+    "exit_code": 0,
+    "steps": 75,
+    "runtime_seconds": 361.5,
+    "train_loss": 0.6637,
+    "wandb_run_id": "0bm73wt9",
+    "log": "logs/train/i13_s875_dpo_rec_balhard_lowdose_v1.log",
+    "log_sha256": "4841bc3d9e2e83b9bde702d23ca033775b2cdac651c116832ef5dec947476a2f",
+    "nan_inf_oom_traceback": 0
+  },
+  "candidates": [
+    {
+      "step": 25,
+      "adapter_sha256": "e6ebe4dc66862bdf33df36805bec9b9c3e397cd2bac85485f3f01830bd9fb2e0",
+      "audit_sha256": "c5e3ff360cf0c5021c2252b859441b8f711487e3a95468faf301faf2420e6c7b",
+      "action_raw_positive_rate": 0.9375,
+      "action_normalized_positive_rate": 0.859375,
+      "target_domain_raw_positive_rate": 0.3229166667,
+      "recommendation_raw_positive_rate": 0.34765625,
+      "video_raw_positive_rate": 0.421875,
+      "raw_mean_margin_delta": {
+        "rec_ad": 0.20448019,
+        "rec_prod": 0.59435246,
+        "rec_living": 0.69526378,
+        "rec_video": 0.18760243
+      },
+      "recommendation_aggregate_chosen_mean_logp_drop": 0.00107086,
+      "max_domain_chosen_mean_logp_drop": 0.00241263,
+      "numeric_gate_pass": true,
+      "structural_precheck": {
+        "itemic_breakage": "0/60",
+        "pass": true,
+        "log_sha256": "c3333139c3cf1345b7e8f106c5dca02e5f5318d1d9010cf695c281e8934669bc"
+      }
+    },
+    {
+      "step": 50,
+      "adapter_sha256": "9dddc6a237f0a480240c84cf4f77c981ae79b8393f6607ccdd50151c78bb729c",
+      "audit_sha256": "12866012cd53634e41eeb65a32e6e816364400b8eb59a80c7e61d538f8238918",
+      "action_raw_positive_rate": 0.9375,
+      "action_normalized_positive_rate": 0.859375,
+      "target_domain_raw_positive_rate": 0.3802083333,
+      "recommendation_raw_positive_rate": 0.38671875,
+      "video_raw_positive_rate": 0.40625,
+      "raw_mean_margin_delta": {
+        "rec_ad": 0.55599275,
+        "rec_prod": 0.97597166,
+        "rec_living": 1.24464718,
+        "rec_video": 0.63464257
+      },
+      "recommendation_aggregate_chosen_mean_logp_drop": 0.00043452,
+      "max_domain_chosen_mean_logp_drop": 0.0038058,
+      "numeric_gate_pass": true,
+      "selection": "not selected because step25 passed earlier"
+    },
+    {
+      "step": 75,
+      "adapter_sha256": "42aa6577943a7b3ce75aed2468d6e7b6af11a5ed0eca94b2a2b4995b34a93bf1",
+      "audit_sha256": "966596e8d6d2ccc6e074d8149a97940f2bf6a9bcb60d67e4a4b7746ea1be412a",
+      "action_raw_positive_rate": 0.9375,
+      "action_normalized_positive_rate": 0.859375,
+      "target_domain_raw_positive_rate": 0.3958333333,
+      "recommendation_raw_positive_rate": 0.40234375,
+      "video_raw_positive_rate": 0.421875,
+      "raw_mean_margin_delta": {
+        "rec_ad": 0.74986294,
+        "rec_prod": 1.49025771,
+        "rec_living": 1.37669378,
+        "rec_video": 0.8134583
+      },
+      "recommendation_aggregate_chosen_mean_logp_drop": 0.00449446,
+      "max_domain_chosen_mean_logp_drop": 0.00781852,
+      "numeric_gate_pass": true,
+      "selection": "not selected because step25 passed earlier"
+    }
+  ],
+  "selected": {
+    "step": 25,
+    "checkpoint": "checkpoints/i13_s875_dpo_rec_balhard_lowdose_v1/checkpoint-25",
+    "submission": "submissions/i13_s875_dpo_rec_balhard_lowdose_v1_step25_platform",
+    "adapter_sha256": "e6ebe4dc66862bdf33df36805bec9b9c3e397cd2bac85485f3f01830bd9fb2e0",
+    "config_sha256": "a7114c7da498e47cf781f8faa44034304c0d3cb9ffc95ecb710d0d789093caa4",
+    "reason": "earliest candidate satisfying every preregistered numeric and structural requirement"
+  },
+  "anti_overclaim": "All holdout results are mechanism and safety diagnostics, not online score estimates. I-13 0.9978 remains the highest verified model until this package receives a fixed-protocol platform result."
+}

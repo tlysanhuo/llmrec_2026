@@ -1,0 +1,79 @@
+### I-25 incident recovery: deterministic clean replay through optimizer step 250.
+###
+### This is not a new experiment and it must never resume from an I-25
+### checkpoint.  The completed formal I-25 run reached step 1,527, but
+### Transformers rotated checkpoint-250 when the end-of-training checkpoint
+### was saved under save_total_limit=6.  A dedicated Trainer callback stops
+### only after the step-250 optimizer and scheduler updates while leaving the
+### planned horizon at the original 1,527 steps.  Therefore the first 250
+### updates use the original cosine schedule rather than a 250-step schedule.
+###
+### Relative to configs/active/i23_actionres_r16_ansretkl_ep1.yaml, only
+### output_dir and run_name differ.  All model, data, loss, optimizer,
+### scheduler, precision, seed, dataloader, and checkpoint fields are copied
+### exactly.  The recovery launcher accepts the result only if the step-250
+### adapter/config hashes match the values observed before rotation:
+###   adapter 4af7296737209fb00df4908a09e21382ac6a9c987663b658e2f58e123fc928e9
+###   config  6c127a34b497e7a8672763b238a50801dd9a3e6cbb662c3c981f9a9b4a4e976a
+### A mismatch is a deterministic-replay failure and is never installed.
+###
+### Asset ledger (unchanged; no new data asset):
+### - O6 base config SHA256
+###   5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4.
+### - I-23 parent adapter/config SHA256
+###   0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8 /
+###   b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7.
+### - data_user_residual_retention_v1, class
+###   D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General),
+###   builder scripts/data/build_user_residual_retention_v1.py, 6,106 rows,
+###   SHA256 bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0.
+### - Mix is unchanged: action-answer CE 1,752 rows (28.693089%); topic plus
+###   non-user parent-KL-only 4,354 rows (71.306911%); T/E rows 0.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform
+create_new_adapter: true
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 16
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_user_residual_retention_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/user_residual_retention_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i25_step250_deterministic_replay
+logging_steps: 5
+save_strategy: steps
+save_steps: 250
+save_total_limit: 6
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i25_step250_deterministic_replay
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 5.0e-5
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_steps: 46
+weight_decay: 0.001
+bf16: true
+seed: 19260821

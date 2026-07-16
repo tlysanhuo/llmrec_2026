@@ -1,0 +1,13 @@
+{
+  "data_i13_rec_balanced_preference_v1_train": {
+    "file_name": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/assets/derived/processed/data_i13_rec_balanced_preference_v1_train.jsonl",
+    "ranking": true,
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "chosen": "chosen",
+      "rejected": "rejected"
+    }
+  }
+}

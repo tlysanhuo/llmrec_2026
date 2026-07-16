@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -128,13 +129,24 @@ def main() -> None:
     from peft.tuners.lora import LoraLayer
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    from scripts.data.build_seed_scoremax_v1 import load_jsonl, stable_hash, task_of
+    # Some evaluation environments ship a site-package named ``scripts``;
+    # load the repository helpers by path so that it cannot shadow this repo.
+    def load_repo_module(relative: str, name: str):
+        path = REPO_ROOT / relative
+        spec = importlib.util.spec_from_file_location(name, path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"cannot load repository helper: {path}")
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        spec.loader.exec_module(module)
+        return module
 
-    from scripts.train.train_user_residual_retkl import (
-        forward_kl,
-        task_and_weights,
-        weighted_ce,
-    )
+    scoremax = load_repo_module("scripts/data/build_seed_scoremax_v1.py", "llmrec_scoremax")
+    residual = load_repo_module("scripts/train/train_user_residual_retkl.py", "llmrec_residual")
+    load_jsonl, stable_hash, task_of = scoremax.load_jsonl, scoremax.stable_hash, scoremax.task_of
+    forward_kl = residual.forward_kl
+    task_and_weights = residual.task_and_weights
+    weighted_ce = residual.weighted_ce
 
     rows: dict[str, list[dict[str, object]]] = defaultdict(list)
     with args.dataset.open(encoding="utf-8") as source:

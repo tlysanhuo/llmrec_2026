@@ -1,0 +1,82 @@
+{
+  "status": "S625_ONLINE_COMPLETE_S500_READY_FOR_MANUAL_SUBMISSION",
+  "registered_at_utc": "2026-07-16T09:23:38Z",
+  "objective": "Preserve I-23 material=0.2760 and prod/ad advantages while recovering the action/topic gap and avoiding further video loss.",
+  "first_probe": {
+    "id": "i23_userres_r80_s625",
+    "identity": "delta_candidate = delta_I23 + 0.625 * delta_I12_user_residual",
+    "submission_dir": "submissions/i23_userres_r80_s625_platform",
+    "adapter_sha256": "4a46fd29c0aac3570d5672db6675e83ac364fb169111abd71c14e828a72e0c70",
+    "config_sha256": "4768770a600b8ab4c60eb04ad81a026a5ef8b6f2f8be79a8c4ab3192fa664d06",
+    "conditional_arithmetic_center": 0.9980,
+    "calibrated_score_prediction": false,
+    "transfer_command": "scp -r root@172.26.0.65:/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i23_userres_r80_s625_platform ~/Downloads/"
+  },
+  "online_success": {
+    "material_equals": 0.2760,
+    "total_greater_than": 0.9978
+  },
+  "first_probe_result": {
+    "source": "user-provided platform panel; raw evaluation log and evalTaskId pending",
+    "ui_name": "i23_userres_r80_s625_V1_eval_20260716173243",
+    "platform_time": "2026-07-16 17:32:47",
+    "runtime": "1h10m9s",
+    "total": 0.9866,
+    "vector_order": [
+      "material",
+      "action",
+      "topic",
+      "video",
+      "prod",
+      "ad",
+      "live",
+      "world"
+    ],
+    "vector": [0.2453, 0.1170, 0.0399, 0.0768, 0.1326, 0.1316, 0.1044, 0.1390],
+    "same_day_i23_repeat_total": 0.9884,
+    "same_day_i23_repeat_vector": [0.2760, 0.1099, 0.0380, 0.0576, 0.1224, 0.1400, 0.1062, 0.1383],
+    "delta_vs_same_day_i23_repeat": [-0.0307, 0.0071, 0.0019, 0.0192, 0.0102, -0.0084, -0.0018, 0.0007],
+    "non_material_delta_sum": 0.0289,
+    "decision": "The residual mechanism remains active, but scale 0.625 crossed the material cliff. Proceed to scale 0.5."
+  },
+  "next_probe": {
+    "id": "i23_userres_r80_s500",
+    "identity": "delta_candidate = delta_I23 + 0.5 * delta_I12_user_residual",
+    "submission_dir": "submissions/i23_userres_r80_s500_platform",
+    "adapter_sha256": "d2b77c74adb017f39340128a25702f9cc838b9ed7191c293f7d77129d67599bf",
+    "config_sha256": "4768770a600b8ab4c60eb04ad81a026a5ef8b6f2f8be79a8c4ab3192fa664d06",
+    "conditional_center_if_material_holds": 1.0115,
+    "conditional_center_if_material_drops": 0.9808,
+    "calibrated_score_prediction": false,
+    "transfer_command": "scp -r root@172.26.0.65:/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i23_userres_r80_s500_platform ~/Downloads/"
+  },
+  "decision_after_first_result": [
+    {
+      "if": "material=0.2760 and action/topic improve",
+      "then": "Use the observed component response to decide whether s750 deserves the next submission; package only after that decision."
+    },
+    {
+      "if": "material=0.2453 but non-material components improve materially",
+      "then": "Consider the already prepared s500 only as a material-cliff probe; otherwise close the cross-parent residual branch."
+    },
+    {
+      "if": "action/topic do not improve or recommendation components collapse",
+      "then": "Close the cross-parent residual branch and keep I-13 as the leaderboard anchor."
+    }
+  ],
+  "prepared_not_packaged": [
+    {
+      "id": "i23_userres_r80_s750",
+      "adapter_sha256": "363a3b59ee52b7a8f0e051f1fc4b24f86bc75e9a4ddbb7120accc81ccea0f365"
+    },
+    {
+      "id": "i23_userres_r80_s875",
+      "adapter_sha256": "b24c17cc622a2bc07ab57d3faaa45cc9983b32ee0cdc3c200fb7d73f4381f31f"
+    }
+  ],
+  "constraints": [
+    "Do not choose or package another scale before the s500 online component vector is available.",
+    "Do not start new training without explicit user approval.",
+    "Offline quality metrics may reject only obvious structural collapse; they may not claim leaderboard direction."
+  ]
+}

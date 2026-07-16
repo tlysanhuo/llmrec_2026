@@ -1,0 +1,65 @@
+{
+  "status": "PREREGISTERED_BEFORE_I19_LAUNCH",
+  "experiment": "i13_s875_dpo_rec_balhard_lowdose_v1",
+  "purpose": "Select the earliest ultra-low-dose checkpoint that improves the I-13 ad/prod/living hard-negative ordering while retaining video and action behavior. This gate is not an online score estimator.",
+  "candidate_steps_in_order": [
+    25,
+    50,
+    75
+  ],
+  "training_config": {
+    "path": "configs/active/i13_s875_dpo_rec_balhard_lowdose_v1.yaml",
+    "sha256": "467965b62eebf203abce3eab0a50beeade8e834c95aa71fdc3b385b916815800"
+  },
+  "locked_holdout": {
+    "path": "assets/evaluation/holdout/data_o1_reward_preference_v1_holdout.jsonl",
+    "sha256": "1c7292cb96d45e9d20c0b3add78d3e5a30ec7a559844217584408921f996696e",
+    "sample_manifest_sha256": "977f9cbc666e88824b44778d4de358b00a705628d20a3af2c1895f0f2799d064",
+    "samples_per_task": 64,
+    "sample_rows": 320,
+    "training_overlap_by_prompt_group": 0
+  },
+  "parent": {
+    "adapter": "submissions/e3_userres_r80_retkl_v3_s875_platform",
+    "adapter_sha256": "71bc3c2c86beb1c1aaafd41f98915ba94a7f964b6e8450079a883aebc32ffd5b",
+    "audit": "logs/probe/i13_s875_o1hard_holdout_20260715.json",
+    "audit_sha256": "3f4ffa921ff760614568f1de48ad4ad8116ef4d1ab5e38ee82f5a1775222335f",
+    "action_raw_positive_rate": 0.9375,
+    "action_normalized_positive_rate": 0.859375,
+    "target_domain_raw_positive_rate": 0.3020833333,
+    "recommendation_raw_positive_rate": 0.3203125,
+    "raw_mean_margin": {
+      "rec_ad": -0.95679737,
+      "rec_prod": -6.25287068,
+      "rec_living": -2.26240779,
+      "rec_video": -1.56786822
+    },
+    "chosen_mean_logp": {
+      "rec_ad": -0.93041022,
+      "rec_prod": -1.12849981,
+      "rec_living": -0.99250739,
+      "rec_video": -0.93734746,
+      "recommendation_aggregate": -0.99719122
+    }
+  },
+  "hard_candidate_requirements": {
+    "adapter_exists_and_hashes": true,
+    "training_has_no_nan_inf_oom_or_traceback_through_candidate_step": true,
+    "action_raw_positive_rate_min": 0.90625,
+    "action_normalized_positive_rate_min": 0.828125,
+    "each_target_domain_raw_mean_margin_must_increase_from_parent": [
+      "rec_ad",
+      "rec_prod",
+      "rec_living"
+    ],
+    "target_domain_aggregate_raw_positive_rate_min": 0.3229166667,
+    "recommendation_aggregate_raw_positive_rate_min": 0.328125,
+    "video_raw_positive_rate_min": 0.34375,
+    "video_raw_mean_margin_drop_max": 0.25,
+    "recommendation_aggregate_chosen_mean_logp_drop_max_nats_per_token": 0.0075,
+    "each_recommendation_domain_chosen_mean_logp_drop_max_nats_per_token": 0.015,
+    "itemic_breakage_rate_max": 0.1
+  },
+  "selection_rule": "Audit steps 25, 50, and 75 on the locked manifest. Select the earliest checkpoint meeting every numeric requirement, then require the structural precheck to pass. If none passes, reject the DPO branch locally. Do not loosen thresholds after seeing results, and do not use these diagnostics as a score forecast.",
+  "retention_scope": "The preference gate directly protects action and video. Material/topic/world are not ranked by this holdout; the structural precheck is a disaster veto, and any selected package remains an online experiment rather than a guaranteed improvement."
+}

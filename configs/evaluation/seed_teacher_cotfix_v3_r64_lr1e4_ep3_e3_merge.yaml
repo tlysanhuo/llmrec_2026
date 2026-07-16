@@ -1,0 +1,10 @@
+### One-time CPU merge for the I-23 E3 structural safety gate only.
+### This merged directory is not a training input or submission artifact.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/checkpoint-1995
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/seed_teacher_cotfix_v3_r64_lr1e4_ep3_e3_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

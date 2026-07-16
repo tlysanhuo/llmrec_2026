@@ -1,0 +1,79 @@
+### HISTORICAL_ONLY_AFTER_SUCCESS — DO NOT RELAUNCH OR OVERWRITE.
+### I-19 completed 75/75 with exit 0; the preregistered gate selected step25.
+### I-19 composite follow-up to the fixed-protocol I-13 0.9978 model.
+### This updates the single r80 adapter in place; it does not add another adapter.
+### The immutable policy/reference start is the online-best I-13 at scale 0.875:
+### adapter SHA256 71bc3c2c86beb1c1aaafd41f98915ba94a7f964b6e8450079a883aebc32ffd5b.
+###
+### Training asset ledger (frozen before launch):
+### - asset: data_i13_rec_balanced_preference_v1_train, class D(O1)
+### - upstream: data_o1_reward_preference_v1_train, class D(O1), 15,382 pairs,
+###   SHA256 579171020e764b9c360b94493257848e6408487c7ca6b0dd8ba1efa76c34b52e
+### - builder: scripts/data/build_i13_rec_balanced_preference_v1.py,
+###   SHA256 79d34490f623ef180451e8207c5bdb25ce7ef929d00202f4859c9921707c9e82
+### - output: 2,688 pairs,
+###   SHA256 baf8a82562948047468cac78bd77a03509a72851f2d1d9cb7b0fa37771cd2a8f
+### - mix ad/prod/living/video = 768/768/768/384 =
+###   28.571429%/28.571429%/28.571429%/14.285714%; O1-derived 100%;
+###   O2/T/E/teacher/model-rollout rows 0; chosen/rejected labels rewritten 0.
+###
+### Dose rationale: I-17 step100 used about 5.95e-5 discrete LR area at 7e-7
+### and its source mix was 77% video. Here the stronger I-13 parent receives at most
+### about 2.82e-5 area (4e-7, 10-step warmup, 75 steps), with candidates at
+### 25/50/75. Batch exposure is 200/400/600 pairs, or 7.44%/14.88%/22.32%
+### of this targeted subset. A preregistered holdout/drift gate selects the earliest
+### safe point; none of these diagnostics is treated as an online-score predictor.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/e3_userres_r80_retkl_v3_s875_platform
+ref_model: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+ref_model_adapters: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/e3_userres_r80_retkl_v3_s875_platform
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: true
+stage: dpo
+do_train: true
+finetuning_type: lora
+create_new_adapter: false
+lora_rank: 80
+lora_alpha: 80
+lora_dropout: 0.05
+lora_target: all
+pref_loss: sigmoid
+pref_beta: 0.1
+pref_ftx: 0.0
+dpo_label_smoothing: 0.0
+
+dataset: data_i13_rec_balanced_preference_v1_train
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/i13_rec_balanced_preference_v1
+template: qwen3_nothink
+cutoff_len: 16384
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i13_s875_dpo_rec_balhard_lowdose_v1
+logging_steps: 5
+save_strategy: steps
+save_steps: 25
+save_total_limit: 3
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: true
+report_to: wandb
+run_name: i13_s875_dpo_rec_balhard_lowdose_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 4.0e-7
+max_steps: 75
+num_train_epochs: 1
+lr_scheduler_type: constant_with_warmup
+warmup_steps: 10
+weight_decay: 0.001
+bf16: true
+seed: 19260823

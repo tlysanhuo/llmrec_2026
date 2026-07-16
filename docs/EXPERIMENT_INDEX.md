@@ -1,6 +1,6 @@
 # Experiment And Artifact Index
 
-> 当前状态基线：2026-07-15 UTC。
+> 当前状态基线：2026-07-16 UTC。
 > 旧版完整历史表已归档到 `docs/archive/EXPERIMENT_INDEX_pre_cleanup_20260711.md`。
 
 本文件只登记当前仍存在、仍可使用的模型产物。历史分数和实验归因见 `experiment_log.md`。
@@ -16,9 +16,17 @@
 - I-14 E3固定协议单次线上0.9518。相对I-13逐项为`0/-0.0138/-0.0003/-0.0480/+0.0068/+0.0098/+0.0018/-0.0022`、面板总分差-0.0460，但这只回答“是否替换融合灰区主模型”的榜分问题，不支持纯O1单体路线的因果否决。更接近的非融合固定协议参考I-11为0.9618，I-14名义低0.0100；I-11仍使用164条teacher、从I-10 E3续训且rank不同，也不是干净基线。原始日志已复核为action1024+itemic 7次race-average、8/8完成、失败0，evalTaskId `eval-task-lfrrhq-1784013605`。
 - I-16于2026-07-14 12:19 UTC通过持久启动器在单卡启动，W&B [`packufor`](https://wandb.ai/3120252125-/llmrec-2026/runs/packufor)，600/600正常完成。policy从保留的I-10 E3继续同一个r64 adapter，reference为O6显式加载并合并同一E3 adapter；不新建adapter、不拼接参数、不做同容量蒸馏。step200/400/600使四推荐域聚合raw chosen胜率从32.03%升到52.73%/57.03%/58.59%，action始终保持93.75%，但推荐gold平均token logp分别下降0.01185/0.02030/0.02149，全部超过0.01保护线。I-16按原门槛本地否决，不上传；这些读数只作机制和剂量证据，不估线上分数。
 - I-17已在I-16 step400结果后、正式启动前注册，并于2026-07-14 12:57 UTC在I-16正常退出后顺序持久启动；W&B [`pfjlvm70`](https://wandb.ai/3120252125-/llmrec-2026/runs/pfjlvm70)服务端`finished`。它从原始I-10 E3重新开始，数据、beta和冻结E3 reference不变，只将峰值lr降至7e-7并用30步warmup后的constant日程把step200累计LR面积降为I-16 step200的74.8434%。step100/150/200全部满足量化保护线；按预注册“最早全通过”规则选step100，其推荐聚合raw chosen胜率32.03%→43.36%、gold平均token logp仅下降0.00327、action保持93.75%，itemic断裂0/60。step100固定协议线上0.9727，八项=`0.2453/0.1077/0.0380/0.0960/0.1156/0.1274/0.1044/0.1383`，低I-13 0.0251；相对I-12推荐合计+0.0101但用户合计-0.0142，总分-0.0041。直接父模型I-10 E3固定协议分仍缺失，因此不作DPO因果结论，桥接前不提交step150/200。
-- I-18已完成训练与本地结构硬门禁：官方源派生`data_seed_teacher_cotfix_v2`从I-10父数据逐行构建，只修复538条保留推荐CoT；538/538通过程序门与独立judge score=5九项全真。32,644行/SHA256 `634c4805...c0e4`，prompt/答案/行序/任务数/O2 teacher均0变化，target元数据/T/E为0，16k超限0。2026-07-14 17:26 UTC从O6在GPU1持久启动，1,995/1,995正常完成，train loss1.3617671，W&B [`32av8e8z`](https://wandb.ai/3120252125-/llmrec-2026/runs/32av8e8z)服务端`finished`；E3/root adapter SHA256 `07cd6628...2a9e3`且逐字节一致。E3临时merge后itemic断裂0/60=`PASS`，其余诊断不用于估分；严格两文件包已验收，尚未上传、未消耗线上配额。
+- I-18截断CoT修复E3固定协议线上0.9697，八项=`0.2453/0.1083/0.0382/0.0768/0.1190/0.1316/0.1089/0.1416`，低I-13 0.0281、低I-17 0.0030，未替换主模型。日志8/8完成、失败0；I-10 E3缺同协议桥，不能将该差值作CoT修复的净因果结论。
+- I-19从固定协议最高分I-13/0.875原地更新同一个r80 adapter，不新增adapter层；D(O1)同题同域hard-negative子集2,688对按ad/prod/living/video=`768/768/768/384`重平衡。单卡W&B [`0bm73wt9`](https://wandb.ai/3120252125-/llmrec-2026/runs/0bm73wt9)完成75/75、退出码0；按冻结门槛选出的step25本地ad/prod/living/video raw mean margin均改善且itemic断裂0/60，但固定协议线上仅0.9763，八项=`0.2453/0.1181/0.0402/0.0864/0.1156/0.1246/0.1071/0.1390`。相对I-13总分-0.0215，其中用户合计+0.0010而推荐合计-0.0225；该hard-negative偏好门与线上推荐指标方向失配，I-19分支封板，step50/75不再提交。I-13 0.9978继续为主模型。
+- I-20从保留的I-13/0.875原地更新同一r80，未加载I-19失败点。D(O1,O2.General) 12,260行由prod/ad正例与冻结I-13保持严格1:1组成；200/200步正常完成，W&B `1i153nai`。十档统一圈外诊断中step100是唯一做到prod/ad三SID宽候选`+3/128`且video/live `0/128`的点，但gold mean-logp仍为负漂移，故只视作线上实验候选。双通路行为与父模型近乎重合、itemic断裂0/60；严格两文件包已生成，I-13 0.9978在出分前仍是主模型。
+- I-21在I-13同一r80内做topic answer-token低剂量CE，其余行用冻结I-13 KL保持；单卡W&B [`wjjymcj9`](https://wandb.ai/3120252125-/llmrec-2026/runs/wjjymcj9)完成150/150。六点统一诊断选step150：topic/action gold sum-logp相对父模型`+0.09127/+0.03478`，prod/ad Top-64覆盖`+3/128`，video/live为`-2/128`；这些只用于选点，不是线上分数预测。结构门itemic断裂0/60、action复读1/30；严格双文件包已生成，等待一次线上实验。
+- I-22在I-13同一r80内完成world答案token低剂量CE，单卡W&B [`cohd8617`](https://wandb.ai/3120252125-/llmrec-2026/runs/cohd8617)完成150/150。46条未训练D(O2.General)选择集上，step25虽gold logp`+0.06628`且KL`0.00870`，但top-1掉3/46；step125的top-1不降且gold logp`+0.24041`，但KL`0.03381`超过预注册0.02。六点无一满足全部主门，按原规则本地否决，不跑后续保持门、不打包、不上传。
+- I-23在正式训练前冻结允许角色I-10 E3，以batch=1对538组全部1,836个去重gold只评分最终答案token，最终选中83组（video/prod/ad/live=`32/35/11/5`）；随后从O6按I-10/I-18同一r64三轮物理干净训练。E3固定协议线上0.9915，八项=`0.2760/0.1099/0.0383/0.0576/0.1258/0.1400/0.1053/0.1387`。相对I-13总分-0.0063，其中material +0.0307、用户合计-0.0091、推荐合计-0.0275、world-0.0003；没有替换I-13，但成为固定协议最高无参数拼接单adapter。用户已批准只将成功E3作为新action-answer-token CE + 冻结I-23 KL保持实验父模型；E1/E2仍禁止作父模型。
+- `i23_userres_r80_s625`线上为0.9866，未超过I-13；但相对同日I-23复测0.9884，material掉档`-0.0307`而其余七项合计`+0.0289`，说明用户残差确实补回用户并改善video/prod，只是0.625越过material临界点。下一发按冻结分支使用`s500`；若material保持，基于本次七项响应的条件中心约1.0115，仍掉档则约0.9808。原始日志未入仓前只作用户面板结果，不登记伪造evalTaskId。
+- I-24已从成功I-23 E3原地完成200步action-only低剂量训练，W&B `f3ayytob`服务端finished，8个adapter-only剂量点齐全；但8/8均未通过启动前冻结的action硬门。step50是唯一action sum-logp均值为正的点（`+0.05031`），仍同时失败改善率`0.46875<0.55`、top-1 delta `-0.00080`和topic delta `-0.01223<-0.01`；所有点四域最大KL约`0.013–0.014>0.005`。整条分支按原规则本地关闭，不打包、不上传、不作父模型；条件算术点0.9999已被否决证据取代。
+- I-25已在任何正式训练前冻结：只从成功I-23有效模型新建隔离r16 action residual，不使用I-12残差或I-24失败点；复用已登记6106行数据，action1752行答案体CE+弱parent KL，其余4354行只做parent KL，完整一轮1527步。最终gate SHA256 `53b5b375...f212`先单轴冻结最早action通过checkpoint，再在该点按固定scale升序取最小全保持解；不得二维后验回选。配置/trainer/启动器静态验收通过，尚未因准备文件而宣称训练或涨分。
 - 撤回旧 I-09 规则数据资格：规则标签相对同源独立judge满分teacher参考的平均F1仅0.0429；匹配实际过滤条件的42条平均F1 0.0813且32条零交集。该teacher参考不是官方gold；`seed_o2_action_r64_lr1e4_ep3`因此在step16中止，W&B `sh96a1sq`，`checkpoints/seed_o2_action_r64_lr1e4_ep3/`无adapter且禁止resume。
-- 当前最高单次显示分和固定协议最高均为I-13 `0.9978`。I-10 E3旧协议0.9849仍只能作旧轨迹父模型记录；E3固定协议桥缺失不妨碍I-13在现有固定协议候选中确定为主模型，但仍禁止计算I-13相对E3的净增益。
+- 当前最高单次显示分和固定协议最高仍为I-13 `0.9978`；固定协议最高无参数拼接单adapter为I-23 `0.9915`，最严格纯O1单体仍为I-14 `0.9518`。I-10 E3旧协议0.9849仍只能作旧轨迹父模型记录；E3固定协议桥缺失不妨碍I-13在现有固定协议候选中确定为主模型，但仍禁止计算I-13相对E3的净增益。
 - r64 同一训练轨迹 E1/E2 已线上评测：E1=0.8839，E2=0.9187；E3未评测且不再建议上传。本地门禁原先只选 E1、拒绝 E2，线上排序相反，门禁不再承担正向 checkpoint 排名。
 - `riders_fk_clean_r64_ep3` 训练事实不变：GPU1 单卡，r64/α64、3 epoch、353 steps/epoch、总 1,059 steps；W&B online run [`6gyi8mzc`](https://wandb.ai/3120252125-/llmrec-2026/runs/6gyi8mzc)。E2 action 0.0981 创本账号新高，但 material E1/E2 均为6题。
 - `i01_action_distill_r64_ep3` 已完成：3 epoch/1,047 steps，action 截断相对预登记比较对象 riders 减半但 F1 未涨，world v4 大幅回退；状态为本地否决、不上传。蒸馏正式累计 11,432,127 API token。
@@ -27,7 +35,132 @@
 - E2 的本地 checkpoint 存在，但 `submissions/riders_fk_clean_r64_e2_platform/` 不存在；平台日志只记录临时 `/tmp/eval_model/merged`。在缺上传 manifest 时，不能声称平台工件哈希已由本地 adapter 哈希证明。
 - 旧实验的中间 checkpoint、optimizer、失败 checkpoint 和 merged 工作副本已于 2026-07-11 删除；本轮用户批准的 r64 E1/E2/E3 例外已单独列入下表。
 
-## 已完成训练并通过结构门：seed_teacher_cotfix_v2_r64_lr1e4_ep3
+## 已完成并本地否决：i23_action_ansretkl_v1（I-24）
+
+| 项 | 预注册记录 |
+|---|---|
+| 目的/父模型 | 只补I-23相对I-13的action缺口，同时守住material第9题及I-23的prod/ad优势；policy/reference均从成功I-23 E3单adapter SHA256 `0e5fa9bb...c6b8`开始，E1/E2及任何失败checkpoint均不用 |
+| 数据 | 复用已登记`data_user_residual_retention_v1`，D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General) 6,106行、SHA256 `bd947aad...b08f0`；action 1,752（28.6931%），topic+非用户4,354（71.3069%）；T/E/model rollout训练行均0 |
+| 损失/保持 | action答案体CE+5x frozen-I23 KL；其余全为50x KL-only。每行KL位置=`96个均匀全trace ∪ 48个均匀答案体 ∪ 尾16 content`，排序去重后最多160；闭合符/EOS为2x CE，LoRA dropout使用matched CPU/CUDA RNG |
+| 配置/实现 | `configs/active/i23_action_ansretkl_v1.yaml` SHA256 `0903f235...938de`；trainer `scripts/train/train_i23_action_retkl.py` SHA256 `bfeea1dc...270a7`；online/detached launcher SHA256 `bab895d4...3de7` / `96a26d5e...e824`。self-test、AST、JSON/YAML、`bash -n`均PASS |
+| 训练物理 | I-23同一r64/alpha64原地更新，不新增adapter/rank；单GPU、W&B online、lr7.5e-8、warmup25后constant、effective batch4、最多200步；25步一档且只保存adapter |
+| checkpoint门 | `configs/evaluation/i23_action_ansretkl_checkpoint_gate.json` SHA256 `e898ded7...0271`在启动前冻结。按25→200取**最早全通过**：action gold-path与生成F1/JSON不退、topic轻微漂移受限、material各向KL≤0.005且top1≥99%、video/prod/ad Top-64不退、live最多-1/64、itemic断裂必须0；E只作选择/否决，不训练、不估线上分 |
+| 线上成败 | 只有material仍为0.2760且总分超过I-13 0.9978才算成功；material回落0.2453即关闭分支。静态中心：只完整补回action 0.0084且其余不变时`0.9999`，不是校准预测 |
+| 持久启动 | 2026-07-16 04:47 UTC在物理GPU0 `GPU-d3c522d6-ed0f-2579-01cd-2d97da749980`启动；detached PID `3709796`由PID1接管、SID同PID且无TTY，日志/PID/退出码为`logs/train/i23_action_ansretkl_v1.{log,pid,exit_code}` |
+| W&B/训练 | W&B [`f3ayytob`](https://wandb.ai/3120252125-/llmrec-2026/runs/f3ayytob)服务端`finished`；6,106 examples、200/200 steps、40,370,176 trainable params。step0 policy/reference指纹`max_abs=0.00000000`；runtime1,312.0071s、train loss0.6484887、退出码0。800个microbatch action/retention=`226/574`，末批retention KL=`0.00138263`；无NaN/Inf/OOM/Traceback |
+| 预注册输出 | 根目录`checkpoints/i23_action_ansretkl_v1/`；adapter-only剂量点`checkpoints/i23_action_ansretkl_v1/checkpoint-25/`、`checkpoints/i23_action_ansretkl_v1/checkpoint-50/`、`checkpoints/i23_action_ansretkl_v1/checkpoint-75/`、`checkpoints/i23_action_ansretkl_v1/checkpoint-100/`、`checkpoints/i23_action_ansretkl_v1/checkpoint-125/`、`checkpoints/i23_action_ansretkl_v1/checkpoint-150/`、`checkpoints/i23_action_ansretkl_v1/checkpoint-175/`、`checkpoints/i23_action_ansretkl_v1/checkpoint-200/`均完整保留为失败剂量轨迹，任何一点均不得作父模型或上传 |
+| 首个剂量点 | step25已正常保存，adapter/config SHA256 `1fd38fa6...7fc3` / `4442cee9...95c2`；r64/alpha64，目录内无optimizer/scheduler/RNG。前100个microbatch action/retention=`32/68`，第100批retention KL=`0.00061204`；只证明训练机制正常，不代表已过离线门 |
+| 完整轨迹 | step25/50/75/100/125/150/175/200 adapter SHA256依次=`1fd38fa6/53725fbf/c2308a42/df937aa3/9afa5b45/9e77d3fd/3fae0ed1/0476ff59`；config均`4442cee9...95c2`，全目录无optimizer/scheduler/RNG；根目录与step200逐字节一致。训练日志SHA256 `96e76b58...ef04` |
+| 冻结门结果 | action/topic报告`logs/probe/i24_action_topic_path_20260716.json` SHA256 `90b9e946...3d24`，rec报告`logs/probe/i24_rec_gold_path_20260716.json` SHA256 `a4b26c23...c3f`。8点action改善率最高仅15/32，门为18/32；step50虽均值`+0.05031`，仍为top-1 `-0.00080`、topic `-0.01223`。四域最大KL各点约`0.013–0.014`，均超过0.005 |
+| 当前状态 | **COMPLETE_LOCAL_REJECT_NO_PACKAGE_NO_UPLOAD**；8/8主门失败，不运行后验生成选点、不放宽门槛、不作后续父模型 |
+
+## 训练前已冻结：i23_actionres_r16_ansretkl_ep1（I-25）
+
+| 项 | 预注册记录 |
+|---|---|
+| 目的/父模型 | 只修I-23的action缺口；成功I-23 r64先合并进O6并完全冻结，再从零新建r16 residual。禁止使用I-12残差、任何I-24 checkpoint或其他失败工件 |
+| 数据/路由 | 复用`data_user_residual_retention_v1`，D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General) 6,106行、SHA256 `bd947aad...b08f0`；action 1,752（28.693089%）只做答案体CE，topic 1,301+其余3,053=4,354（71.306911%）只做parent KL；T/E/model rollout训练行0 |
+| 损失/训练物理 | action答案体CE权重1，真实闭合符/EOS 2x，并在完整response trace加0.05 I-23 KL；非action仅2.0 I-23 KL。r16/alpha16/dropout0.05、lr5e-5 cosine、warmup46、weight decay0.001、effective batch4、完整1ep/1,527步；单GPU、W&B online |
+| 配置/实现 | config `configs/active/i23_actionres_r16_ansretkl_ep1.yaml` SHA256 `da46f0b1...5dbd`；trainer `scripts/train/train_i23_actionres_retkl.py` SHA256 `0071a088...7c02`；online/detached launcher SHA256 `b76392a8...fcbd` / `f898bd44...26da`。self-test、`py_compile`、YAML、`bash -n`、原始6106行路由计数和workspace audit均PASS |
+| 冻结门 | `configs/evaluation/i23_actionres_r16_checkpoint_gate.json`最终SHA256 `53b5b375...f212`。Stage1按250→500→750→1000→1250→1527仅用action机制门冻结最早全通过训练点；Stage2只在该点按0.25→0.375→0.5→0.625→0.75取最小material/topic/四推荐域/生成/结构全通过scale。任一阶段失败即关闭，禁止回选checkpoint、新增scale或放宽阈值 |
+| 预注册输出 | 根目录`checkpoints/i23_actionres_r16_ansretkl_ep1/`；训练保存`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-250/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-500/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-750/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1000/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1250/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1500/`；成功完成后launcher从根adapter/config原子生成并逐字节复核`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1527/`。step1500只作已登记轨迹，不进入Stage1候选序列 |
+| 线上边界 | 只完整补回action 0.0084且其他七项完全不动的条件算术上限为0.9999；恢复75%仅追平I-13 0.9978。任何离线门都不保证material第9题。最终I-23 r64+r16 residual拼成r80仍属参数拼接/融合审核灰区，不得称直接单adapter训练 |
+| 正式启动 | 2026-07-16 06:00 UTC在物理GPU0 `GPU-d3c522d6-ed0f-2579-01cd-2d97da749980` detached启动；父PID `3763410`由PID1接管且无TTY，日志/PID/退出码=`logs/train/i23_actionres_r16_ansretkl_ep1.{log,pid,exit_code}`；W&B [`x8fl7r86`](https://wandb.ai/3120252125-/llmrec-2026/runs/x8fl7r86)。运行时确认6,106 examples、1,527 steps、10,092,544 trainable params，step0 residual-disabled I-23 fingerprint `max_abs=0` |
+| 正式训练结果 | Trainer完成1,527/1,527，runtime `2794.8687s`、train loss `0.4148307616`、最终route action/retention=`1752/4354`；W&B服务端`finished`，根与step1527 adapter SHA256均`676d80fd...b67b`，日志SHA256 `3cbefe68...693f`。无NaN/OOM/Traceback，GPU0已回基线 |
+| 保留冲突/恢复锁 | Trainer终点额外保存step1527后，`save_total_limit=6`自动轮转删除已保存的step250，外层后置检查因缺step250返回1；这是工件postcondition失败，原退出码不得改写。恢复plan `configs/evaluation/i25_step250_deterministic_recovery_plan.json` SHA256 `94da5c04...a1ec`锁定同GPU从O6+I-23干净重放、原1527步scheduler horizon、callback在step250后停训；1000 microbatch route必须=`278/722`，adapter/config必须逐字节命中删除前记录的`4af72967...28e9`/`6c127a34...e976a`，否则不安装并关闭I-25 |
+| 恢复结果 | 同GPU干净重放保持scheduler horizon1527并在step250精确停止，1000 microbatch route=`278/722`；W&B `k3s0oig9` finished。但adapter SHA256 `9198538f...68d9`未逐字节命中删除前记录的`4af72967...28e9`，身份硬闸exit1且未安装；receipt/正式step250均不存在，GPU0回基线。结果`configs/evaluation/i25_step250_deterministic_recovery_result.json` SHA256 `fad1adf5...29bb`同时纠正plan内部未来时间字段：plan mtime 06:57:47，GPU进程07:03:45启动 |
+| 实战选点纠正 | 用户明确缺step250不影响竞赛选点；停止把完整checkpoint轴当作评估前提，直接横评现存step500/750/1000/1250/1500/1527。恢复失败仅保留为历史证据，不再作为I-25否决理由，也不据此自动发起重训 |
+| scale1横评 | `logs/probe/i25_practical_action_topic_scale1_20260716.json` SHA256 `485b64c1...41ef`。六点action gold sum-logp均负：step500/750/1000/1250/1500/1527=`-6.4662/-8.6366/-9.7929/-8.6128/-8.4558/-8.6734`；step500最低伤也仅3/32改善，故不把任何scale1点送入保护域评估 |
+| step500低scale | 训练同口径128条action报告`logs/probe/i25_step500_action_scale_curve_20260716.json` SHA256 `2b9114d7...2fb`：scale0.125/0.25/0.375/0.5的CE均值变化=`-0.00115/-0.00361/-0.00717/-0.01112`，说明残差确实学到答案体机制；但完整路径报告`logs/probe/i25_step500_low_scale_action_topic_20260716.json` SHA256 `56e8e213...4f1`中对应action均值=`-0.7413/-1.6898/-1.9104/-3.2683`，方向冲突 |
+| 额外生成诊断 | step500 scale0.125不在原Stage2轴内，只作实战诊断。I-23→候选action F1=`0.357248→0.339625`（`-0.017624`），同时JSON合法率=`0.84375→0.90625`、截断率=`0.15625→0.09375`、平均重复项=`104.97→63.78`；证据冲突。对比报告`logs/probe/i25_step500_s0125_action_generation_compare_20260716.json` SHA256 `b8dd137b...3fff`，但仅32条/单seed且使用旧v4 action 4096上限，不能当当前平台方向门 |
+| 门禁校准纠正 | 原冻结门字面结果仍为`ORIGINAL_GATE_FAIL`，不得事后篡改；但action离线历史校准仅Spearman `0.039`、方向50%。同一32题gold-path甚至把I-23（`-129.84/0.6028`）排在I-13（`-136.98/0.5818`）之前，线上action却为`0.1099<0.1183`；r64 E1/E2也出现本地JSON/截断排序与线上action、总分完全反向。因此原门失败不等于线上DOWN |
+| 当前状态 | **ORIGINAL_GATE_FAIL_SCORE_DIRECTION_ABSTAIN_NO_HARD_SAFETY_FAILURE**；当前1024下scale0.75是0.5/0.625/0.75中结构最接近I-23的一点（JSON29/32、截断3/32），material双向KL约0.002且推荐保护无硬红线，但这些都不能证明线上上涨。I-25优先级低于完整保留I-23的`s625`首投，当前不打包、不上传、不作父模型。I-26重训未获用户授权，不得自动启动 |
+
+## 已完成并线上0.9763：i13_s875_dpo_rec_balhard_lowdose_v1
+
+| 项 | 完成记录 |
+|---|---|
+| 目的/父模型 | 直接优化固定协议最高分I-13/0.875；policy与冻结reference均为adapter SHA256 `71bc3c2c...ffd5b`。在原r80内更新，不叠加新adapter；I-13融合灰区属性不因此消失 |
+| 数据 | `data_i13_rec_balanced_preference_v1_train`，D(O1) 2,688对，SHA256 `baf8a825...d2a8f`；从已登记O1 hard-negative训练集确定性抽取，ad/prod/living/video=`768/768/768/384`，标签改写0，O2/T/E/teacher/model-rollout均0 |
+| 配置 | 启动时`configs/active/i13_s875_dpo_rec_balhard_lowdose_v1.yaml` SHA256 `467965b6...5800`；完成后只加禁重启头，当前SHA256 `e4633b6a...e195`。r80/alpha80、beta0.1、effective batch8、lr4e-7、warmup10、constant、75步；adapter-only每25步保存 |
+| 训练 | GPU1单卡；75/75，runtime361.5s，train loss0.6637，退出码0，无NaN/Inf/OOM/Traceback；W&B [`0bm73wt9`](https://wandb.ai/3120252125-/llmrec-2026/runs/0bm73wt9)，日志SHA256 `4841bc3d...6a2f` |
+| 冻结门槛 | 预注册`configs/evaluation/i19_i13_balhard_lowdose_checkpoint_gate.json` SHA256 `718f2b54...1b3`；结果`i19_i13_balhard_lowdose_checkpoint_gate_result.json` SHA256 `27bd03f8...c35`。同一E留出只作机制/漂移门，不估线上分数 |
+| 轨迹 | step25/50/75推荐raw chosen胜率=`34.765625%/38.671875%/40.234375%`（父32.03125%）；action raw/normalized三点均保持`93.75%/85.9375%`；推荐gold mean-logp下降=`0.00107086/0.00043452/0.00449446` |
+| 选点 | 按启动前“最早全通过”规则选step25，adapter/config SHA256 `e6ebe4dc...fb2e0` / `a7114c7d...caa4`；结构门itemic断裂0/60=`PASS`。step50/75虽数值过线，仍只作剂量轨迹，不上传、不作父模型 |
+| 线上 | `i13_s875_dpo_rec_balhard_lowdose_v1_step25_V_eval_20260715153057`；2026-07-15 15:31:01平台记录，1h6m57s；总分0.9763；八项按material/action/topic/video/prod/ad/live/world为`0.2453/0.1181/0.0402/0.0864/0.1156/0.1246/0.1071/0.1390` |
+| 对I-13 | 总分-0.0215；逐项=`0/-0.0002/+0.0012/-0.0096/-0.0068/-0.0070/+0.0009/0`；用户合计+0.0010、推荐合计-0.0225。离线四域hard-negative margin全部改善却线上三域下降，证明该门不能再作正向选点依据 |
+| 提交包 | `submissions/i13_s875_dpo_rec_balhard_lowdose_v1_step25_platform/`严格两文件且与step25逐字节一致；已完成本次固定协议评测 |
+| 线上日志 | `logs/eval/i13_s875_dpo_rec_balhard_lowdose_v1_step25_20260715.log`，2,764,972 bytes，SHA256 `6c57f8fbf98cc965f28d6508154d8452508f5ceab6d1b012c98c99d34be87099`；action1024、itemic 7次race-average、8/8完成、失败0；evalTaskId `eval-task-40k2ig-1784100661` |
+| 状态 | **COMPLETE_ONLINE_0.9763_REJECT_BRANCH**；不提交step50/75，不作后续训练父模型，I-13 0.9978继续为主模型 |
+
+## 已完成训练并打包step100：i13_s875_posrec_pa_ansretkl_v1
+
+| 项 | 完成记录 |
+|---|---|
+| 目的/父模型 | 定向恢复I-13的prod/ad，同时保持video及六个非目标子项；policy与冻结reference均从I-13 adapter SHA256 `71bc3c2c...ffd5b`开始，不使用I-19 checkpoint，不新增adapter/rank |
+| 数据 | `data_i20_prod_ad_positive_retkl_v1`，D(O1,O2.General) 12,260行、SHA256 `0c08b8f5...62fa`；prod/ad positive 6,130与parent-KL retention 6,130严格1:1；负例、推荐伪标签、teacher/model rollout、T/E均0 |
+| 损失 | prod/ad仅最终domain+3 SID token做gold CE并加0.20 frozen-I13 KL；material/action/topic/video/live/world只做4.0 frozen-I13 KL，最多均匀128个answer位置；matched RNG消除LoRA dropout造成的伪KL |
+| 配置/训练 | `configs/active/i13_s875_posrec_pa_ansretkl_v1.yaml` SHA256 `e5bd8220...70d1`；GPU7单卡、r80原地更新、lr2e-7、warmup20后constant、effective batch4。step0 policy/reference最大差0；200/200步、runtime1082.13s、train loss5.75488、退出码0、W&B [`1i153nai`](https://wandb.ai/3120252125-/llmrec-2026/runs/1i153nai) |
+| 轨迹 | `checkpoint-{20,40,60,80,100,120,140,160,180,200}`全部adapter-only、无optimizer/scheduler/RNG；adapter SHA256依次为`90895b7d`/`dd98d0eb`/`ecfdc855`/`8dc3af97`/`43199b5f`/`dcc5dfa1`/`e0559f6e`/`7456b17c`/`06ccedc1`/`bc084b69`；根目录与step200逐字节一致 |
+| 保留路径 | 根目录`checkpoints/i13_s875_posrec_pa_ansretkl_v1/`；剂量点`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-20/`、`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-40/`、`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-60/`、`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-80/`、`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-100/`、`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-120/`、`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-140/`、`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-160/`、`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-180/`、`checkpoints/i13_s875_posrec_pa_ansretkl_v1/checkpoint-200/`；均只允许本轨迹诊断，正式候选仅step100 |
+| 统一金标路径诊断 | `logs/probe/i20_gold_path_20260715.json` SHA256 `8662664c...771`；固定E样本每域64。step100相对父模型prod/ad token-rank≤64合计`+3/128`、video/live `0/128`，但prod/ad gold sum-logp均值变化`-0.01204`、video/live `-0.04055`；只支持选它进入生成安全门，不是涨分证明 |
+| 双通路行为门 | 父/step100均按v4参数跑相同64×4域；旧dev在I-13上video/prod/ad命中均0，确认不能作正向分数门。step100相对父的copy-direct变化video/prod/ad/live=`0/+0.0049/+0.0015/+0.0010`，distinct-s_a变化=`-0.06/+0.10/-0.01/+0.18`，未见生成坍塌；日志SHA256 `9de45e6b...fca0` / `74d981f1...e13` |
+| 结构门/选点 | step100临时merge后itemic断裂0/60=`PASS`；action复读3/30、选择题格式7/8仅作diagnostic。日志`logs/precheck/i20_step100_20260715.log` SHA256 `7b5ed2ed...bb69`。其余step只保留为剂量轨迹，不提交 |
+| 提交包 | `submissions/i13_s875_posrec_pa_ansretkl_v1_step100_platform/`严格两个文件且与step100逐字节一致；adapter/config SHA256 `43199b5f...6ccc` / `fc2594ff...64b` |
+| 当前状态 | **COMPLETE_LOCAL_PROVISIONAL_STEP100_PACKAGED_AWAITING_ONLINE**；离线证据混合，只值得占一次实验配额，不宣称稳涨；I-13 0.9978在出分前仍为主模型 |
+
+## 已完成训练并打包step150：i13_s875_topic_ansretkl_v1
+
+| 项 | 完成记录 |
+|---|---|
+| 目的/父模型 | 在固定协议最高分I-13同一r80内只优化topic JSON答案；不新增adapter/rank，不加载I-19/I-20。policy与冻结reference均从I-13 adapter SHA256 `71bc3c2c...ffd5b`开始 |
+| 数据/损失 | 复用已登记`data_user_residual_retention_v1` 6,106行/SHA256 `bd947aad...b08f0`；topic CE+KL 1,301行（21.3069%），action及全部非用户KL-only 4,805行（78.6931%）；T/E/model rollout为0 |
+| 配置/训练 | 启动配置`configs/active/i13_s875_topic_ansretkl_v1.yaml` SHA256 `9a9f703f...98dc`；trainer SHA256 `e8890cca...26cf`。GPU7单卡、r80原地更新、lr1e-7、warmup25后constant、effective batch4；150/150步、runtime327.65s、train loss1.18119、退出码0；W&B [`wjjymcj9`](https://wandb.ai/3120252125-/llmrec-2026/runs/wjjymcj9) |
+| 保留轨迹 | 根目录`checkpoints/i13_s875_topic_ansretkl_v1/`与step150逐字节一致；`checkpoints/i13_s875_topic_ansretkl_v1/checkpoint-25/`、`checkpoints/i13_s875_topic_ansretkl_v1/checkpoint-50/`、`checkpoints/i13_s875_topic_ansretkl_v1/checkpoint-75/`、`checkpoints/i13_s875_topic_ansretkl_v1/checkpoint-100/`、`checkpoints/i13_s875_topic_ansretkl_v1/checkpoint-125/`、`checkpoints/i13_s875_topic_ansretkl_v1/checkpoint-150/`均为adapter-only，无optimizer/scheduler/RNG，仅step150进入提交池 |
+| 统一诊断 | `logs/probe/i21_topic_path_20260715.json` SHA256 `832868c6...c09b`与`i21_rec_gold_path_20260715.json` SHA256 `112627b5...f2a`；step150 topic/action gold sum-logp变化`+0.09127/+0.03478`，prod/ad Top-64 `+3/128`、video/live `-2/128`。诊断源不回灌训练且不映射为线上分数 |
+| 结构门 | step150临时merge后itemic断裂0/60=`PASS`；action复读1/30、选择题格式6/8、占位符0/8、简单题4/8只作diagnostic。日志`logs/precheck/i13_s875_topic_ansretkl_v1_step150_20260715.log` SHA256 `6978d655...647`；临时merge已删、GPU7归零 |
+| 提交包 | `submissions/i13_s875_topic_ansretkl_v1_step150_platform/`严格两文件且与step150逐字节一致；adapter/config SHA256 `c8be262f...5e5d0` / `a7114c7d...caa4` |
+| 状态 | **COMPLETE_LOCAL_PROVISIONAL_STEP150_PACKAGED_AWAITING_ONLINE**；只作为topic正交实验，不替换I-13 0.9978主模型 |
+
+## 已完成并本地否决：i13_s875_world_ansretkl_v1
+
+| 项 | 登记记录 |
+|---|---|
+| 目的/父模型 | 在I-13同一r80内只优化world最终选项token；不新增adapter/rank，不加载任何失败checkpoint；policy/reference均从I-13 SHA256 `71bc3c2c...ffd5b`开始 |
+| 数据 | `data_i22_world_retkl_v1` 7,142行/SHA256 `81c7da5f...8350`：world CE 1,267（181 unique×7，17.740129%）+冻结I-13 KL-only 5,875（82.259871%）；上游与builder已登记ASSETS，T/E/model rollout为0。选择集`data_i22_world_retkl_v1_holdout` 46行/SHA256 `8aa4306f...402a`，train overlap0且完全不反传 |
+| 配置/实现 | `configs/active/i13_s875_world_ansretkl_v1.yaml`启动SHA256 `ee443f82...a898e`；trainer/launcher SHA256 `1cb94586...a044` / `6ac84ce4...30f`。r80原地更新、lr1e-7、warmup25后constant、effective batch4、150步、每25步adapter-only保存 |
+| 持久启动 | 2026-07-15 13:03 UTC；GPU7单卡；wrapper PID `3341716`由PID1接管、SID `3341716`、无TTY；step-0 policy/reference最大差0；W&B [`cohd8617`](https://wandb.ai/3120252125-/llmrec-2026/runs/cohd8617)服务端`finished` |
+| 轨迹路径 | 根目录`checkpoints/i13_s875_world_ansretkl_v1/`；`checkpoints/i13_s875_world_ansretkl_v1/checkpoint-25/`、`checkpoints/i13_s875_world_ansretkl_v1/checkpoint-50/`、`checkpoints/i13_s875_world_ansretkl_v1/checkpoint-75/`、`checkpoints/i13_s875_world_ansretkl_v1/checkpoint-100/`、`checkpoints/i13_s875_world_ansretkl_v1/checkpoint-125/`、`checkpoints/i13_s875_world_ansretkl_v1/checkpoint-150/`。adapter SHA256依次=`c894fce8/9a61f127/da183bc7/007bde9f/a7f2970d/6bbbfe68`，config均`d7b4b961...5cbd`；根目录与step150逐字节一致，全部只作剂量证据 |
+| 训练完成 | 150/150步，runtime320.71s、train loss2.30854、退出码0；600 microbatch中world/retention=`122/478`。六点及根目录均无optimizer/scheduler/RNG，根目录adapter/config与step150逐字节一致；训练日志SHA256 `549514cb...a409`，结束时本任务释放GPU7 |
+| 冻结选点门 | `configs/evaluation/i22_world_checkpoint_gate.json` SHA256 `5f04e6ec...0914`在审计前登记；要求world logp正增、improved rate≥0.5、top-1不降、KL≤0.02，再进入topic/action/rec保持门。不得看结果后放宽 |
+| world轨迹 | `logs/probe/i22_world_path_20260715.json` SHA256 `a5d14f20...bd78`；step25/50/75/100/125/150的gold logp变化=`+0.06628/+0.18402/+0.24064/+0.28053/+0.24041/+0.25042`，top-1变化=`-3/-1/-1/-1/0/-1`题，KL=`0.00870/0.02020/0.03474/0.03997/0.03381/0.03821`。46行含44题面组、两组同题同答案重复；与训练prompt交集0 |
+| 决策 | 六点无一满足全部主门：step25 top-1失败；step50同时轻微越过KL且top-1失败；step75/100/150两门失败；step125仅KL失败。按预注册顺序停止，不跑后续E保持门和结构门，不生成提交包 |
+| 当前状态 | **COMPLETE_LOCAL_REJECT_NO_PACKAGE**；所有I-22 checkpoint只保留作剂量证据，禁止上传和作为后续父模型 |
+
+## 已完成并线上0.9915：seed_teacher_cotfix_v3_r64_lr1e4_ep3
+
+| 项 | 冻结记录 |
+|---|---|
+| 目的 | 针对I-18“非video改善、video回退”的形状，只训练对已知多正例答案概率有确定正贡献的CoT补全；不融合、不蒸馏、不改最终标签 |
+| 基座/隔离 | 从O6干净启动；I-10 E3只作为离线构造筛选器，不加载、resume、merge或warm-start其adapter；I-18及其他失败/低分checkpoint输入0 |
+| 正式数据 | `assets/derived/processed/data_seed_teacher_cotfix_v3.jsonl`，32,644行，SHA256 `19dadb7dc7f1348ef18d31423177edfbc79af79f6e954f85cb8196f946e8ec42`；O1父行32,480（99.497611%）+ O2唯一teacher 164（0.502389%），T/E行0 |
+| 构造门 | `scripts/data/build_cotfix_v3.py` SHA256 `839334d0...2c1f`；正式batch=1台账SHA256 `8ee28bbd...ff9a`，538组/1,836 gold中选83组。首跑batched结果因跨batch数值漂移废弃；两次8组batch=1 smoke与正式对应行逐字段全等 |
+| 不变量 | 只改83条保留CoT（video/prod/ad/live=`32/35/11/5`），其余32,561条逐字不变；instruction/input/history、最终答案、行序、任务数、164条O2 teacher均0变化；target token 5,856,383，cutoff16384超限0 |
+| 配置/训练物理 | `configs/active/seed_teacher_cotfix_v3_r64_lr1e4_ep3.yaml`启动SHA256 `514e63749ea63259dd79e7b489c7f75610304bc17563e1c6a8ad1c1d385f980c`；单卡W&B online，从O6训练r64/alpha64/dropout0.05、lr1e-4 cosine、warmup0.03、effective batch4、cutoff16384、3 epoch；每epoch保存adapter-only，最多3份，不保存optimizer/scheduler/RNG |
+| 选择与停止 | 为保持与I-10/I-18同剂量比较，E3为唯一主候选，E1/E2只保留轨迹；本地结构门只否决灾难，不估总分。训练若出现NaN/OOM/结构损坏则停止，不自动消耗线上提交次数 |
+| 持久启动 | 2026-07-15 15:45 UTC，物理GPU0 `GPU-d3c522d6-ed0f-2579-01cd-2d97da749980`；detached wrapper PID `3467172`由PID1接管、SID同PID、无TTY，日志/PID/退出码持久化到`logs/train/seed_teacher_cotfix_v3_r64_lr1e4_ep3.*`。启动器SHA256 `f0238644...f45` / `c37af997...1a4`；W&B [`t630t8ih`](https://wandb.ai/3120252125-/llmrec-2026/runs/t630t8ih) online |
+| 首批验证 | 2,657 packed examples、665 steps/epoch、1,995 total，与I-10/I-18完全一致；step5/10/15/20/25 loss=`2.851/2.725/2.504/2.344/2.139`，grad norm `6.271→0.8614`；启动后GPU总占用约32.9GB、余48.1GB，Traceback/OOM/RuntimeError/NaN/Killed/Exception均0 |
+| 保留输出 | 根目录`checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/`；E1/E2/E3依次为`checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/checkpoint-665/`、`checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/checkpoint-1330/`、`checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/checkpoint-1995/`。E1/E2仅作剂量轨迹，E3为唯一候选；全目录无optimizer/scheduler/RNG |
+| 训练完成 | 1,995/1,995 steps，runtime4,772.7486s（1h19m32.75s），train loss1.3586777527，1.670 samples/s、0.418 steps/s，退出码0；日志SHA256 `93b744383f610c8b6ac58dc8701f31547bcb61d6c65387344bbb027f83a351e9`，未发现Traceback/OOM/RuntimeError/NaN/Killed/Exception |
+| E1/E2/E3审计 | E1/E2/E3 adapter SHA256=`3071ab863c03746d434cae3bc474146d2c85f3d296905e4039b2491a63413d10` / `eaebdb3503e5e30cdc89e696c20684fa4aad5451dfaa6da26a81e64884e87d40` / `0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8`；config均`b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7`。根目录与E3逐字节一致 |
+| E3结构硬门 | 临时CPU merge后itemic断裂0/60=`PASS`；action复读3/30、选择题格式7/8、占位符0/8、简单题5/8仅作diagnostic。日志`logs/precheck/seed_teacher_cotfix_v3_r64_lr1e4_ep3_e3_precheck.log` SHA256 `5aeec99d8a3d9f39b622fbcb4cc468c427badd17ff40ab4195a1a30d36cccc87`；门检不预测线上分数 |
+| E3平台包 | `submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform/`严格只有`adapter_config.json`（1,073 bytes，SHA256 `b3f2a1b5...e7e7`）与`adapter_model.safetensors`（161,533,160 bytes，SHA256 `0e5fa9bb...c6b8`），均与E3逐字节一致 |
+| 线上 | UI `seed_teacher_cotfix_v3_r64_lr1e4_ep3_V1_eval_20260716104410`；2026-07-16 10:44:15平台记录，1h8m40s；总分0.9915；八项按material/action/topic/video/prod/ad/live/world为`0.2760/0.1099/0.0383/0.0576/0.1258/0.1400/0.1053/0.1387` |
+| 线上日志 | 原始opaque路径`logs/eval/cTcxR1eV47RWIQxg-RK2TPl_Ogc9CHEFe6KS-zDweNUhj42UWiOmOKU12arRKtTTXrH1x7JrKIVHAhlE1zCsLXwKN6d42WnvrA6j-Z02MpufbYg4vQpJPrd8igyHdY7h.log`，2,779,725 bytes，SHA256 `dc354e4b5396b115af69be4ba297c100b584d7fc92ea6cd375f04804be5b4237`；action1024、itemic 7次race-average、8/8完成、失败0；evalTaskId `eval-task-t51r8o-1784169855` |
+| 对照 | 相对I-13总分-0.0063，逐项=`+0.0307/-0.0084/-0.0007/-0.0384/+0.0034/+0.0084/-0.0009/-0.0003`；相对I-18总分+0.0218、material +0.0307、用户+0.0017、推荐-0.0076、world-0.0029。单次平台观测不作稳定方差或83条CoT筛选的净因果估计 |
+| 当前状态 | **COMPLETE_ONLINE_0.9915_HIGHEST_NON_SPLICE_ADAPTER**；未替换I-13 0.9978；只允许成功E3作为新action-answer-token CE + 冻结I-23 KL保持实验父模型，E1/E2继续只作剂量轨迹 |
+
+## 已完成并线上0.9697：seed_teacher_cotfix_v2_r64_lr1e4_ep3
 
 | 项 | 冻结与完成记录 |
 |---|---|
@@ -51,9 +184,11 @@
 | W&B | [`32av8e8z`](https://wandb.ai/3120252125-/llmrec-2026/runs/32av8e8z)服务端`finished`；global step1995、epoch3、train loss1.3617670884、runtime4,890.3287s；首批step5/10/15/20/25 loss=`2.8461/2.7248/2.5192/2.3375/2.1453` |
 | 训练结果文件 | `train_results.json` SHA256 `a2a2f9d46b51387d9d11a0113845babb1d461f89306f4548f6edeba60aea6d62`；根目录`trainer_state.json` SHA256 `8709cfcfd0d0174bbfc1cedff0418d6829042decc4f7677c30243b3369ffffaa` |
 | E3结构硬门禁 | 临时merge后itemic断裂0/60=`PASS`；action复读5/30、选择题格式3/8、占位符0/8、简单题2/8均按冻结规则只作diagnostic。日志`logs/precheck/seed_teacher_cotfix_v2_r64_lr1e4_ep3_e3_precheck.log`，1,683 bytes，SHA256 `2e6629cb4b3d7cd34443109967f27c7c2342c932ebe0c5338b48e4d5efa977c4`；临时merge与配置已删。门禁只排除结构灾难，不证明涨分 |
-| E3平台包 | `submissions/seed_teacher_cotfix_v2_r64_lr1e4_ep3_platform/`严格只有`adapter_config.json`（1,138 bytes，SHA256 `65732b4da48a0b2f93ea6d1bb3861e7e13bf0406635ae5e587de34a709ff26fa`）与`adapter_model.safetensors`（161,533,160 bytes，SHA256 `07cd662852ee1ef3654096adfce36891ce260129bdc68c7924c2b75554c2a9e3`）；两文件均与E3逐字节一致，尚未上传 |
+| E3平台包 | `submissions/seed_teacher_cotfix_v2_r64_lr1e4_ep3_platform/`严格只有`adapter_config.json`（1,138 bytes，SHA256 `65732b4d...26fa`）与`adapter_model.safetensors`（161,533,160 bytes，SHA256 `07cd6628...2a9e3`）；两文件均与E3逐字节一致，已完成固定协议评测 |
+| 线上 | `seed_teacher_cotfix_v2_r64_lr1e4_ep3_V1_eval_20260715102021`；2026-07-15 10:21:16，1h11m48s；总分0.9697；八项=`0.2453/0.1083/0.0382/0.0768/0.1190/0.1316/0.1089/0.1416`；相对I-13总分-0.0281 |
+| 线上日志 | `logs/eval/Ya0t3O9IfRz5MQq_6FBxvX0N-7_gjpxoUeScdLaFlMEkWqMSp04VgCQOyWH4wkVLolLzNlaB5qUoHeeAVwTGn3NfVnwJB5TwiPKBg1J-Q5Lz2QOJqbqc2fSR3LbbJtM_.log`，3,198,898 bytes，SHA256 `ab348f8b...d0bc`；8/8完成、失败0；evalTaskId `eval-task-h8gwve-1784082076` |
 | GitHub数据发布 | `assets/derived/releases/seed_teacher_cotfix_v2/`包含完整确定性gzip、manifest、原始小型审计摘要和使用说明；gzip 52,199,218 bytes/SHA256 `193cd78f...07f9`，解压后32,644行/249,454,095 bytes/SHA256 `634c4805...c0e4`；`scripts/data/restore_seed_teacher_cotfix_v2.py`执行压缩与内容双校验及原子还原，无需API即可复现实训输入 |
-| 当前状态 | **PACKAGE_READY_LOCAL_GATE_PASS_E3_PENDING_UPLOAD**；E1/E2不选，只提交E3；尚未线上评测，本轮没有消耗提交次数 |
+| 当前状态 | **COMPLETE_ONLINE_0.9697_NOT_MAIN**；E1/E2不提交，E3未替换I-13，不作为后续默认父模型 |
 
 ## 保留模型
 
@@ -62,8 +197,17 @@
 | 官方基座 | OneReason-0.8B | `models/OneReason-0.8B-pretrain-competition/` | `config.json` SHA256 `5fe26642...` | 只读 |
 | I-18 E1剂量轨迹 | seed_teacher_cotfix_v2_r64_lr1e4_ep3 | `checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/checkpoint-665/` | adapter/config SHA256 `02b404bd...47a85` / `65732b4d...26fa` | adapter-only；只作1 epoch轨迹，不打包、不上传、不作父模型 |
 | I-18 E2剂量轨迹 | seed_teacher_cotfix_v2_r64_lr1e4_ep3 | `checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/checkpoint-1330/` | adapter/config SHA256 `14071ab8...bdc38` / `65732b4d...26fa` | adapter-only；只作2 epoch轨迹，不打包、不上传、不作父模型 |
-| I-18本地主候选 | seed_teacher_cotfix_v2_r64_lr1e4_ep3 E3 | `checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/checkpoint-1995/`；根目录`checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/`逐字节同adapter | adapter/config SHA256 `07cd6628...2a9e3` / `65732b4d...26fa` | 3 epoch；W&B finished、结构门0/60 PASS；已制严格两文件包，未上传/线上评测，用户决定前不作新父模型 |
-| I-18待上传E3 LoRA包 | seed_teacher_cotfix_v2_r64_lr1e4_ep3 | `submissions/seed_teacher_cotfix_v2_r64_lr1e4_ep3_platform/` | adapter/config SHA256 `07cd6628...2a9e3` / `65732b4d...26fa` | 严格两文件且与E3逐字节一致；保存方式新建模型、版本V1；待用户本地上传 |
+| I-18已评测E3 | seed_teacher_cotfix_v2_r64_lr1e4_ep3 E3 | `checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/checkpoint-1995/`；根目录`checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/`逐字节同adapter | adapter/config SHA256 `07cd6628...2a9e3` / `65732b4d...26fa` | 固定协议线上0.9697；未替换I-13，不作默认父模型 |
+| I-18已评测E3 LoRA包 | seed_teacher_cotfix_v2_r64_lr1e4_ep3 | `submissions/seed_teacher_cotfix_v2_r64_lr1e4_ep3_platform/` | adapter/config SHA256 `07cd6628...2a9e3` / `65732b4d...26fa` | 严格两文件且与E3逐字节一致；固定协议线上0.9697 |
+| I-23已评测E3/action-retKL获准父模型 | seed_teacher_cotfix_v3_r64_lr1e4_ep3 E3 | `checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/checkpoint-1995/`；根目录`checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/`逐字节同adapter | adapter/config SHA256 `0e5fa9bb...c6b8` / `b3f2a1b5...e7e7` | 固定协议线上0.9915；最高无参数拼接单adapter；只允许作新action-answer-token CE + 冻结I-23 KL保持父模型 |
+| I-23已评测E3 LoRA包 | seed_teacher_cotfix_v3_r64_lr1e4_ep3 | `submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform/` | adapter/config SHA256 `0e5fa9bb...c6b8` / `b3f2a1b5...e7e7` | 严格两文件且与E3逐字节一致；固定协议线上0.9915 |
+| I-23 + 0.625用户残差已评线上探针 | i23_userres_r80_s625 | `checkpoints/i23_userres_r80_s625/` | adapter/config SHA256 `4a46fd29...0c70` / `4768770a...4d06`；组合审计`logs/model/i23_userres_r80_s625_combine.json` SHA256 `e3c630b9...3d32` | 固定协议线上0.9866，八项=`0.2453/0.1170/0.0399/0.0768/0.1326/0.1316/0.1044/0.1390`；相对同日I-23复测非material `+0.0289`、material `-0.0307`。原始日志/evalTaskId待入仓 |
+| I-23 + 0.625用户残差已评包 | i23_userres_r80_s625 | `submissions/i23_userres_r80_s625_platform/` | adapter/config SHA256 `4a46fd29...0c70` / `4768770a...4d06`，201,903,440 / 1,074 bytes | 严格两文件包与checkpoint逐字节一致；已线上0.9866，未替换I-13。初赛参数拼接审核灰区不变 |
+| I-23 + 0.5用户残差下一探针 | i23_userres_r80_s500 | `checkpoints/i23_userres_r80_s500/` | adapter/config SHA256 `d2b77c74...99bf` / `4768770a...4d06`；组合审计SHA256 `7b04c918...3be5` | CPU精确拼接`delta=I23+0.5×residual`；s625已满足“material掉档但七项显著正向”的预设触发条件，状态`READY_FOR_MANUAL_PLATFORM_SUBMISSION` |
+| I-23 + 0.5用户残差下一探针包 | i23_userres_r80_s500 | `submissions/i23_userres_r80_s500_platform/` | adapter/config SHA256 `d2b77c74...99bf` / `4768770a...4d06`，201,903,440 / 1,074 bytes | 严格两文件且与checkpoint逐字节一致，尚未上传；material保持/掉档条件中心约1.0115/0.9808，均非校准预测 |
+| I-23 + 用户残差加码备用 | i23_userres_r80_s750 | `checkpoints/i23_userres_r80_s750/` | adapter/config SHA256 `363a3b59...f365` / `4768770a...4d06`；组合审计SHA256 `5d890803...12a6` | CPU精确拼接`delta=I23+0.75×residual`；只有s625线上material保持且用户项确有正向时才允许进入评估/打包，当前未评测、未打包、未上传 |
+| I-23 + 用户残差加码备用 | i23_userres_r80_s875 | `checkpoints/i23_userres_r80_s875/` | adapter/config SHA256 `b24c17cc...f31f` / `4768770a...4d06`；组合审计SHA256 `ae4782ab...a8ad` | CPU精确拼接`delta=I23+0.875×residual`；只有前一在线剂量证明material保持且仍需补用户缺口时才允许进入评估/打包，当前未评测、未打包、未上传 |
+| I-25 step250确定性恢复失败证据 | i25_step250_deterministic_replay | 根`checkpoints/i25_step250_deterministic_replay/`；保存点`checkpoints/i25_step250_deterministic_replay/checkpoint-250/` | step250/root adapter SHA256 `9198538f...68d9`，config `70a62d4e...29a771`；结果SHA256 `fad1adf5...29bb` | scheduler/route复现但未逐字节命中删除前身份，硬闸拒绝；不得安装、Stage1、打包、上传或作父模型 |
 | I-10 已评测 E1 | seed_teacher_r64_lr1e4_ep3 | `checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-665/` | adapter SHA256 `c1bfb4dada8260560327a5ce3a9a15cbb29c0249421616bb1a9d95d9dc11add8` | 1 epoch；线上0.9100 |
 | I-10 E1 LoRA上传包 | seed_teacher_r64_lr1e4_ep3 | `submissions/seed_teacher_r64_lr1e4_e1_platform/` | adapter SHA256 `c1bfb4dada8260560327a5ce3a9a15cbb29c0249421616bb1a9d95d9dc11add8`；config SHA256 `f27c697e8bb611802822ea44b156b672c63f6d2ec16a380d868395a9d0eb213f` | 已上传并评测为0.9100 |
 | I-10 已评测 E2 | seed_teacher_r64_lr1e4_ep3 | `checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-1330/` | adapter SHA256 `c4902871c31f1a29b895b3990b2af573808cfecef2a5e483720ce1e60b1ac267` | 2 epoch；线上0.9680 |
@@ -85,6 +229,13 @@
 | I-12 v3组合adapter | e3_userres_r80_retkl_v3_ep1 | `checkpoints/e3_userres_r80_retkl_v3_ep1/` | adapter/config SHA256 `3fe85158...87cc6` / `e3c3ace0...c4ac0` | E3 r64+残差r16精确拼接；相对O6的单个r80 |
 | I-12 v3固定协议对照 | e3_userres_r80_retkl_v3_ep1 | `submissions/e3_userres_r80_retkl_v3_ep1_platform/` | 与组合adapter逐字节一致；严格两文件，SHA256同上 | 固定协议线上0.9768；已被I-13同协议高0.0210 |
 | I-13 固定协议主模型 | e3_userres_r80_retkl_v3_s875 | `submissions/e3_userres_r80_retkl_v3_s875_platform/` | adapter/config SHA256 `71bc3c2c86beb1c1aaafd41f98915ba94a7f964b6e8450079a883aebc32ffd5b` / `e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0` | 固定协议线上0.9978；当前主模型；复赛融合口径待官方确认 |
+| I-13 scale0.90参数探针 | e3_userres_r80_retkl_v3_s900 | `submissions/e3_userres_r80_retkl_v3_s900_platform/` | adapter/config SHA256 `7c966fb2...a60a` / `e3c3ace0...c4ac0` | 精确参数拼接、严格两文件、结构门0/60 PASS；本地保持KL和action CE未支配0.875，因此未作为I-19父模型；仅作零训练备选，不据此声称涨分 |
+| I-13 scale0.80线上探针 | e3_userres_r80_retkl_v3_s800 | `submissions/e3_userres_r80_retkl_v3_s800_platform/` | adapter/config SHA256 `bb86eb8a...63c6` / `e3c3ace0...c4ac0` | 仅改变I-12残差系数，严格两文件；I-13与I-12两点之间的高优先级零训练线上探针，不宣称稳涨 |
+| I-13 scale0.75线上探针 | e3_userres_r80_retkl_v3_s750 | `submissions/e3_userres_r80_retkl_v3_s750_platform/` | adapter/config SHA256 `5aa80992...6233` / `e3c3ace0...c4ac0` | 精确参数拼接；itemic 0/60 PASS但action复读4/30，高风险高收益第二探针 |
+| I-19线上否决候选 | i13_s875_dpo_rec_balhard_lowdose_v1 step25 | `checkpoints/i13_s875_dpo_rec_balhard_lowdose_v1/checkpoint-25/` | adapter/config SHA256 `e6ebe4dc...fb2e0` / `a7114c7d...caa4` | 固定协议线上0.9763，低I-13 0.0215；仅保留作偏好目标失配证据，不上传、不作父模型 |
+| I-19未选剂量轨迹 | i13_s875_dpo_rec_balhard_lowdose_v1 step50 | `checkpoints/i13_s875_dpo_rec_balhard_lowdose_v1/checkpoint-50/` | adapter/config SHA256 `9dddc6a2...729c` / `a7114c7d...caa4` | step25线上已否决偏好目标；只作轨迹，禁止上传和作为父模型 |
+| I-19未选末点/最终输出 | i13_s875_dpo_rec_balhard_lowdose_v1 step75 | `checkpoints/i13_s875_dpo_rec_balhard_lowdose_v1/checkpoint-75/`；根目录逐字节同adapter | adapter/config SHA256 `42aa6577...bf1` / `a7114c7d...caa4` | step25线上已否决偏好目标；只作完整训练轨迹，禁止上传和作为父模型 |
+| I-19已评测LoRA包 | i13_s875_dpo_rec_balhard_lowdose_v1 step25 | `submissions/i13_s875_dpo_rec_balhard_lowdose_v1_step25_platform/` | adapter/config SHA256 `e6ebe4dc...fb2e0` / `a7114c7d...caa4` | 严格两文件且与step25逐字节一致；固定协议线上0.9763，已否决 |
 | I-12 v2启动失败 | e3_userres_r16_retkl_v2_ep1 | 无checkpoint；失败输出目录已删除 | W&B `fi4mneew`；step275/1527 | ChatML尾换行使终止权重错位；禁止resume，不作为模型实验结果 |
 | I-12 v1启动失败 | e3_userres_r16_retkl_ep1 | 无checkpoint；失败输出目录已删除 | W&B `hkt762u2`；step8/1527 | 非用户保持路由格式错误；禁止resume，不作为模型实验结果 |
 | 本地否决 checkpoint | seed_o2_action_r64_lr15e5_ep1 | `checkpoints/seed_o2_action_r64_lr15e5_ep1/` | adapter SHA256 `8b6fc2f9fbc2170298e31b83ea8c581880d7d76657c9a35d2afee305bef950d1` | I-09 单次性能组合；action/material 门禁未显示预期优势，不上传、不作 warm start |

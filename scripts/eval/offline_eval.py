@@ -20,6 +20,7 @@
 v3 不可混合校准；现有 v3 的“8维盲区+world仅方向”结论仍然有效。
 """
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -41,13 +42,41 @@ ITEM_CAPTURE = re.compile(
 SIDPAT = re.compile(r"<s_([abc])_(\d+)>")
 OFFICIAL_N = {"mat": 574, "video": 1000, "prod": 1000, "ad": 1000, "live": 1000}
 PROTOCOL_VERSION = "offline-eval-v4-platform-params"
+ACTION1024_DIAGNOSTIC_VERSION = "offline-eval-action1024-diagnostic-v1"
 REC_SAMPLE = {"max_tokens": 4096, "temperature": 0.6, "top_p": 0.95, "top_k": 50}
 USER_SAMPLE = {"max_tokens": 4096, "temperature": 0.6, "top_p": 0.95, "top_k": 20}
+ACTION1024_SAMPLE = {"max_tokens": 1024, "temperature": 0.6, "top_p": 0.95, "top_k": 20}
 WORLD_SAMPLE = {"max_tokens": 10240, "temperature": 0.7, "top_p": 0.8, "top_k": 20}
+VLLM_LORA_RANKS = (1, 8, 16, 32, 64, 128, 256, 320, 512)
 
 
 def load(name):
     return [json.loads(l) for l in open(f"{DEV}/{name}")]
+
+
+def canonical_row_hash(row):
+    packed = json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(packed.encode()).hexdigest()
+
+
+def stable_rows(path, count):
+    """Match audit_i21_topic_path.py's frozen SHA256 row selection exactly."""
+    rows = []
+    with Path(path).open(encoding="utf-8") as source:
+        for line in source:
+            row = json.loads(line)
+            rows.append((canonical_row_hash(row), row))
+    if len(rows) < count:
+        raise ValueError(f"{path} has {len(rows)} rows, need {count}")
+    return [row for _, row in sorted(rows)[:count]]
+
+
+def sha256(path):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as source:
+        for chunk in iter(lambda: source.read(8 * 1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def load_stage2_holdout(path):
@@ -141,13 +170,53 @@ def topic_metric(gold_events, pred_events):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
+    ap.add_argument(
+        "--adapter",
+        default="",
+        help="Optional PEFT LoRA directory loaded directly by vLLM; --model remains the base model.",
+    )
     ap.add_argument("--gpu", default="3")
+    ap.add_argument(
+        "--gpu-memory-utilization",
+        type=float,
+        default=0.85,
+        help="Fraction of visible GPU memory reserved by vLLM.",
+    )
     ap.add_argument("--dims", default="mat,rec,action,topic,world")
     ap.add_argument("--n_rec", type=int, default=1000)
     ap.add_argument("--n_mat", type=int, default=0, help="0=全量")
+    ap.add_argument(
+        "--mat-per-domain",
+        type=int,
+        default=0,
+        help="Stable SHA256 sample count per material domain; overrides --n_mat.",
+    )
     ap.add_argument("--n_action", type=int, default=0)
+    ap.add_argument(
+        "--action-protocol",
+        choices=["legacy-v4", "action1024-diagnostic"],
+        default="legacy-v4",
+        help=(
+            "legacy-v4 preserves the historical 4096-token action/topic probe; "
+            "action1024-diagnostic is an action-only structural diagnostic using the "
+            "post-fix platform token cap and is not a score estimator"
+        ),
+    )
+    ap.add_argument(
+        "--stable_action_rows",
+        type=int,
+        default=0,
+        help="Select action rows by canonical-JSON SHA256, matching audit_i21_topic_path.py.",
+    )
     ap.add_argument("--n_world", type=int, default=0)
+    ap.add_argument("--generation-seed", type=int, default=42)
     ap.add_argument("--tag", default="")
+    ap.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Optional deterministic report path; defaults to the historical timestamped path.",
+    )
     ap.add_argument(
         "--stage2_holdout",
         default="",
@@ -156,26 +225,85 @@ def main():
     ap.add_argument("--think_suffix", choices=["keep", "switch"], default="keep",
                     help="thinking通路的软开关:keep=保留/no_think(v1探针同款);switch=改/think")
     args = ap.parse_args()
+    if args.stable_action_rows and args.n_action:
+        ap.error("--stable_action_rows and --n_action are mutually exclusive")
+    if args.mat_per_domain and args.n_mat:
+        ap.error("--mat-per-domain and --n_mat are mutually exclusive")
+    if args.stable_action_rows and args.stage2_holdout:
+        ap.error("--stable_action_rows cannot be combined with --stage2_holdout")
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
     tag = args.tag or os.path.basename(args.model.rstrip("/"))
-    dims = set(args.dims.split(","))
+    dims = {value.strip() for value in args.dims.split(",") if value.strip()}
+    if args.action_protocol == "action1024-diagnostic" and dims != {"action"}:
+        ap.error("--action-protocol action1024-diagnostic requires --dims action")
+    action_sample = (
+        ACTION1024_SAMPLE
+        if args.action_protocol == "action1024-diagnostic"
+        else USER_SAMPLE
+    )
+    protocol_version = (
+        ACTION1024_DIAGNOSTIC_VERSION
+        if args.action_protocol == "action1024-diagnostic"
+        else PROTOCOL_VERSION
+    )
 
     from vllm import LLM, SamplingParams
     from vllm.sampling_params import BeamSearchParams
 
     t0 = time.time()
+    lora_request = None
+    llm_kwargs = {}
+    adapter_metadata = None
+    if args.adapter:
+        adapter_dir = Path(args.adapter).resolve()
+        adapter_file = adapter_dir / "adapter_model.safetensors"
+        adapter_config = adapter_dir / "adapter_config.json"
+        if not adapter_file.is_file() or not adapter_config.is_file():
+            raise FileNotFoundError(f"invalid PEFT adapter directory: {adapter_dir}")
+        config = json.loads(adapter_config.read_text(encoding="utf-8"))
+        rank = int(config["r"])
+        try:
+            max_lora_rank = next(value for value in VLLM_LORA_RANKS if value >= rank)
+        except StopIteration as exc:
+            raise ValueError(f"adapter rank {rank} exceeds vLLM's supported maximum") from exc
+        from vllm.lora.request import LoRARequest
+
+        lora_request = LoRARequest(adapter_dir.name, 1, lora_path=str(adapter_dir))
+        llm_kwargs.update(enable_lora=True, max_lora_rank=max_lora_rank)
+        adapter_metadata = {
+            "path": str(adapter_dir),
+            "rank": rank,
+            "vllm_max_lora_rank": max_lora_rank,
+            "adapter_sha256": sha256(adapter_file),
+            "config_sha256": sha256(adapter_config),
+        }
     llm = LLM(model=args.model, dtype="bfloat16", max_model_len=40960,
-              gpu_memory_utilization=0.85, enforce_eager=True, seed=42,
-              enable_prefix_caching=True, trust_remote_code=True, max_logprobs=130)
+              gpu_memory_utilization=args.gpu_memory_utilization, enforce_eager=True,
+              seed=args.generation_seed,
+              enable_prefix_caching=True, trust_remote_code=True, max_logprobs=130,
+              **llm_kwargs)
     report = {
-        "protocol_version": PROTOCOL_VERSION,
+        "protocol_version": protocol_version,
         "model": args.model,
         "tag": tag,
         "date": datetime.now().isoformat()[:19],
         "n_rec": args.n_rec,
         "think_suffix": args.think_suffix,
-        "sampling": {"rec": REC_SAMPLE, "action_topic": USER_SAMPLE, "world": WORLD_SAMPLE},
+        "generation_seed": args.generation_seed,
+        "evaluated_dims": sorted(dims),
+        "sampling": {"rec": REC_SAMPLE, "action_topic": action_sample, "world": WORLD_SAMPLE},
     }
+    if args.action_protocol == "action1024-diagnostic":
+        report["diagnostic_boundary"] = (
+            "Action-only structural diagnostic aligned to the post-fix 1024-token cap. "
+            "Offline action quality metrics are uncalibrated and must not be converted "
+            "to an online score or used as a positive ranking gate."
+        )
+        report["online_score_estimate"] = None
+        report["protocol_scope"] = "action-only local generation diagnostic"
+        report["full_current_platform_mirror"] = False
+    if adapter_metadata is not None:
+        report["adapter"] = adapter_metadata
     stage2_holdout = load_stage2_holdout(args.stage2_holdout) if args.stage2_holdout else None
     if args.stage2_holdout:
         report["stage2_holdout"] = str(Path(args.stage2_holdout).resolve())
@@ -184,7 +312,11 @@ def main():
         params = BeamSearchParams(beam_width=width, max_tokens=3)
         res = []
         for i in range(0, len(prompts), chunk):
-            outs = llm.beam_search([{"prompt": p} for p in prompts[i:i + chunk]], params)
+            outs = llm.beam_search(
+                [{"prompt": p} for p in prompts[i:i + chunk]],
+                params,
+                lora_request=lora_request,
+            )
             for p, o in zip(prompts[i:i + chunk], outs):
                 cands = []
                 for seq in o.sequences:
@@ -199,14 +331,29 @@ def main():
 
     def sample(prompts, max_tokens, stop=None, temperature=0.6, top_p=0.95, top_k=20):
         sp = SamplingParams(n=1, max_tokens=max_tokens, temperature=temperature,
-                            top_p=top_p, top_k=top_k, seed=42, stop=stop)
-        return [o.outputs[0] for o in llm.generate(prompts, sp)]
+                            top_p=top_p, top_k=top_k, seed=args.generation_seed, stop=stop)
+        return [o.outputs[0] for o in llm.generate(prompts, sp, lora_request=lora_request)]
 
     # ============ mat(fresh=判决候选 / train=记忆化对照) ============
     if "mat" in dims:
         for name, key in [("dev_mat_fresh.jsonl", "mat_fresh"), ("dev_mat_train.jsonl", "mat_train")]:
             rows = load(name)
-            if args.n_mat:
+            if args.mat_per_domain:
+                by_domain = {}
+                for row in rows:
+                    by_domain.setdefault(row["gold"]["dom"], []).append(row)
+                sampled = []
+                for domain, domain_rows in sorted(by_domain.items()):
+                    if len(domain_rows) < args.mat_per_domain:
+                        raise ValueError(
+                            f"{name}/{domain} has {len(domain_rows)} rows, "
+                            f"need {args.mat_per_domain}"
+                        )
+                    sampled.extend(
+                        sorted(domain_rows, key=canonical_row_hash)[: args.mat_per_domain]
+                    )
+                rows = sampled
+            elif args.n_mat:
                 rows = rows[: args.n_mat]
             prompts = [prompt_of(r, "nothink") + DOM_TOKEN[r["gold"]["dom"]] for r in rows]
             cands = beam_decode(prompts, 64)
@@ -272,38 +419,73 @@ def main():
 
     # ============ action(懂用户) ============
     if "action" in dims:
-        rows = load("dev_action.jsonl") if stage2_holdout is None else stage2_holdout["action"]
+        action_source = Path(DEV) / "dev_action.jsonl"
+        if args.stable_action_rows:
+            rows = stable_rows(action_source, args.stable_action_rows)
+        else:
+            rows = load("dev_action.jsonl") if stage2_holdout is None else stage2_holdout["action"]
         if args.n_action:
             rows = rows[: args.n_action]
-        outs = sample([prompt_of(r, "nothink") for r in rows], **USER_SAMPLE)
+        selected_hashes = [canonical_row_hash(row) for row in rows]
+        report["action_selection"] = {
+            "method": "canonical_json_sha256_ascending" if args.stable_action_rows else "source_order",
+            "requested": args.stable_action_rows or args.n_action or 0,
+            "source": str(action_source.resolve()) if stage2_holdout is None else str(Path(args.stage2_holdout).resolve()),
+            "source_sha256": sha256(action_source) if stage2_holdout is None else sha256(args.stage2_holdout),
+            "selected_row_sha256": selected_hashes,
+            "manifest_sha256": hashlib.sha256(
+                "".join(value + "\n" for value in selected_hashes).encode()
+            ).hexdigest(),
+        }
+        outs = sample([prompt_of(r, "nothink") for r in rows], **action_sample)
         f1s, cnts, jok, trunc = [], [], 0, 0
         generated_lengths, duplicate_counts, max_repeats = [], [], []
-        for r, o in zip(rows, outs):
+        row_metrics = []
+        for row_hash, r, o in zip(selected_hashes, rows, outs):
             gold = set(r["gold"])
             occurrences = ITEM.findall(o.text)
             occurrence_counts = Counter(occurrences)
             pred = set(occurrences)
+            json_ok = False
             try:
                 json.loads(re.search(r"\[.*\]", o.text, re.S).group(0))
                 jok += 1
+                json_ok = True
             except Exception:
                 pass
-            trunc += len(o.token_ids) >= USER_SAMPLE["max_tokens"]
+            is_truncated = len(o.token_ids) >= action_sample["max_tokens"]
+            trunc += is_truncated
             generated_lengths.append(len(o.token_ids))
-            duplicate_counts.append(len(occurrences) - len(pred))
-            max_repeats.append(max(occurrence_counts.values(), default=0))
+            duplicate_count = len(occurrences) - len(pred)
+            max_repeat = max(occurrence_counts.values(), default=0)
+            duplicate_counts.append(duplicate_count)
+            max_repeats.append(max_repeat)
             ov = len(gold & pred)
             p_ = ov / max(len(pred), 1)
             rc = ov / max(len(gold), 1)
-            f1s.append(2 * p_ * rc / max(p_ + rc, 1e-9))
+            f1 = 2 * p_ * rc / max(p_ + rc, 1e-9)
+            f1s.append(f1)
             cnts.append(len(pred))
+            row_metrics.append({
+                "row_sha256": row_hash,
+                "f1": f1,
+                "json_ok": json_ok,
+                "truncated": bool(is_truncated),
+                "generated_tokens": len(o.token_ids),
+                "n_pred": len(pred),
+                "duplicate_items": duplicate_count,
+                "max_repeat": max_repeat,
+            })
         n = len(rows)
-        report["action"] = {"n": n, "f1": round(sum(f1s) / n, 4), "json_ok": round(jok / n, 3),
-                            "trunc_rate": round(trunc / n, 3),
+        report["action"] = {"n": n, "f1": round(sum(f1s) / n, 4),
+                            "f1_unrounded": sum(f1s) / n,
+                            "json_ok": round(jok / n, 3), "json_ok_count": jok,
+                            "trunc_rate": round(trunc / n, 3), "trunc_count": trunc,
                             "n_pred_median": statistics.median(cnts) if cnts else 0,
                             "generated_tokens_p95": sorted(generated_lengths)[max(0, math.ceil(0.95 * n) - 1)] if n else 0,
                             "duplicate_items_mean": round(statistics.mean(duplicate_counts), 2) if duplicate_counts else 0,
-                            "max_repeat_p95": sorted(max_repeats)[max(0, math.ceil(0.95 * n) - 1)] if n else 0}
+                            "max_repeat_p95": sorted(max_repeats)[max(0, math.ceil(0.95 * n) - 1)] if n else 0,
+                            "rows": row_metrics}
         print(f"[action] {report['action']}", file=sys.stderr)
 
     # ============ topic ============
@@ -363,9 +545,13 @@ def main():
         print(f"[world] {report['world']}", file=sys.stderr)
 
     report["runtime_s"] = round(time.time() - t0, 1)
-    os.makedirs(f"{PROJ}/logs/offline_eval", exist_ok=True)
-    out_path = f"{PROJ}/logs/offline_eval/{tag}_v4_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
-    json.dump(report, open(out_path, "w"), ensure_ascii=False, indent=1)
+    if args.out is None:
+        protocol_suffix = "action1024diag_v1" if args.action_protocol == "action1024-diagnostic" else "v4"
+        out_path = Path(PROJ) / "logs" / "offline_eval" / f"{tag}_{protocol_suffix}_{datetime.now().strftime('%Y%m%d_%H%M')}.json"
+    else:
+        out_path = args.out
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(report, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=1))
     print(f"saved -> {out_path}", file=sys.stderr)
 

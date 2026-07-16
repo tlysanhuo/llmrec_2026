@@ -1,0 +1,35 @@
+{
+  "experiment_id": "i13_s875_world_ansretkl_v1",
+  "registered_at_utc": "2026-07-15T13:08:00Z",
+  "registered_before_checkpoint_audit": true,
+  "parent": {
+    "id": "e3_userres_r80_retkl_v3_s875",
+    "adapter_sha256": "71bc3c2c86beb1c1aaafd41f98915ba94a7f964b6e8450079a883aebc32ffd5b",
+    "online_score": 0.9978
+  },
+  "candidate_steps": [25, 50, 75, 100, 125, 150],
+  "primary_selection_source": {
+    "asset": "data_i22_world_retkl_v1_holdout",
+    "class": "D(O2.General), official-source derived",
+    "rows": 46,
+    "sha256": "8aa4306f139afc0a00cacd91508de90aa9fa2cbd9942af9cdb665d895721402a",
+    "formal_training_overlap": 0
+  },
+  "candidate_requirements": {
+    "world_gold_sum_logp_delta_mean_min": 0.0,
+    "world_gold_sum_logp_improved_rate_min": 0.5,
+    "world_all_token_top1_delta_min": 0.0,
+    "world_parent_to_candidate_kl_mean_max": 0.02,
+    "topic_gold_sum_logp_delta_mean_min": -0.1,
+    "action_gold_sum_logp_delta_mean_min": -0.1,
+    "topic_top1_agreement_delta_mean_min": -0.01,
+    "action_top1_agreement_delta_mean_min": -0.01,
+    "rec_target_prod_ad_gold_sum_logp_delta_mean_min": -0.03,
+    "rec_retention_video_live_gold_sum_logp_delta_mean_min": -0.03,
+    "rec_target_prod_ad_rank_le_64_delta_min": -0.015625,
+    "rec_retention_video_live_rank_le_64_delta_min": -0.015625,
+    "itemic_breakage_rate_max": 0.1
+  },
+  "selection_rule": "Audit all six checkpoints on the same 46-row prompt-disjoint world set. Keep only candidates satisfying every world and retention requirement. Select the largest world gold-sum-logp delta; if candidates are within 0.02, select the earliest dose. Run the itemic structural gate only on that provisional candidate; if it fails, continue in ranked order. If none passes, reject I-22 locally.",
+  "interpretation_boundary": "The D holdout selects dose and the E retention probes veto drift. Neither is calibrated to predict the online score, and thresholds must not be loosened after results are observed."
+}
