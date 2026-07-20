@@ -1,0 +1,15 @@
+102复现指南/
+├── 102-i19ta复现指南.md                 # 从已完成 I-13 开始的主指南
+├── 安装脚本.sh                           # 将源码快照安装到队友仓库
+├── 复现脚本.sh                           # check/build-data/self-test/train/combine/audit 入口
+├── 文件清单.txt
+└── 源码快照/
+    ├── configs/active/i19_world_userres_retkl_r16_ep1_i13retain_v1.yaml
+    ├── configs/datasets/i19_userres_retention/dataset_info.json
+    ├── scripts/data/build_seed_scoremax_v1.py
+    ├── scripts/data/build_world_residual_retention_v1.py
+    ├── scripts/train/train_world_residual_retkl.py
+    ├── scripts/train/combine_lora_adapters.py
+    └── scripts/eval/audit_world_residual_delta.py
+
+本包不含模型 checkpoint 和训练 JSONL 数据。请按主指南中的“本地必须准备的数据/模型”放置。

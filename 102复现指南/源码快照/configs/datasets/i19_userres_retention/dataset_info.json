@@ -1,0 +1,12 @@
+{
+  "data_world_residual_retention_v1": {
+    "file_name": "../../../assets/derived/releases/i19_userres_retention_v1/data_world_residual_retention_v1.jsonl",
+    "formatting": "alpaca",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output",
+      "history": "history"
+    }
+  }
+}
