@@ -1,0 +1,211 @@
+{
+  "adapters": {
+    "distinct_lora_ids_and_names": true,
+    "optional_candidates": [],
+    "parent": "parent_i19_r96",
+    "teacher": "teacher_i23_r64"
+  },
+  "artifacts": {
+    "adapters": [
+      {
+        "adapter_config_sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+        "adapter_model_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+        "artifact": {
+          "artifact_sha256": "3c6b694627803f5121ce2020cb4a32242c8a6f1671ec0e4f811f31579e937ba6",
+          "files": [
+            {
+              "path": "adapter_config.json",
+              "sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+              "size": 1074
+            },
+            {
+              "path": "adapter_model.safetensors",
+              "sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+              "size": 242273688
+            }
+          ],
+          "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/artifacts/submissions/i19_world_external_r96_s875_platform"
+        },
+        "name": "parent_i19_r96",
+        "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/artifacts/submissions/i19_world_external_r96_s875_platform",
+        "rank": 96,
+        "request_id": 1
+      },
+      {
+        "adapter_config_sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+        "adapter_model_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+        "artifact": {
+          "artifact_sha256": "3c6b694627803f5121ce2020cb4a32242c8a6f1671ec0e4f811f31579e937ba6",
+          "files": [
+            {
+              "path": "adapter_config.json",
+              "sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+              "size": 1074
+            },
+            {
+              "path": "adapter_model.safetensors",
+              "sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+              "size": 242273688
+            }
+          ],
+          "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/artifacts/submissions/i19_world_external_r96_s875_platform"
+        },
+        "name": "teacher_i23_r64",
+        "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/artifacts/submissions/i19_world_external_r96_s875_platform",
+        "rank": 96,
+        "request_id": 2
+      }
+    ],
+    "base": {
+      "artifact_sha256": "431cc7546a1813ed21a184974a1ac739139b7bdc4643d04e521d066f6ad20652",
+      "files": [
+        {
+          "path": "added_tokens.json",
+          "sha256": "e6ffb7ff9790cf03c86a9a0c62a22f2c3967e62d590589d0f98be43489d94ab0",
+          "size": 587418
+        },
+        {
+          "path": "config.json",
+          "sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4",
+          "size": 1366
+        },
+        {
+          "path": "generation_config.json",
+          "sha256": "427565fe9c01ac08f4a0baaeb536322779193d8d28ba723831b49ed5ae778587",
+          "size": 214
+        },
+        {
+          "path": "merges.txt",
+          "sha256": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+          "size": 1671853
+        },
+        {
+          "path": "model.safetensors",
+          "sha256": "28e66d2ec528473d335ede2b3faa08eddc53eb8ec93747a449e5e7ec812ede90",
+          "size": 1602902800
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sha256": "4d63ce549dd478a347f44aac208f57326201a933874a53a3607ca03d2023d712",
+          "size": 20939
+        },
+        {
+          "path": "special_tokens_map.json",
+          "sha256": "bc29ddb903f29e802d58d51b083422b0a728c2e906e3cab8e18d0cd8ac1e450b",
+          "size": 612
+        },
+        {
+          "path": "tokenizer.json",
+          "sha256": "57d45d4a87f16fbb39d9b40f2bc074067b7169e102017eb77e2c77a5060a7b56",
+          "size": 11626335
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sha256": "2e4d6b589e76f81b8b496289c991d7edb67e87f52f794caa41e92e336d4b20cb",
+          "size": 4357825
+        },
+        {
+          "path": "vocab.json",
+          "sha256": "a5cdac1b456c85d1937cdcfc07b94469f390f1e6f4849d986ce47774d84d7db0",
+          "size": 3383406
+        }
+      ],
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/models/OneReason-0.8B-pretrain-competition"
+    }
+  },
+  "counts": {
+    "dev": {
+      "gap_selected": 0,
+      "hard_negative_dropped": 117,
+      "hard_negative_pool": 127,
+      "hard_negatives": 10,
+      "parent_full_gold_hits": 1,
+      "parent_invalid_candidates": 0,
+      "parent_valid_candidates": 128,
+      "rows": 1,
+      "teacher_full_gold_hits": 1,
+      "teacher_invalid_candidates": 0,
+      "teacher_valid_candidates": 128,
+      "trainer_ready": 0
+    },
+    "train": {
+      "gap_selected": 9,
+      "hard_negative_dropped": 164662,
+      "hard_negative_pool": 175003,
+      "hard_negatives": 10341,
+      "parent_full_gold_hits": 229,
+      "parent_invalid_candidates": 0,
+      "parent_valid_candidates": 175232,
+      "rows": 1369,
+      "teacher_full_gold_hits": 231,
+      "teacher_invalid_candidates": 0,
+      "teacher_valid_candidates": 175232,
+      "trainer_ready": 9
+    }
+  },
+  "formal_training_generated": false,
+  "hash_lock": {
+    "expected": {
+      "base_artifact": "431cc7546a1813ed21a184974a1ac739139b7bdc4643d04e521d066f6ad20652",
+      "dev_input": "e70e9ad07d723dfa4e3b406620c6d0ae68907942165aa78fd8e55f4e04ca18a5",
+      "parent_artifact": "3c6b694627803f5121ce2020cb4a32242c8a6f1671ec0e4f811f31579e937ba6",
+      "parent_model": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+      "teacher_artifact": null,
+      "teacher_model": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+      "train_input": "36a7fc7fc2319711acd6443987295356ca37402bac09563ff01cb46fb2c66aa6"
+    },
+    "source": null
+  },
+  "input_pools": {
+    "dev": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/i35_video_material_beam128_pool_v1_dev.jsonl",
+      "route": "beam_gate_pool",
+      "selected_rows": 1,
+      "sha256": "e70e9ad07d723dfa4e3b406620c6d0ae68907942165aa78fd8e55f4e04ca18a5",
+      "total_rows": 1
+    },
+    "train": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/i35_video_material_beam128_pool_v1.jsonl",
+      "route": "beam_train_pool",
+      "selected_rows": 1369,
+      "sha256": "36a7fc7fc2319711acd6443987295356ca37402bac09563ff01cb46fb2c66aa6",
+      "total_rows": 1369
+    }
+  },
+  "outputs": {
+    "dev_ledger": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/i35_video_material_beam128_dev_ledger_v1.jsonl",
+      "rows": 1,
+      "sha256": "84385a13934579955839045ca0f9b4207ae62231d44106abf067157552194a4b"
+    },
+    "formal_train": null,
+    "train_ledger": {
+      "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/logs/data/i35_video_material_beam128_train_ledger_v1.jsonl",
+      "rows": 1369,
+      "sha256": "3c5845f6839b6df9e61b2cb791789094429003cd74774d1186a8a62110633595"
+    }
+  },
+  "runtime": {
+    "batch_size": 16,
+    "beam_constraints": {},
+    "beam_width": 128,
+    "dtype": "bfloat16",
+    "empty_think_required": true,
+    "gpu": "0",
+    "gpu_memory_utilization": 0.85,
+    "hard_negative_max_per_first_divergence": 4,
+    "hard_negative_max_total": 12,
+    "max_model_len": 2048,
+    "max_tokens": 3,
+    "native_no_think_required": true,
+    "rank_base": 0,
+    "renderer": "offline_eval.prompt_of(mode='nothink') + fixed domain prefix",
+    "seed": 42,
+    "single_engine": true,
+    "vllm_version": "0.12.0"
+  },
+  "schema_version": "i35-video-material-beam128-audit-v1",
+  "script_sha256": "0af4943f8a61f33695132bccf97dec311589521a270e1019cff80202301320cc",
+  "selection_definition": "teacher_full_gold_hit_and_parent_full_gold_miss",
+  "status": "complete"
+}

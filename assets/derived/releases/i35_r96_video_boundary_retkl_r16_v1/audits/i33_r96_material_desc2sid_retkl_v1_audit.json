@@ -1,0 +1,284 @@
+{
+  "schema": "i33-r96-material-desc2sid-retkl-v1",
+  "asset_class": "D(O1,O2.*; M-I23/I19-world construction filter)",
+  "training_seed": 19260831,
+  "holdout_seed": 19260833,
+  "builder": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/scripts/data/build_i33_r96_material_desc2sid_v1.py",
+  "builder_sha256": "9c27a666f4a95e834742e491e46fd8cf649bec98c654be0fbe302a13e1c5ed1b",
+  "upstream": {
+    "assets/derived/processed/data_seed_teacher_v1.jsonl": {
+      "sha256": "13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f",
+      "rows": 32644
+    },
+    "assets/derived/processed/data_user_residual_retention_v1.jsonl": {
+      "sha256": "bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0",
+      "rows": 6106
+    },
+    "assets/derived/processed/data_i30_r96_material_teacher_retkl_v1.jsonl": {
+      "sha256": "0df9a192976eb61eb8dd333fd59edb994d1fcad482710e1282f36dd792bfc4a4",
+      "rows": 2048
+    },
+    "logs/data/i30_r96_material_teacher_selection_v1.jsonl": {
+      "sha256": "b303a501dddb1f7ae3afef192298f349dd211cbda229eb1618a94634c82b5b3d",
+      "rows": 2048
+    },
+    "assets/evaluation/holdout/data_i30_r96_material_teacher_gate_v1.jsonl": {
+      "sha256": "dd744ee2d2f584b9bcae938cde1f5976801a9eece39aa1972b284641603f97a0",
+      "rows": 704
+    },
+    "assets/evaluation/holdout/data_i32_task_restore_gate_v1.jsonl": {
+      "sha256": "f75106758792163dd33d1d52639ba507a6d9e69094d8213d5f3b0969ee272f62",
+      "rows": 656
+    },
+    "assets/evaluation/holdout/s800_native_general_replay_retention_gate_v1.jsonl": {
+      "sha256": "3206e91ac465ca4f1410e3f8a9219a60c11cbb1beb3d4eb2fa9fa69c4b89c30f",
+      "rows": 256
+    },
+    "assets/evaluation/holdout/data_o1_reward_preference_v1_holdout.jsonl": {
+      "sha256": "1c7292cb96d45e9d20c0b3add78d3e5a30ec7a559844217584408921f996696e",
+      "rows": 1784
+    },
+    "assets/evaluation/holdout/data_i28_video_multigold_proposal_v1_gate.jsonl": {
+      "sha256": "48dd7f4224e7ca9e98805d966ca901814fdb76b85471afcf1ec7d98a0c22c7e5",
+      "rows": 128
+    },
+    "assets/evaluation/holdout/official_general_world_mc_v1_holdout.jsonl": {
+      "sha256": "fb67b76d8d071799ba372185bd89cb556afef9065a1b188fb9dd86a9131e13df",
+      "rows": 25
+    },
+    "assets/derived/processed/data_i22_world_retkl_v1_holdout.jsonl": {
+      "sha256": "8aa4306f139afc0a00cacd91508de90aa9fa2cbd9942af9cdb665d895721402a",
+      "rows": 46
+    },
+    "assets/evaluation/visible/懂世界.jsonl": {
+      "sha256": "d7f341e2277473ff3b5b556531370a7697471cc5e540586a53c93c6adb32b5e5",
+      "rows": 7
+    }
+  },
+  "e_holdout_exclusion": {
+    "assets": [
+      "assets/evaluation/holdout/data_i30_r96_material_teacher_gate_v1.jsonl",
+      "assets/evaluation/holdout/data_i32_task_restore_gate_v1.jsonl",
+      "assets/evaluation/holdout/s800_native_general_replay_retention_gate_v1.jsonl",
+      "assets/evaluation/holdout/data_o1_reward_preference_v1_holdout.jsonl",
+      "assets/evaluation/holdout/data_i28_video_multigold_proposal_v1_gate.jsonl",
+      "assets/evaluation/holdout/official_general_world_mc_v1_holdout.jsonl",
+      "assets/derived/processed/data_i22_world_retkl_v1_holdout.jsonl",
+      "assets/evaluation/visible/懂世界.jsonl"
+    ],
+    "rows": 3606,
+    "unique_prompt_sha256": 2717,
+    "unique_mode_normalized_prompt_sha256": 2405,
+    "i30_positions_requiring_sanitation": 236,
+    "i30_positions_requiring_sanitation_by_task": {
+      "rec_video": 47,
+      "action": 16,
+      "rec_ad": 41,
+      "rec_living": 42,
+      "rec_prod": 50,
+      "world": 31,
+      "topic": 6,
+      "material_sid2desc": 2,
+      "material_desc2sid": 1
+    },
+    "control_exact_or_mode_overlap": 0,
+    "treatment_exact_or_mode_overlap": 0
+  },
+  "paired_design": {
+    "parent_experiment": "I-30",
+    "control": "256 material_desc2sid + 256 material_sid2desc",
+    "treatment": "512 material_desc2sid",
+    "different_positions": 256,
+    "different_position_role": "the 256 original I-30 material_sid2desc slots",
+    "shared_retention_rows": 1536,
+    "shared_retention_rows_identical": true,
+    "material_retention_route_order_identical_to_i30": true,
+    "compliance_sanitation_applied_equally_to_both_arms": true
+  },
+  "material_selection": {
+    "source": "logs/data/i30_r96_material_teacher_selection_v1.jsonl",
+    "rule": "descending frozen I23-minus-r96 advantage, strictly positive, then row SHA256; exclude every registered E/holdout by exact and mode-normalized prompt",
+    "statistics": {
+      "material_desc2sid": {
+        "positive": 520,
+        "eligible_e_clean_unique": 515,
+        "excluded_or_deduplicated": 5,
+        "selected": 512,
+        "eligible_unselected": 3
+      },
+      "material_sid2desc": {
+        "positive": 577,
+        "eligible_e_clean_unique": 564,
+        "excluded_or_deduplicated": 13,
+        "selected": 256,
+        "eligible_unselected": 308
+      },
+      "control_existing_rows_retained": {
+        "material_desc2sid": 255,
+        "material_sid2desc": 254
+      }
+    },
+    "treatment_selected": 512,
+    "control_selected": 512,
+    "teacher_minus_parent_delta_min": 0.00014960765838623047,
+    "teacher_minus_parent_delta_mean": 0.04318109608720988,
+    "teacher_minus_parent_delta_max": 0.1819237470626831,
+    "treatment_ledger": "logs/data/i33_r96_material_desc2sid_selection_v1.jsonl",
+    "treatment_ledger_sha256": "22e05c2181947995500dc300b68cad8c39ece9041a56da5bf6a9829793d588af",
+    "control_ledger": "logs/data/i33_r96_material_bidirectional_control_selection_v1.jsonl",
+    "control_ledger_sha256": "54fa513c2396e079ee8dc542b6117b81ce86047734cd6d04aa784003cbb36024"
+  },
+  "retention_sanitation": {
+    "original_positions_replaced": {
+      "action": 16,
+      "topic": 6,
+      "rec_video": 48,
+      "rec_prod": 56,
+      "rec_ad": 49,
+      "rec_living": 48,
+      "world": 31
+    },
+    "unique_replacements": {
+      "action": 16,
+      "topic": 6,
+      "rec_video": 48,
+      "rec_prod": 56,
+      "rec_ad": 49,
+      "rec_living": 48,
+      "world": 6
+    },
+    "second_exposures": {
+      "world": 25
+    },
+    "conflicting_source_prompt_groups_excluded": {
+      "rec_prod": 7,
+      "rec_living": 3,
+      "rec_video": 28,
+      "rec_ad": 14,
+      "world": 6
+    },
+    "unique_mode_prompts": 1511,
+    "rows": 1536,
+    "rule": "same task and same registered retention upstream; unique E-clean prompts first; world-only deterministic second exposure when the unique clean pool is exhausted",
+    "replacement_ledger": "logs/data/i33_r96_e_clean_retention_replacements_v1.jsonl",
+    "replacement_ledger_sha256": "8c4774300a515e960abc8b49950030834e88af4c870828a6871d136ffcb18ca8"
+  },
+  "training_arms": {
+    "control": {
+      "path": "assets/derived/processed/data_i33_r96_material_bidirectional_e_clean_control_v1.jsonl",
+      "rows": 2048,
+      "sha256": "812a6f711ff239737a9dde50acdff0588f6ac4885de037664dea58575c707d40",
+      "task_counts": {
+        "rec_video": 234,
+        "action": 235,
+        "material_desc2sid": 256,
+        "rec_living": 234,
+        "material_sid2desc": 256,
+        "world": 131,
+        "topic": 234,
+        "rec_ad": 234,
+        "rec_prod": 234
+      }
+    },
+    "treatment": {
+      "path": "assets/derived/processed/data_i33_r96_material_desc2sid_retkl_v1.jsonl",
+      "rows": 2048,
+      "sha256": "7d6a1e4a44238a79dcb0d31384f147c02baea95cd870224e2a6815444f8470fd",
+      "task_counts": {
+        "rec_video": 234,
+        "action": 235,
+        "material_desc2sid": 512,
+        "rec_living": 234,
+        "world": 131,
+        "topic": 234,
+        "rec_ad": 234,
+        "rec_prod": 234
+      }
+    },
+    "mix": {
+      "material": {
+        "rows": 512,
+        "ratio": 0.25
+      },
+      "retention_kl": {
+        "rows": 1536,
+        "ratio": 0.75
+      }
+    }
+  },
+  "holdout": {
+    "path": "assets/evaluation/holdout/data_i33_r96_material_desc2sid_gate_v1.jsonl",
+    "rows": 720,
+    "sha256": "76acc6a39b248e4501a11e99bc889871f5208c811070485791b554538e658f99",
+    "counts": {
+      "material_desc2sid": 256,
+      "material_sid2desc": 128,
+      "action": 64,
+      "topic": 64,
+      "rec_video": 32,
+      "rec_prod": 48,
+      "rec_ad": 64,
+      "rec_living": 64
+    },
+    "prompt_overlap_i30_train_all_registered_e_control_treatment": 0,
+    "prompt_overlap_full_i30_construction_ledger": 0,
+    "mode_normalized_prompt_overlap_all_exclusions": 0,
+    "world_policy": "no new rows; use already frozen registered world gates because the shared E-clean retention consumes all 106 available unique world prompts",
+    "allocation": {
+      "material_desc2sid": {
+        "available": 4302,
+        "selected": 256,
+        "conflicting_prompt_groups_excluded": 0,
+        "prompt_manifest_sha256": "c548d112d0524977b3b743c63ee5a26419865afa8644def625f1ef63efc96fe7"
+      },
+      "material_sid2desc": {
+        "available": 3514,
+        "selected": 128,
+        "conflicting_prompt_groups_excluded": 0,
+        "prompt_manifest_sha256": "79916f53f9b86a023125c766bef0232e6c28f4c0bd9db9971d3c11d4b1b4f960"
+      },
+      "action": {
+        "available": 1225,
+        "selected": 64,
+        "conflicting_prompt_groups_excluded": 0,
+        "prompt_manifest_sha256": "1e0446f22a00cc02fa74eee5ab68b22362abe7a48ddf695ea1a31331401f7f1b"
+      },
+      "topic": {
+        "available": 912,
+        "selected": 64,
+        "conflicting_prompt_groups_excluded": 0,
+        "prompt_manifest_sha256": "3794a65e6e8b946187a9a3097d8880e709a0a27fc2ccae3839e77617f8939cba"
+      },
+      "rec_video": {
+        "available": 37,
+        "selected": 32,
+        "conflicting_prompt_groups_excluded": 10,
+        "prompt_manifest_sha256": "0e1488abb5e1ddf94c77ed4220f4cb60760bca764be76165a948fcb2def969b1"
+      },
+      "rec_prod": {
+        "available": 51,
+        "selected": 48,
+        "conflicting_prompt_groups_excluded": 5,
+        "prompt_manifest_sha256": "0002afad5b6d3eaec3dfe304a4e58eab8346fb4f782169f8c058b282be85255f"
+      },
+      "rec_ad": {
+        "available": 69,
+        "selected": 64,
+        "conflicting_prompt_groups_excluded": 6,
+        "prompt_manifest_sha256": "ed1d5e84ced4ff0fac0ecf5e9898ab38c2f00e1954cb190cb1184748b7055678"
+      },
+      "rec_living": {
+        "available": 97,
+        "selected": 64,
+        "conflicting_prompt_groups_excluded": 2,
+        "prompt_manifest_sha256": "bda95d3b4d7a675cc101c05a1ab9a4193cb57ec0a832239d7d4f47b76dd9ab54"
+      },
+      "world": {
+        "available": 0,
+        "selected": 0,
+        "conflicting_prompt_groups_excluded": 0,
+        "prompt_manifest_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  }
+}

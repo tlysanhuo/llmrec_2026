@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "release": {
+    "id": "i35_r96_video_boundary_retkl_r16_v1",
+    "experiment_id": "I-35",
+    "created_utc": "2026-07-22",
+    "purpose": "GitHub-shareable I-35 code, data, sidecar, audits, and training logs"
+  },
+  "online_result": {
+    "eval_task_id": "eval-task-9nepj1-1784698215",
+    "model_name": "i35_r96_video_boundary_retkl_r112",
+    "score": 1.0344285849069457,
+    "subscores_order": ["material", "action", "topic", "rec_video", "rec_prod", "rec_ad", "rec_living", "world"],
+    "subscores": [0.2453, 0.1198, 0.0388, 0.0864, 0.1394, 0.1386, 0.1071, 0.1591]
+  },
+  "parent": {
+    "name": "i19_world_external_r96_s875_platform",
+    "rank": 96,
+    "adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+    "config_sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+    "score": 1.0252594563571054
+  },
+  "material_pool": {
+    "upstream_asset_id": "O1.懂物料part4",
+    "builder": "scripts/data/build_i35_video_material_pool_v1.py",
+    "eligible_rows": 1370,
+    "registered_e_rows_copied": 0,
+    "train_archive": {
+      "path": "i35_video_material_beam128_pool_v1.jsonl.gz",
+      "bytes": 688724,
+      "sha256": "bbe5c461674470affabac591951d86ae2fdd89116bef951a894763b6bbaaa950",
+      "payload_rows": 1369,
+      "payload_sha256": "36a7fc7fc2319711acd6443987295356ca37402bac09563ff01cb46fb2c66aa6"
+    },
+    "dev_archive": {
+      "path": "i35_video_material_beam128_pool_v1_dev.jsonl.gz",
+      "bytes": 1210,
+      "sha256": "95410355a16fa0fab09eb6ab7e5fec3cf0b507380ed15487daac89f618e347d3",
+      "payload_rows": 1,
+      "payload_sha256": "e70e9ad07d723dfa4e3b406620c6d0ae68907942165aa78fd8e55f4e04ca18a5"
+    }
+  },
+  "retention_source": {
+    "asset_id": "data_i33_r96_material_desc2sid_retkl_v1",
+    "asset_class": "D(O1,O2.*; I33 frozen retention)",
+    "builder": "scripts/data/build_i33_r96_material_desc2sid_v1.py",
+    "archive": {
+      "path": "data_i33_r96_material_desc2sid_retkl_v1.jsonl.gz",
+      "bytes": 3809045,
+      "sha256": "7895cb9e124c86ba4104240cc16af8c60936f4190fe54644b6634da091310213",
+      "payload_rows": 2048,
+      "payload_bytes": 17735185,
+      "payload_sha256": "7d6a1e4a44238a79dcb0d31384f147c02baea95cd870224e2a6815444f8470fd"
+    }
+  },
+  "formal_data": {
+    "builder": "scripts/data/build_i35_video_boundary_retkl_v1.py",
+    "asset_class": "D(O1; M-I35 Beam128 boundary selection) + D(I33 retention subset)",
+    "rows": 2740,
+    "mix": {
+      "material": {"rows": 1370, "boundary": 66, "preserve": 1304, "ratio": 0.5},
+      "retention": {"rows": 1370, "ratio": 0.5}
+    },
+    "archive": {
+      "path": "data_i35_video_boundary_retkl_v1.jsonl.gz",
+      "bytes": 3508811,
+      "sha256": "14109b240c02c459554843899251eb6f5cdbdf2c50291307a0348b26836aa60e",
+      "payload_bytes": 16223872,
+      "payload_sha256": "9c044e47d26fb7644281107a548249e49564e0f203a04795337c6a90c0927100"
+    },
+    "sidecar_archive": {
+      "path": "data_i35_video_boundary_retkl_v1_sidecar.jsonl.gz",
+      "bytes": 518934,
+      "sha256": "2d3dc43de81aa6a9248b383b2b8cfddcbd10ff6c56dcabb54baff7bdab4426dd",
+      "payload_rows": 1370,
+      "payload_bytes": 1925303,
+      "payload_sha256": "366a5323350c982f73d4bcf1fbd0b809d412e844871ac98aa526cbafb31ae083"
+    },
+    "third_party_rows": 0,
+    "evaluation_rows": 0
+  },
+  "training": {
+    "wandb_run": "0b4p3siy",
+    "fresh_residual_rank": 16,
+    "learning_rate": 0.00001,
+    "steps": 685,
+    "selected_step": 548,
+    "train_loss": 0.16564965731036055,
+    "runtime_seconds": 1594.5949,
+    "log_sha256": "b60d03dc48f5f0166a81ef237c0e047e533eb706e3259d4e7c2f5397b425f95c"
+  },
+  "selected_artifact": {
+    "residual_rank": 16,
+    "residual_step": 548,
+    "residual_sha256": "3295b75b4d078c8dbd84a112e869519264f9acecdddf5c41ac970e311cd21811",
+    "combined_rank": 112,
+    "combined_sha256": "52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00",
+    "combined_config_sha256": "4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996",
+    "identity": "delta_combined = delta_parent + delta_residual"
+  },
+  "porting_boundary": "A different parent must rerun Beam128 and rebuild the parent-locked sidecar; the 66 original boundary labels are not portable."
+}

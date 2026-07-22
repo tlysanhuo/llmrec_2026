@@ -1,0 +1,156 @@
+{
+  "conversion": {
+    "description_and_gold_sid_unchanged": true,
+    "fixed_official_system": "你是一位视频数据分析专家，负责将视频文本映射为精确的视频token。",
+    "fixed_official_user_prefix": "请解析以下视频内容并输出对应的视频token：\n\n",
+    "native_no_think_retained": 788,
+    "think_to_empty_no_think": 833
+  },
+  "e_manifest": [
+    {
+      "path": "assets/evaluation/holdout/data_i28_video_multigold_proposal_v1_gate.jsonl",
+      "rows": 128,
+      "sha256": "48dd7f4224e7ca9e98805d966ca901814fdb76b85471afcf1ec7d98a0c22c7e5"
+    },
+    {
+      "path": "assets/evaluation/holdout/data_i30_r96_material_teacher_gate_v1.jsonl",
+      "rows": 704,
+      "sha256": "dd744ee2d2f584b9bcae938cde1f5976801a9eece39aa1972b284641603f97a0"
+    },
+    {
+      "path": "assets/evaluation/holdout/data_i32_task_restore_gate_v1.jsonl",
+      "rows": 656,
+      "sha256": "f75106758792163dd33d1d52639ba507a6d9e69094d8213d5f3b0969ee272f62"
+    },
+    {
+      "path": "assets/evaluation/holdout/data_i33_r96_material_desc2sid_gate_v1.jsonl",
+      "rows": 720,
+      "sha256": "76acc6a39b248e4501a11e99bc889871f5208c811070485791b554538e658f99"
+    },
+    {
+      "path": "assets/evaluation/holdout/data_o1_reward_preference_v1_holdout.jsonl",
+      "rows": 1784,
+      "sha256": "1c7292cb96d45e9d20c0b3add78d3e5a30ec7a559844217584408921f996696e"
+    },
+    {
+      "path": "assets/evaluation/holdout/official_general_world_mc_v1_holdout.jsonl",
+      "rows": 25,
+      "sha256": "fb67b76d8d071799ba372185bd89cb556afef9065a1b188fb9dd86a9131e13df"
+    },
+    {
+      "path": "assets/evaluation/holdout/s800_native_general_replay_retention_gate_v1.jsonl",
+      "rows": 256,
+      "sha256": "3206e91ac465ca4f1410e3f8a9219a60c11cbb1beb3d4eb2fa9fa69c4b89c30f"
+    },
+    {
+      "path": "assets/derived/processed/data_i22_world_retkl_v1_holdout.jsonl",
+      "rows": 46,
+      "sha256": "8aa4306f139afc0a00cacd91508de90aa9fa2cbd9942af9cdb665d895721402a"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_action.jsonl",
+      "rows": 325,
+      "sha256": "3f99f0f2a1264edf9078880b5b1b6454c4ee169c18945d25214797aba269ff86"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_mat_fresh.jsonl",
+      "rows": 542,
+      "sha256": "1152ed871edef13c75484943e7e83005b23c4e5f5cf2438d8c526504d7093fb9"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_mat_train.jsonl",
+      "rows": 300,
+      "sha256": "266428eb9df1e45be44d68672b95ce900dd7bf40832b7add3f7a3a50cdc3ebfb"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_rec_ad.jsonl",
+      "rows": 1000,
+      "sha256": "18eade5d595a7a87883931e21dc8af112911834f55e1a5d3e68258c077399461"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_rec_ad_v2_exally.jsonl",
+      "rows": 1000,
+      "sha256": "314def91e51b9ec6116dac6a2aae5fa5cabfeea3ab9c0701cde47297db59c8d1"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_rec_live.jsonl",
+      "rows": 1000,
+      "sha256": "1e53f06db0914bc1d8bf546ce0ee462b430607623e174619460734e4260d1c10"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_rec_live_v2_exally.jsonl",
+      "rows": 1000,
+      "sha256": "8550f41bec1bcef2e4804fbc4857d5ea7b65f123c913ceb9d08e78125b906bc1"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_rec_prod.jsonl",
+      "rows": 1000,
+      "sha256": "578edb886e406add39863d4a8118714c921bffd5f5c2ec8a341e794905168338"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_rec_prod_v2_exally.jsonl",
+      "rows": 1000,
+      "sha256": "2d099d7183f053dbc700b2c96def438f2f3124418c5443044dde7f92a5b36010"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_rec_video.jsonl",
+      "rows": 1000,
+      "sha256": "755b8537ea85145dee4153f444298f559518014e48cbdda34d67569cc3cdaca5"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_rec_video_v2_exally.jsonl",
+      "rows": 1000,
+      "sha256": "d0f711631f992eb5ae1069e60eb97f8a70eb34a71b627a851e793dba735b7865"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_topic.jsonl",
+      "rows": 110,
+      "sha256": "1204e407737b603ccba957401281042ac70463c9d571a87fcc423e99318c5ec5"
+    },
+    {
+      "path": "assets/evaluation/offline_eval/dev_world.jsonl",
+      "rows": 500,
+      "sha256": "c506c78060e4b56cb6a13467c1c510e62b86ad75b89cba72851157a90d7c2d67"
+    },
+    {
+      "path": "assets/evaluation/visible/懂世界.jsonl",
+      "rows": 7,
+      "sha256": "d7f341e2277473ff3b5b556531370a7697471cc5e540586a53c93c6adb32b5e5"
+    },
+    {
+      "path": "assets/evaluation/holdout/data_i34_material_beam_dev_v1.jsonl",
+      "rows": 256,
+      "sha256": "fec7f5cb5dd642e83addd4d23ec1f7f0c6d3e285960a417e0520d27b6938401c"
+    }
+  ],
+  "eligible_rows": 1370,
+  "excluded": {
+    "registered_E_exact_or_mode": 251
+  },
+  "outputs": {
+    "dev_pool": {
+      "path": "logs/data/i35_video_material_beam128_pool_v1_dev.jsonl",
+      "rows": 1,
+      "sha256": "e70e9ad07d723dfa4e3b406620c6d0ae68907942165aa78fd8e55f4e04ca18a5"
+    },
+    "train_pool": {
+      "path": "logs/data/i35_video_material_beam128_pool_v1.jsonl",
+      "rows": 1369,
+      "sha256": "36a7fc7fc2319711acd6443987295356ca37402bac09563ff01cb46fb2c66aa6"
+    }
+  },
+  "schema_version": "i35-video-material-beam-pool-v1",
+  "seed": 19260835,
+  "source": {
+    "asset_id": "O1.懂物料part4",
+    "modes": {
+      "no_think": 788,
+      "think": 833
+    },
+    "path": "assets/official/seed_sft/懂物料part4.jsonl",
+    "rows": 1621,
+    "sha256": "0a35f02b229e6b8e0d7e884a65bf12003d899f99914de277f88b1978959deccc"
+  },
+  "unique_full_sids": 1370,
+  "unique_prompts": 1370
+}

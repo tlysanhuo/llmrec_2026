@@ -1,9 +1,22 @@
 # Experiment And Artifact Index
 
-> 当前状态基线：2026-07-16 UTC。
+> 当前状态基线：2026-07-22 UTC。
 > 旧版完整历史表已归档到 `docs/archive/EXPERIMENT_INDEX_pre_cleanup_20260711.md`。
 
 本文件只登记当前仍存在、仍可使用的模型产物。历史分数和实验归因见 `experiment_log.md`。
+
+## 当前最高：I-35 step548 r112
+
+| 项 | 记录 |
+|---|---|
+| 构造 | 从已验收I19-world r96父adapter训练fresh r16 video-material boundary residual，选择step548后按`delta_combined = delta_parent + delta_residual`精确拼成r112/alpha112 |
+| 父模型 | `i19_world_external_r96_s875_platform`；adapter/config SHA256 `4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e` / `78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f`；直接父分`1.0252594563571054` |
+| 数据 | `data_i35_video_boundary_retkl_v1` 2,740行；material/retention=`1370/1370`，material boundary/preserve=`66/1304`；正式数据T/E行0。发布与恢复入口`assets/derived/releases/i35_r96_video_boundary_retkl_r16_v1/` |
+| 训练 | fresh r16/alpha16、LR`1e-5` cosine、batch1xacc4、685步；W&B `0b4p3siy` finished，train loss`0.1656496573`；step548 residual SHA256 `3295b75b4d078c8dbd84a112e869519264f9acecdddf5c41ac970e311cd21811` |
+| 提交包 | `submissions/i35_r96_video_boundary_retkl_r112_step548_platform/`；adapter/config SHA256 `52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00` / `4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996` |
+| 线上 | evalTaskId `eval-task-9nepj1-1784698215`，总分`1.0344285849069457`；八项material/action/topic/video/prod/ad/live/world=`0.2453/0.1198/0.0388/0.0864/0.1394/0.1386/0.1071/0.1591` |
+| 判读 | 相对直接父模型总分`+0.009169129`；material不变，推荐合计`+0.0141`，用户合计`-0.003815630`，world约`-0.0011`。训练侧video是懂物料desc2sid，不是直接`rec_video` CE |
+| 状态 | **COMPLETE_ONLINE_1.034428585_CURRENT_TOP**；完整交接见`docs/I35_VIDEO_BOUNDARY_HANDOFF.md`。下文把I-13写作“当前主模型”的段落是对应历史时点记录，不覆盖本节 |
 
 ## 当前结论
 
@@ -26,7 +39,7 @@
 - I-24已从成功I-23 E3原地完成200步action-only低剂量训练，W&B `f3ayytob`服务端finished，8个adapter-only剂量点齐全；但8/8均未通过启动前冻结的action硬门。step50是唯一action sum-logp均值为正的点（`+0.05031`），仍同时失败改善率`0.46875<0.55`、top-1 delta `-0.00080`和topic delta `-0.01223<-0.01`；所有点四域最大KL约`0.013–0.014>0.005`。整条分支按原规则本地关闭，不打包、不上传、不作父模型；条件算术点0.9999已被否决证据取代。
 - I-25已在任何正式训练前冻结：只从成功I-23有效模型新建隔离r16 action residual，不使用I-12残差或I-24失败点；复用已登记6106行数据，action1752行答案体CE+弱parent KL，其余4354行只做parent KL，完整一轮1527步。最终gate SHA256 `53b5b375...f212`先单轴冻结最早action通过checkpoint，再在该点按固定scale升序取最小全保持解；不得二维后验回选。配置/trainer/启动器静态验收通过，尚未因准备文件而宣称训练或涨分。
 - 撤回旧 I-09 规则数据资格：规则标签相对同源独立judge满分teacher参考的平均F1仅0.0429；匹配实际过滤条件的42条平均F1 0.0813且32条零交集。该teacher参考不是官方gold；`seed_o2_action_r64_lr1e4_ep3`因此在step16中止，W&B `sh96a1sq`，`checkpoints/seed_o2_action_r64_lr1e4_ep3/`无adapter且禁止resume。
-- 当前最高单次显示分和固定协议最高仍为I-13 `0.9978`；固定协议最高无参数拼接单adapter为I-23 `0.9915`，最严格纯O1单体仍为I-14 `0.9518`。I-10 E3旧协议0.9849仍只能作旧轨迹父模型记录；E3固定协议桥缺失不妨碍I-13在现有固定协议候选中确定为主模型，但仍禁止计算I-13相对E3的净增益。
+- 当前最高单次显示分与可交付模型已更新为I-35 step548 r112 `1.0344285849069457`；其直接父模型I19-world r96为`1.0252594563571054`。固定协议最高无参数拼接单adapter仍为I-23 `0.9915`，最严格纯O1单体仍为I-14 `0.9518`。I-10 E3旧协议0.9849仍只能作旧轨迹父模型记录。
 - r64 同一训练轨迹 E1/E2 已线上评测：E1=0.8839，E2=0.9187；E3未评测且不再建议上传。本地门禁原先只选 E1、拒绝 E2，线上排序相反，门禁不再承担正向 checkpoint 排名。
 - `riders_fk_clean_r64_ep3` 训练事实不变：GPU1 单卡，r64/α64、3 epoch、353 steps/epoch、总 1,059 steps；W&B online run [`6gyi8mzc`](https://wandb.ai/3120252125-/llmrec-2026/runs/6gyi8mzc)。E2 action 0.0981 创本账号新高，但 material E1/E2 均为6题。
 - `i01_action_distill_r64_ep3` 已完成：3 epoch/1,047 steps，action 截断相对预登记比较对象 riders 减半但 F1 未涨，world v4 大幅回退；状态为本地否决、不上传。蒸馏正式累计 11,432,127 API token。

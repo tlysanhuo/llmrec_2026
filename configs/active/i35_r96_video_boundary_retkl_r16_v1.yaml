@@ -1,0 +1,57 @@
+### I-35 continues the verified 1.0253 r96 package with one fresh r16
+### residual. The material branch uses the exact platform system/user template
+### and supervises only the three decoded SID positions. Rows whose r96 gold
+### rank is 65--128 receive boundary margin + low-weight CE + parent KL; all
+### other material rows and a seven-task retention replay receive parent KL.
+### Formal hashes and the observed boundary count are locked by
+### logs/data/i35_video_boundary_retkl_v1_audit.json before launch.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i19_world_external_r96_s875_platform
+create_new_adapter: true
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 16
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_i35_video_boundary_retkl_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/i35_video_boundary_retkl_v1
+template: qwen3_nothink
+cutoff_len: 16384
+generation_max_length: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i35_r96_video_boundary_retkl_r16_v1
+logging_steps: 8
+save_strategy: steps
+save_steps: 137
+save_total_limit: 5
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i35_r96_video_boundary_retkl_r16_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-5
+max_steps: 685
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260835

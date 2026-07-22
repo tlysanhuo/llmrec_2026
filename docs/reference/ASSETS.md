@@ -165,6 +165,15 @@ O3 官方页面：`https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_C
 - 残差训练数据：`data_user_residual_retention_v1.jsonl.gz`，14,327,379 bytes，SHA256 `b61e5578b4332b7e27db29f418cf0ddea9d8f7847191f6486ac6f4e25cb9cda4`；解压后6,106行/74,716,566 bytes/SHA256 `bd947aad...b08f0`
 - 恢复器：`scripts/data/restore_i13_highscore_data.py`；manifest登记两阶段数据来源、行数、混合比例、脚本/配置哈希及I-13参考产物哈希。父数据O1 32,480+O2 teacher 164；残差数据用户CE/父保持各3,053；两者O2规则/T/E均为0
 
+### I-35 video boundary residual 的 GitHub 数据与日志发布
+
+- 固定入口：`assets/derived/releases/i35_r96_video_boundary_retkl_r16_v1/`
+- E-clean material池：上游`O1.懂物料part4` 1,621行，经builder`scripts/data/build_i35_video_material_pool_v1.py`转换平台模板并排除251行登记E交集，保留1,370行；train/dev gzip分别为688,724/1,210 bytes，SHA256 `bbe5c461...a950`/`95410355...47d3`，解压payload SHA256 `36a7fc7f...aa6`/`e70e9ad0...18a5`
+- retention上游：已登记`data_i33_r96_material_desc2sid_retkl_v1`，2,048行/17,735,185 bytes/SHA256 `7d6a1e4a...70fd`；确定性gzip 3,809,045 bytes/SHA256 `7895cb9e...0213`
+- I-35正式训练数据：builder`scripts/data/build_i35_video_boundary_retkl_v1.py`；2,740行/16,223,872 bytes/SHA256 `9c044e47...7100`，material/retention=`1370/1370`，material boundary/preserve=`66/1304`；确定性gzip 3,508,811 bytes/SHA256 `14109b24...a60e`
+- 父绑定sidecar：1,370行/1,925,303 bytes/SHA256 `366a5323...e083`；记录原r96父Beam128边界与负例，确定性gzip 518,934 bytes/SHA256 `2d3dc43d...26dd`。它是M-I35父模型派生训练控制，换父模型时禁止复用，必须重跑Beam128和formal builder
+- 来源边界：正式数据T/E/其它teacher正例均0；release内`audits/`和`logs/`只用于复现与诊断，不回灌训练。恢复与双层校验入口为`scripts/reproduce/i35_video_boundary_release.sh`，完整交接见`docs/I35_VIDEO_BOUNDARY_HANDOFF.md`
+
 ## 4. 第三方资产 `T`（与官方物理分区）
 
 固定访问入口：`assets/third_party/`。
@@ -205,6 +214,8 @@ O3 官方页面：`https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_C
 项目根 `data/` 是分类兼容入口：`official/derived/third_party/evaluation` 分别指向 `assets/` 对应分区，`processed` 仅为旧脚本兼容链接。项目根目录禁止直接存放 JSONL/Parquet 等数据文件。
 
 ## 7. 维护记录
+
+- 2026-07-22：为队友共享登记I-35 GitHub发布件。发布2,740行正式D训练数据、1,370行父绑定sidecar、1,370行E-clean Beam128输入池和2,048行I33 retention上游的确定性gzip，并附原始训练日志、W&B结果、Beam/data/combine审计与恢复器。原I-35父为I19-world r96；换父时只允许复用E-clean池、retention配方和loss机制，禁止复用原66条boundary标签或parent KL目标。
 
 - 2026-07-15：登记I-22选择诊断`logs/probe/i22_world_path_20260715.json` SHA256 `a5d14f20...bd78`及脚本SHA256 `ade3a892...1b24`。来源为已登记、完全排除正式训练的46行D(O2.General)选择集；报告显式记录44题面组、两组同题同答案重复及训练prompt交集0。只作剂量选择，不回灌训练、不估线上分数；六点主门全失败后未生成后续E诊断。
 - 2026-07-15：登记I-23答案效用过滤台账与训练集。冻结保留I-10 E3对538组/1,836个已知gold做batch=1答案token log-prob构造筛选；废弃存在batch组合数值漂移的首跑，正式台账两次smoke逐字段复现，按预注册强化门选83组。正式D集32,644行，仅83条CoT变化，父混合比例、答案和行序不变，T/E为0；台账/数据SHA256为`8ee28bbd...ff9a`/`19dadb7d...ec42`，不把构造log-prob称为线上分数预测。

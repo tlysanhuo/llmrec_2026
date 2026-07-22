@@ -1,0 +1,329 @@
+{
+  "asset_class": "D(O1; M-I35 Beam128 boundary selection) + D(I33 retention subset)",
+  "builder": {
+    "path": "scripts/data/build_i35_video_boundary_retkl_v1.py",
+    "sha256": "c588721d96b11b8aebc1b81d2198c069f39d02206eb9df9848f1f02ccdf5023e"
+  },
+  "field_map": {
+    "system": "instruction",
+    "template_note": "trainer consumes instruction/input; semantic system/user values are recorded explicitly",
+    "user": "input"
+  },
+  "forbidden_sources": {
+    "E_rows": 0,
+    "dev_pool_rows_copied": 1,
+    "registered_E_rows_copied": 0,
+    "teacher_positive_rows": 0,
+    "third_party_rows": 0
+  },
+  "intersections": {
+    "material_vs_E_mode_prompt": 0,
+    "material_vs_E_prompt": 0,
+    "material_vs_retention_mode_prompt": 0,
+    "material_vs_retention_prompt": 0,
+    "retention_vs_E_mode_prompt": 0,
+    "retention_vs_E_prompt": 0
+  },
+  "material_selection": {
+    "boundary_rank_zero_based": [
+      64,
+      127
+    ],
+    "by_objective": {
+      "boundary": 66,
+      "preserve": 1304
+    },
+    "dev_ledger_counts": {
+      "boundary": 0,
+      "hard_negatives": 0,
+      "invalid_candidates": 0,
+      "preserve": 1,
+      "rows": 1,
+      "rows_with_invalid": 0
+    },
+    "invalid_candidate_policy": {
+      "invalid_candidates_are_not_hard_negatives": true,
+      "max_per_beam": 16,
+      "valid_invalid_ranks_must_partition_beam": true
+    },
+    "invalid_candidates_total": 0,
+    "max_hard_negatives": 12,
+    "max_negatives_per_first_divergence": 4,
+    "negative_priority": [
+      "parent ranks 56..63",
+      "shared gold prefix near cutoff",
+      "near-cutoff fallback"
+    ],
+    "preserve_definition": "parent gold rank <64 or absent from Beam128",
+    "rows": 1370,
+    "rows_with_invalid_total": 0,
+    "train_ledger_counts": {
+      "boundary": 66,
+      "hard_negatives": 583,
+      "invalid_candidates": 0,
+      "preserve": 1303,
+      "rows": 1369,
+      "rows_with_invalid": 0
+    }
+  },
+  "mix": {
+    "fixed_seed_hash_shuffle": true,
+    "material": {
+      "by_objective": {
+        "boundary": 66,
+        "preserve": 1304
+      },
+      "ratio": 0.5,
+      "rows": 1370
+    },
+    "retention": {
+      "by_task": {
+        "action": 207,
+        "rec_ad": 206,
+        "rec_living": 207,
+        "rec_prod": 207,
+        "rec_video": 206,
+        "topic": 206,
+        "world": 131
+      },
+      "quotas": {
+        "action": 207,
+        "rec_ad": 206,
+        "rec_living": 207,
+        "rec_prod": 207,
+        "rec_video": 206,
+        "topic": 206,
+        "world": 131
+      },
+      "ratio": 0.5,
+      "rows": 1370,
+      "selected_counts": {
+        "action": 207,
+        "rec_ad": 206,
+        "rec_living": 207,
+        "rec_prod": 207,
+        "rec_video": 206,
+        "topic": 206,
+        "world": 131
+      },
+      "selected_rows": 1370,
+      "selection": "stable SHA256 sort within task; proportional largest-remainder quotas; world is fully retained",
+      "source_counts": {
+        "action": 235,
+        "rec_ad": 234,
+        "rec_living": 234,
+        "rec_prod": 234,
+        "rec_video": 234,
+        "topic": 234,
+        "world": 131
+      },
+      "source_rows": 1536,
+      "world_rows_all_retained": true
+    },
+    "total_rows": 2740
+  },
+  "outputs": {
+    "sidecar": {
+      "bytes": 1925303,
+      "path": "assets/derived/processed/data_i35_video_boundary_retkl_v1_sidecar.jsonl",
+      "rows": 1370,
+      "sha256": "366a5323350c982f73d4bcf1fbd0b809d412e844871ac98aa526cbafb31ae083"
+    },
+    "training_data": {
+      "bytes": 16223872,
+      "path": "assets/derived/processed/data_i35_video_boundary_retkl_v1.jsonl",
+      "rows": 2740,
+      "sha256": "9c044e47d26fb7644281107a548249e49564e0f203a04795337c6a90c0927100"
+    }
+  },
+  "parent": {
+    "adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+    "base_config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4",
+    "config_sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+    "only_parent_used": true
+  },
+  "runtime": {
+    "batch_size": 1,
+    "expected_optimizer_steps": 685,
+    "formal_prompt_template": "explicit system ChatML + user ChatML",
+    "gradient_accumulation": 4,
+    "single_gpu": true,
+    "tokenizer": "O6 local AutoTokenizer",
+    "wandb_required": true
+  },
+  "schema_version": "i35-video-boundary-retkl-v1",
+  "seed": 19260835,
+  "sidecar_contract": {
+    "hard_negative_source": "verified r96 parent Beam128 only",
+    "objectives": {
+      "boundary": 66,
+      "preserve": 1304
+    },
+    "parent_adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+    "positive_definition": "one official O1 video SID",
+    "retention_rows_in_sidecar": 0,
+    "rows": 1370,
+    "token_hash_template_checked": true
+  },
+  "status": "formal_built",
+  "upstreams": {
+    "beam128": {
+      "audit_path": "logs/probe/i35_video_material_beam128_audit_v1.json",
+      "audit_sha256": "b2fde171b9e3ea2e2c9f84e343de252028571702e5a88629b2f70469b77018c7",
+      "beam_width": 128,
+      "dev_path": "logs/data/i35_video_material_beam128_dev_ledger_v1.jsonl",
+      "dev_rows": 1,
+      "dev_sha256": "84385a13934579955839045ca0f9b4207ae62231d44106abf067157552194a4b",
+      "parent_adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+      "parent_config_sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+      "teacher_or_other_adapters_used_as_positive": 0,
+      "train_path": "logs/data/i35_video_material_beam128_train_ledger_v1.jsonl",
+      "train_rows": 1369,
+      "train_sha256": "3c5845f6839b6df9e61b2cb791789094429003cd74774d1186a8a62110633595"
+    },
+    "e_manifest": {
+      "assets": [
+        {
+          "path": "assets/evaluation/holdout/data_i28_video_multigold_proposal_v1_gate.jsonl",
+          "rows": 128,
+          "sha256": "48dd7f4224e7ca9e98805d966ca901814fdb76b85471afcf1ec7d98a0c22c7e5"
+        },
+        {
+          "path": "assets/evaluation/holdout/data_i30_r96_material_teacher_gate_v1.jsonl",
+          "rows": 704,
+          "sha256": "dd744ee2d2f584b9bcae938cde1f5976801a9eece39aa1972b284641603f97a0"
+        },
+        {
+          "path": "assets/evaluation/holdout/data_i32_task_restore_gate_v1.jsonl",
+          "rows": 656,
+          "sha256": "f75106758792163dd33d1d52639ba507a6d9e69094d8213d5f3b0969ee272f62"
+        },
+        {
+          "path": "assets/evaluation/holdout/data_i33_r96_material_desc2sid_gate_v1.jsonl",
+          "rows": 720,
+          "sha256": "76acc6a39b248e4501a11e99bc889871f5208c811070485791b554538e658f99"
+        },
+        {
+          "path": "assets/evaluation/holdout/data_o1_reward_preference_v1_holdout.jsonl",
+          "rows": 1784,
+          "sha256": "1c7292cb96d45e9d20c0b3add78d3e5a30ec7a559844217584408921f996696e"
+        },
+        {
+          "path": "assets/evaluation/holdout/official_general_world_mc_v1_holdout.jsonl",
+          "rows": 25,
+          "sha256": "fb67b76d8d071799ba372185bd89cb556afef9065a1b188fb9dd86a9131e13df"
+        },
+        {
+          "path": "assets/evaluation/holdout/s800_native_general_replay_retention_gate_v1.jsonl",
+          "rows": 256,
+          "sha256": "3206e91ac465ca4f1410e3f8a9219a60c11cbb1beb3d4eb2fa9fa69c4b89c30f"
+        },
+        {
+          "path": "assets/derived/processed/data_i22_world_retkl_v1_holdout.jsonl",
+          "rows": 46,
+          "sha256": "8aa4306f139afc0a00cacd91508de90aa9fa2cbd9942af9cdb665d895721402a"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_action.jsonl",
+          "rows": 325,
+          "sha256": "3f99f0f2a1264edf9078880b5b1b6454c4ee169c18945d25214797aba269ff86"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_mat_fresh.jsonl",
+          "rows": 542,
+          "sha256": "1152ed871edef13c75484943e7e83005b23c4e5f5cf2438d8c526504d7093fb9"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_mat_train.jsonl",
+          "rows": 300,
+          "sha256": "266428eb9df1e45be44d68672b95ce900dd7bf40832b7add3f7a3a50cdc3ebfb"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_rec_ad.jsonl",
+          "rows": 1000,
+          "sha256": "18eade5d595a7a87883931e21dc8af112911834f55e1a5d3e68258c077399461"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_rec_ad_v2_exally.jsonl",
+          "rows": 1000,
+          "sha256": "314def91e51b9ec6116dac6a2aae5fa5cabfeea3ab9c0701cde47297db59c8d1"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_rec_live.jsonl",
+          "rows": 1000,
+          "sha256": "1e53f06db0914bc1d8bf546ce0ee462b430607623e174619460734e4260d1c10"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_rec_live_v2_exally.jsonl",
+          "rows": 1000,
+          "sha256": "8550f41bec1bcef2e4804fbc4857d5ea7b65f123c913ceb9d08e78125b906bc1"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_rec_prod.jsonl",
+          "rows": 1000,
+          "sha256": "578edb886e406add39863d4a8118714c921bffd5f5c2ec8a341e794905168338"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_rec_prod_v2_exally.jsonl",
+          "rows": 1000,
+          "sha256": "2d099d7183f053dbc700b2c96def438f2f3124418c5443044dde7f92a5b36010"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_rec_video.jsonl",
+          "rows": 1000,
+          "sha256": "755b8537ea85145dee4153f444298f559518014e48cbdda34d67569cc3cdaca5"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_rec_video_v2_exally.jsonl",
+          "rows": 1000,
+          "sha256": "d0f711631f992eb5ae1069e60eb97f8a70eb34a71b627a851e793dba735b7865"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_topic.jsonl",
+          "rows": 110,
+          "sha256": "1204e407737b603ccba957401281042ac70463c9d571a87fcc423e99318c5ec5"
+        },
+        {
+          "path": "assets/evaluation/offline_eval/dev_world.jsonl",
+          "rows": 500,
+          "sha256": "c506c78060e4b56cb6a13467c1c510e62b86ad75b89cba72851157a90d7c2d67"
+        },
+        {
+          "path": "assets/evaluation/visible/懂世界.jsonl",
+          "rows": 7,
+          "sha256": "d7f341e2277473ff3b5b556531370a7697471cc5e540586a53c93c6adb32b5e5"
+        },
+        {
+          "path": "assets/evaluation/holdout/data_i34_material_beam_dev_v1.jsonl",
+          "rows": 256,
+          "sha256": "fec7f5cb5dd642e83addd4d23ec1f7f0c6d3e285960a417e0520d27b6938401c"
+        }
+      ],
+      "copied_to_training": 0,
+      "rows": 14359
+    },
+    "material_pool": {
+      "asset_id": "i35_video_material_beam128_pool_v1",
+      "class": "D(O1)",
+      "dev_path": "logs/data/i35_video_material_beam128_pool_v1_dev.jsonl",
+      "dev_rows": 1,
+      "dev_sha256": "e70e9ad07d723dfa4e3b406620c6d0ae68907942165aa78fd8e55f4e04ca18a5",
+      "formal_rows": 1370,
+      "pool_audit_path": "logs/data/i35_video_material_beam128_pool_v1_audit.json",
+      "pool_audit_sha256": "b290946a509de4713fa0f5750a3e3e23c9589b8895639c51c1c7250604637d50",
+      "train_path": "logs/data/i35_video_material_beam128_pool_v1.jsonl",
+      "train_rows": 1369,
+      "train_sha256": "36a7fc7fc2319711acd6443987295356ca37402bac09563ff01cb46fb2c66aa6"
+    },
+    "retention": {
+      "asset_id": "data_i33_r96_material_desc2sid_retkl_v1",
+      "class": "D(O1,O2.*; I33 frozen retention)",
+      "formal_rows": 1370,
+      "path": "assets/derived/processed/data_i33_r96_material_desc2sid_retkl_v1.jsonl",
+      "route": "retention_kl",
+      "rows": 2048,
+      "sha256": "7d6a1e4a44238a79dcb0d31384f147c02baea95cd870224e2a6815444f8470fd",
+      "source_route_rows": 1536
+    }
+  }
+}

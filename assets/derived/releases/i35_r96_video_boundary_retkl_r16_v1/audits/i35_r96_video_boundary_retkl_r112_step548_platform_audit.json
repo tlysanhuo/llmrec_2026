@@ -1,0 +1,25 @@
+{
+  "parent": {
+    "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/artifacts/submissions/i19_world_external_r96_s875_platform",
+    "rank": 96,
+    "alpha": 96,
+    "multiplier": 1.0,
+    "adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e"
+  },
+  "residual": {
+    "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/checkpoints/i35_r96_video_boundary_retkl_r16_v1/checkpoint-548",
+    "rank": 16,
+    "alpha": 16,
+    "multiplier": 1.0,
+    "adapter_sha256": "3295b75b4d078c8dbd84a112e869519264f9acecdddf5c41ac970e311cd21811"
+  },
+  "combined": {
+    "path": "/lustre/prod_glm_volumes/volume-20260201002229-o7c51/ai_runtime/llmrec_2026/artifacts/submissions/i35_r96_video_boundary_retkl_r112_step548_platform",
+    "rank": 112,
+    "alpha": 112,
+    "tensor_count": 392,
+    "adapter_sha256": "52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00",
+    "config_sha256": "4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996"
+  },
+  "identity": "delta_combined = 1 * delta_parent + 1 * delta_residual"
+}
