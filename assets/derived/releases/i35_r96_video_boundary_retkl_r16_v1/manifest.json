@@ -4,7 +4,8 @@
     "id": "i35_r96_video_boundary_retkl_r16_v1",
     "experiment_id": "I-35",
     "created_utc": "2026-07-22",
-    "purpose": "GitHub-shareable I-35 code, data, sidecar, audits, and training logs"
+    "updated_utc": "2026-07-23",
+    "purpose": "GitHub-shareable exact I-35 step-548 adapter, code, data, sidecar, audits, and training logs"
   },
   "online_result": {
     "eval_task_id": "eval-task-9nepj1-1784698215",
@@ -94,8 +95,37 @@
     "residual_step": 548,
     "residual_sha256": "3295b75b4d078c8dbd84a112e869519264f9acecdddf5c41ac970e311cd21811",
     "combined_rank": 112,
+    "combined_alpha": 112,
+    "combined_tensor_count": 392,
+    "combined_bytes": 282644304,
     "combined_sha256": "52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00",
     "combined_config_sha256": "4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996",
+    "split_delivery": {
+      "directory": "adapter",
+      "parts_are_byte_contiguous": true,
+      "parts": [
+        {
+          "path": "adapter/adapter_model.safetensors.part-aa",
+          "bytes": 94371840,
+          "sha256": "1f189eaf8888c1d1f56ec67086c634d1aafe1acffa764686702dc850cadcbb9f"
+        },
+        {
+          "path": "adapter/adapter_model.safetensors.part-ab",
+          "bytes": 94371840,
+          "sha256": "e7f0eb1961da5addb1aa920de2d750ebab2f40664953b64fcf39aca5294be3fd"
+        },
+        {
+          "path": "adapter/adapter_model.safetensors.part-ac",
+          "bytes": 93900624,
+          "sha256": "bba33f68e2fdbe2ec6dfb5af0d6247a1d4dbad75ba8dff4dc7f90ddd9049423d"
+        }
+      ],
+      "config": {
+        "path": "adapter/adapter_config.json",
+        "bytes": 1076,
+        "sha256": "4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996"
+      }
+    },
     "identity": "delta_combined = delta_parent + delta_residual"
   },
   "porting_boundary": "A different parent must rerun Beam128 and rebuild the parent-locked sidecar; the 66 original boundary labels are not portable."
