@@ -1,0 +1,110 @@
+{
+  "schema_version": "s800-native-general-replay-checkpoint-gate-v1",
+  "status": "PREREGISTERED_BEFORE_FORMAL_TRAINING",
+  "created_at_utc": "2026-07-18T19:48:00Z",
+  "objective": "Select the earliest native-General residual dose that shows held-out General mechanism improvement while preserving all eight non-General parent tasks.",
+  "not_an_online_score_estimate": true,
+  "parent": {
+    "name": "e3_userres_r80_retkl_v3_s800",
+    "adapter_path": "submissions/e3_userres_r80_retkl_v3_s800_platform",
+    "adapter_sha256": "bb86eb8af0efd3560b7b7c8440f3830627e9255f4fcc2265b9274a27668f63c6",
+    "adapter_config_sha256": "e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0",
+    "online_display_scores": [
+      1.0037,
+      1.0048
+    ],
+    "online_world_display_scores": [
+      0.1375,
+      0.1398
+    ]
+  },
+  "formal_training": {
+    "data_path": "assets/derived/processed/data_s800_native_general_replay_v1.jsonl",
+    "data_sha256": "87097135eb7ddb866b78ae6427c24b8cc2712f898c892d7da92d58ff7e9fddd2",
+    "config_path": "configs/active/s800_native_general_replay_r8_v1.yaml",
+    "config_sha256": "c95c6116e321a2fcbcbb1a9ccd28a2e794d3f04c359ae12760c6baca74b0de2f",
+    "candidate_steps_in_order": [
+      32,
+      64,
+      96,
+      129
+    ],
+    "residual_scale": 1.0,
+    "checkpoint_selection_order": "ascending optimizer step; stop at the first complete pass"
+  },
+  "general_target_gate": {
+    "asset_role": "permanent E diagnostic and checkpoint selection only; never training",
+    "path": "assets/evaluation/holdout/official_general_world_mc_v1_holdout.jsonl",
+    "sha256": "fb67b76d8d071799ba372185bd89cb556afef9065a1b188fb9dd86a9131e13df",
+    "permanent_rows": 25,
+    "scoring_eligible_rows": 23,
+    "retired_parent_contaminated_rows": 2,
+    "method": "teacher-forced single A-D answer token after the canonical empty-think prefix; no generation and no sampling",
+    "parent_baseline_report": "logs/probe/official_general_world_mc_v1_s800_baseline.json",
+    "parent_baseline_report_sha256": "fc5f477528c1a446c2ef7f16394ea071c7487a3eaae7c239e6a865588abdceb4",
+    "parent_baseline": {
+      "abcd_correct": 5,
+      "all_vocab_correct": 3,
+      "gold_logp_mean": -2.10369999
+    },
+    "pass_all": {
+      "abcd_correct_min": 5,
+      "all_vocab_correct_min": 3,
+      "gold_logp_mean_delta_min": 0.0,
+      "rows_with_positive_gold_logp_delta_min": 12
+    },
+    "warning": "This 23-row cohort is mostly math/logic and can reject a checkpoint, but passing does not establish broad online world gain."
+  },
+  "retention_gate": {
+    "asset_role": "prompt-task-disjoint D holdout; checkpoint preservation only; never training",
+    "path": "assets/evaluation/holdout/s800_native_general_replay_retention_gate_v1.jsonl",
+    "sha256": "3206e91ac465ca4f1410e3f8a9219a60c11cbb1beb3d4eb2fa9fa69c4b89c30f",
+    "rows": 256,
+    "rows_per_task": 32,
+    "tasks": [
+      "material_desc2sid",
+      "material_sid2desc",
+      "action",
+      "topic",
+      "rec_video",
+      "rec_prod",
+      "rec_ad",
+      "rec_living"
+    ],
+    "builder_path": "scripts/data/build_s800_native_general_replay_gate_v1.py",
+    "builder_sha256": "62482f3638b4ba09cd6e93fa4003a8ae2fc14169bdb2289a44d8b62188c1ce9e",
+    "audit_path": "logs/data/s800_native_general_replay_retention_gate_v1_audit.json",
+    "audit_sha256": "5a4095f06dd0f8c85b87bc1766a590b6d8513d5177be455ccdb82bd83fd4d6be",
+    "method": "teacher-forced reference-vs-candidate logits on up to 128 uniformly spaced full assistant-target positions per row; KL is forward KL(reference||candidate)",
+    "pass_all": {
+      "overall_mean_forward_kl_max": 0.003,
+      "each_task_mean_forward_kl_max": 0.005,
+      "row_forward_kl_p95_max": 0.02,
+      "each_task_parent_argmax_agreement_min": 0.98
+    }
+  },
+  "structure_gate": {
+    "method": "reuse the frozen 60-row four-domain itemic structural probe with identical renderer and decoding",
+    "pass_all": {
+      "itemic_breakage_rows_max": 0,
+      "probe_rows": 60
+    }
+  },
+  "decision": {
+    "select": "the first candidate step in [32,64,96,129] that passes every General, retention, and structure threshold",
+    "if_none_pass": "close this native-General replay branch; do not package, upload, rescale, continue training, or relax a threshold",
+    "forbidden_post_hoc_axes": [
+      "residual scaling",
+      "checkpoint reordering",
+      "threshold relaxation",
+      "mixing the 68-row math MC patch",
+      "mixing legacy world_zh or world_zh_ext"
+    ],
+    "packaging_if_pass": "exactly concatenate s800 r80 and the selected scale-1 r8 residual into one r88/alpha88 adapter; disclose parameter concatenation lineage"
+  },
+  "implementation_lock": {
+    "evaluator_status": "MUST_BE_HASH_FROZEN_BEFORE_READING_ANY_CANDIDATE_CHECKPOINT",
+    "metric_formulas_and_thresholds_locked_by_this_file": true,
+    "formal_training_started_at_registration": false
+  }
+}

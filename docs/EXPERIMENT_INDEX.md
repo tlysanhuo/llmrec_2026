@@ -1,19 +1,165 @@
 # Experiment And Artifact Index
 
-> 当前状态基线：2026-07-16 UTC。
+> 当前状态基线：2026-07-23 UTC。
 > 旧版完整历史表已归档到 `docs/archive/EXPERIMENT_INDEX_pre_cleanup_20260711.md`。
+> 变更记录（2026-07-23 UTC）：按用户要求补跑I-39队友full v4，GPU3单卡、seed42、mat/rec/action/topic/world全量完成，报告`logs/offline_eval/i39_i35_userab_firstdiv_retkl_r120_teammate_v4.json` 111,194 bytes/SHA256 `252736fd...cd12`，runtime `1967.8s`。I-39/I-35/I-37的圈外mat fresh为`60/542`、`55/542`、`57/542`；I-39增量集中在ad/video（相对I-35各`+2/+3`题），rec四域合计`36/4000`对I-35的`35/4000`，action/topic/world=`0.3018/0.0325/0.424`对`0.3050/0.0275/0.422`，未见数量级崩坏但动作格式长尾略差。该v4经I-37/I-38线上对照为`NOT_CERTIFIED`，不能换算线上分；它推翻“仅凭teacher-forced冻结门直接否决上传”的证据充分性，但不证明提分。I-39现建议只占一次正式额度作探索验证，不替换I-35默认交付、不续训或扫scale。
+> 变更记录（2026-07-23 UTC）：I-39唯一一发已完成GPU3单卡训练、精确组合和训练前冻结门。W&B [`51yko99h`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/51yko99h)服务端`finished`，640/640步、runtime `1435.1195s`、train loss `1.4501802083`，三路与四类物料目标精确为`1920/512/128`和`64/192/128/128`；fresh r8 adapter SHA256=`5fdf62fc...1f9bd`，与固定I-35 step548 r112按1.0/1.0精确拼成唯一r120包`submissions/i39_i35_userab_firstdiv_retkl_r120_step640_platform/`（392 tensors、302,830,492 bytes、adapter SHA256=`746b9c89...f8be7`）。313行冻结门报告`logs/probe/i39_i35_ab_firstdiv_material_gate_v1.json`（SHA256=`25b69458...72ca`）显示A/B/C首分歧margin均改善，但full-anchor三项保护和全体KL失败，`teacher_forced_pass=false`；I-39不上传、不续训或扫scale，包仅留审计。
+> 变更记录（2026-07-23 UTC）：用户授权I-39唯一一发。以当前线上最高I-35 step548 r112为父模型，从O3中构造与I-36用户历史实际相交且排除O1/E/I-35训练题面的3,072行视频池，用固定单父Beam64标出A/B/C首错与完整锚；正式混合已冻结为物料首分歧/关联用户微剂量/I-12父保持=`512/128/1,920`（20%/5%/75%），另冻结313行、256 AB门。正式数据/sidecar/gate SHA256=`0a5cb2e5...a3e2`/`d9d74eb5...bd14`/`293fc361...d40`；独立审计和trainer全量预检通过。唯一训练配方为fresh r8、单GPU/W&B、640步、无中间候选；当前尚未启动，不声称提分。
+> 变更记录（2026-07-23 UTC）：用户授权启动唯一新候选I-38M。策略从material已达`0.275958188153`的I-23 r64开始，material 1,370行只对exact I-23起点做KL锚，非material 1,370行只对当前最高I-35 step548做KL蒸馏；fresh r16、单GPU/W&B、685步、只验收full r80一个候选。正式数据/gate SHA256=`5d8ca1a6...28d58`/`311b298f...ed41f`，T/E/model-generated训练行0；训练尚未启动，不声称涨分。
+> 变更记录（2026-07-23 UTC）：I-38M已完成唯一单卡训练、组合和冻结门。W&B [`f92senkn`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/f92senkn)为`finished`，685/685步、runtime `1282.5365s`、train loss `0.6860710371`、material/retention路由`1370/1370`；fresh r16 adapter SHA256=`1690bdde...e45b52`，与I-23 r64精确拼成r80包`submissions/i38_i23_material_i35_teacher_retkl_r80_step685_platform/`（392 tensors、201,904,514 bytes、adapter SHA256=`74a86b03...3d5d94`）。400行冻结teacher-forced gate报告`logs/probe/i38_i23_material_i35_teacher_gate_v1.json`（SHA256=`2e2e9f3a...f69b13`）失败：material desc2sid KL/Top1=`0.0085404/0.9594`、sid2desc=`0.0020747/0.9722`，video/ad Top1保护也失败；retention aggregate KL ratio=`0.19885`通过。队友v4小样本行为诊断`logs/offline_eval/i38_i23_material_i35_teacher_retkl_r80_step685_matrec32.json`（SHA256=`da2a5b96...c6671`）不作线上分数估计；I-38不上传，包仅留审计，I-35 step548继续默认交付。
+> 变更记录（2026-07-23 UTC）：I-37 full r120正式评测`SUCCEEDED`，evalTaskId `eval-task-0yco4c-1784766273`、modelId `md-z9m20x-1784766072216356022`、retryCount=0、耗时4,036秒，总分`1.02762520217381`，八项=`0.2452961672/0.1204379107/0.0394833175/0.0768/0.1292/0.1484/0.1089/0.1591078067`。相对I-35 step548总分`-0.0068033827`，用户合计`+0.0013966173`、推荐合计`-0.0082`、material/world不变；I-37关闭，不追加checkpoint/scale，I-35 step548继续作为最高与默认交付工件。
+> 变更记录（2026-07-22 UTC）：I-37已完成唯一队友v4离线全量回归，报告`logs/offline_eval/i37_i35_strict_future_rec_r120_teammate_v4.json`（SHA256=`4698d1aea0dc3e714823839df1ed69c365adfbe806c6c7eeb28edf3dc3048ca3`）。mat fresh/train=`0.1052/0.1567`，rec video/prod/ad/live=`0.006/0.003/0.002/0.028`，action F1=`0.3030`、topic=`0.0244`、world=`0.432`；相对I-35 step548 v4为video/live/world正向、action/topic轻微回退。v4仅作离线行为回归，不能换算线上总分；I37仍待手工上传官方评测。
+> 变更记录（2026-07-22 UTC）：I-37已完成唯一单卡训练与精确打包。W&B `c2crod0w`完成512/512步、runtime `1178s`、train loss `1.2019`；fresh r8 checkpoint SHA256=`8c25566c...fcea69`，与固定I-35 step548 r112精确拼成唯一r120包`submissions/i37_i35_strict_future_rec_r120_v1_platform/`，392 tensors、302,829,416 bytes、adapter SHA256=`e91c773c...675252`，逐tensor切片恒等式通过。尚未上传/评测，不声称已涨分；首轮step256保存校验器误用r16规则，已隔离且禁止resume。
+> 变更记录（2026-07-22 UTC）：按用户要求停止I-35追加离线/线上扫点，启动唯一新候选I-37。它以I-35 step548 r112为父模型，只用O2 UserProfile/Pid2Sid严格未来video/ad各512条做低权答案CE，并用1,024条已登记I-12样本做强父KL；fresh r8、单GPU、512步，最终只打包full r120，不把step256扩成第二个评测点。数据与tokenizer预检已通过，正式训练尚未启动。
+> 变更记录（2026-07-22 UTC）：I-36 step4125已完成线上评测但失败，任务名`i36_i35_user_expand_retkl_r128_step4125_V1_eval_20260722183137`，耗时`1h5m22s`，总分`0.9865`，八项=`0.2453/0.1070/0.0331/0.0672/0.1292/0.1414/0.1035/0.1599`。相对I-35父模型总分约`-0.0479`，用户合计约`-0.01842`、推荐合计`-0.0302`；I-36分支关闭，step2063包保留但不建议占用共享额度。
+> 变更记录（2026-07-22 UTC）：I-36正式训练与双点打包完成。有效run W&B `mmenbci2`服务端`finished`，4,125/4,125步、runtime `7921.5533s`、train loss `1.0296107737`，最终路由retention/action/topic=`11000/4000/1500`；step2063/full fresh-r16已分别与固定I-35 r112精确拼成合法r128，两包均严格两文件、392 tensors、323,015,596 bytes并通过逐tensor加和。第一次run `onqds9a5`在step18被外部SIGKILL且无checkpoint，禁止resume或作候选。
+> 变更记录（2026-07-22 UTC）：用户授权启动I-36，在当前线上最高I-35 step548 r112上训练fresh r16懂用户残差。原始15,023条生成数据完成结构审计后，只保留4,000 action与1,500 topic严格样本，并混入11,000条I-35父模型KL保持，形成16,500行1:2正式数据；最终只允许比较半程step2063与完整一轮step4125，分别精确拼成合法r128，不增加rank、scale或后验checkpoint。
+> 变更记录（2026-07-22 UTC）：I-35 step548 r112正式评测`SUCCEEDED`，evalTaskId `eval-task-9nepj1-1784698215`，总分`1.0344285849069457`，八项=`0.2453/0.1198/0.0388/0.0864/0.1394/0.1386/0.1071/0.1591`，成为当前最高线上观测。相对直接父模型原始`1.0252594563571054`为`+0.009169129`；material不变，推荐合计`+0.0141`抵消用户合计`-0.003815630`和world `-0.001115242`。step411尚未评测，是两点限制下唯一剩余I-35候选。
+> 变更记录（2026-07-22 UTC）：I-35 step411/step548已完成同seed离线成对对照，详见`docs/I35_STEP411_DECISION.md`。参数余弦相似度`0.9999952352`、相对差异约`0.31%`；material fresh pass@64均为`0.0938`，推荐copy诊断仅小幅变化。step411建议只占用一次线上额度做低剂量对照；规划用分数中心约`1.033--1.034`、风险区间约`1.030--1.036`，不能承诺超过step548。
+> 变更记录（2026-07-22 UTC）：I-35已完成训练与五个r112打包，但按用户决策只授权step411和step548两次线上测试；实际已先评测step548，step411是唯一剩余点。step411约覆盖40--41/66边界样本且仍在有效学习率区间；step548约覆盖50/66，作为更强剂量。step137/274/685包仅保留审计，禁止上传。
+> 变更记录（2026-07-21 UTC）：I-34固定beam64预计算完成并触发结果前停止条件。1,024行train上r96/I-23 full-gold命中=`147/148`，I-23-only gap仅7（四域`2/0/3/2`）；256行独立gate两者均命中37，I-23-only gap仅1（四域`1/0/0/0`），远低于预注册128/32及每域16/4。正式训练数据、sidecar、W&B run、checkpoint、r112包和线上提交均未生成；I-34 v1关闭。最终gate SHA256 `f5f589af17380082fae841ee3c14f0635d05ed65c39c7595e3d0377977b7d84a`，原结果前预注册SHA仍为下一行的`f3090a73...b49`。
+> 变更记录（2026-07-21 UTC）：结果前预注册I-34 beam-aware material分支。只允许在E-clean且与I-30/I-33正式训练隔离的O1 desc2sid池上，用固定平台镜像beam64筛`I23 full-gold hit && r96 full-gold miss`；训练准入至少128条train gap、32条独立gate gap且四域有覆盖。通过后唯一配方为r96+fresh r16、128 hard/384 r96-KL保持、first-divergence margin、128步；真实beam门不过即停止，不扫LR/rank/scale。预注册文件SHA256 `f3090a7354bd6da25c34474f15046ac0cf49dbedf28682af8719478b65142b49`。
+> 变更记录（2026-07-20 UTC）：I-33 `i33_r96_material_desc2sid_retkl_r8_v1` 单GPU/W&B正式训练与736行冻结门完成。W&B `io58fx1s`正常完成512/512步，路由retention/material精确为1,536/512；四个r104候选的desc2sid gold均值均为负、改善率最高仅step512的53.125%，sid2desc保护及多项保持Top-1亦未过线。`earliest_teacher_forced_pass=null`，按预注册不跑itemic、不打包、不上传、不续训或扫scale。
+> 变更记录（2026-07-20 UTC）：I-32 step128原FP32 r168包因423,941,100 bytes超过400MB被拒；BF16 r168缩至211,997,868 bytes后又因平台要求rank为1~128被拒，均无evalTaskId。现对同一权重逐模块截断SVD至r128/alpha128并BF16存储，严格两文件共161,535,020 bytes；656行material两向gold均值仍为正、world 11/16不退，itemic 0/60。唯一允许手工上传的是`submissions/i32_task_restore_retkl_r128_step128_svd_bf16_platform/`，所有r168包禁止重传。
+> 变更记录（2026-07-20 UTC）：用户在I-32冻结门失败结论完成后，基于每日5次额度明确授权step128作一次门外线上探索。该点提交级itemic 0/60并已严格两文件打包，当前待手工上传；本动作不追认冻结门通过，不开放续训、scale或其余checkpoint并行提交。
+> 变更记录（2026-07-20 UTC）：I-32单GPU/W&B正式训练与656行冻结门完成。四个r168科学候选均保持world exact 11/16，但material双向改善率没有同时过55%，多项七任务保持Top-1也低于0.99；按预注册本地否决，不运行itemic、不打包、不上传。8个r8保存点和4个r168组合点仅保留审计，禁止作父模型或继续训练起点。
+> 变更记录（2026-07-20 UTC）：报告版I19-world r96工件仍未到卷；按同一数据机制完成本地候选 `i19_local_world_residual_retkl_r16_ep1_s800`，以仓内可验收s800 r80为parent训练fresh r16。第二次W&B run `xdzb35cp` 完成787/787步、3146条路由精确为world/retention=1573/1573；r96 scale0.875本地包已生成并通过结构门，但尚无线上分数，不替代报告版最高观测。第一次路由前缀误判已收档，不得resume。
+> 变更记录（2026-07-20 UTC）：登记 `I19-world-residual` 为当前最高单次线上观测：独立复现I-13-like r80 parent + fresh懂世界/八任务保持r16，按`scale=0.875`精确拼成r96后为`1.025259456`。严格两文件r96包现已到卷并以报告SHA256验收；实际parent/residual、发布数据、复现脚本和W&B证据仍不在本卷，故可登记为已保留提交包但不能声称完整训练链已复现；仓内I-19 DPO继续使用原编号。
+> 变更记录（2026-07-18 19:48 UTC）：补登记训练前冻结的四点checkpoint门及256条八任务保持集；平台入口同步锁定gate资产，SHA256更新为`30531cfd...d47`。原因：训练只能产生日志与候选残差，是否允许r88拼接必须由结果前规则决定。
+> 变更记录（2026-07-18 19:40 UTC）：登记用户批准且已完成静态预检的`s800_native_general_replay_r8_v1`：513行正式D、exact target-token路由、fresh r8残差trainer、冻结配置及GLM Training Task容器入口已就绪；开发机未训练，当前SSH也没有平台任务所需的`WANDB_API_KEY`环境。原因：从当前1.0048主模型启动覆盖广度更高的官方原生General最小回放，同时把“已准备”与“已在平台训练”严格分开。
+> 变更记录（2026-07-18 07:52 UTC）：将`s53125`登记为线上完成0.9757并关闭I-23跨父残差轴；登记I-29三格rollout、正式报告及`PROXY_CALIBRATION_FAIL_NO_TRAINING`状态。原因：真实线上与离线校准结果均已触发冻结停止条件，索引不得继续显示待提交、待GPU或video训练准入。
+> 变更记录（2026-07-17 17:08 UTC）：登记`s53125` checkpoint、组合审计和严格两文件待手工提交包。原因：用户确认交付该冻结末次scale，产物已真实生成并完成逐字节验收。
+> 变更记录（2026-07-17 16:39 UTC）：把`s5625` checkpoint/包更新为线上完成0.9925，并登记唯一后续为尚不存在的`s53125`条件二分；不在保留模型表中伪造未构建产物。原因：线上结果已经触发冻结停止树，模型索引必须同步真实存在性和允许角色。
+> 变更记录（2026-07-17 14:16 UTC）：登记`s5625`的r80 checkpoint、组合审计和严格两文件手工提交包；登记I-29 renderer四格校准预注册与两份已通过CPU预检的实现。GPU生成仍未发生。原因：产物索引必须区分“已打包待手工提交”“仅CPU准备完成”和“真实生成/训练已完成”。
+> 变更记录（2026-07-17 13:30 UTC）：回填`s800`同包复测`1.0048`和`i23_userres_r80_s500=0.9882`的平台面板证据，把s500 checkpoint/包改为已线上完成，并将s750降级为备包；同步纠正参数拼接为“不鼓励而非禁止”。原因：产物索引必须反映真实线上状态，避免重复上传和错误优先级。
 
 本文件只登记当前仍存在、仍可使用的模型产物。历史分数和实验归因见 `experiment_log.md`。
 
+## 已完成唯一训练、双诊断证据冲突且建议一次官方验证：i39_i35_userab_firstdiv_retkl_r8_v1（I-39）
+
+| 项 | 记录 |
+|---|---|
+| 目标/父模型 | 从当前线上最高I-35 step548 r112 `submissions/i35_r96_video_boundary_retkl_r112_step548_platform/`启动，直接扩大懂物料AB覆盖并只在父Beam首分歧位推动gold，同时以5%关联用户微剂量测试“用户历史中出现的物料”是否产生协同；父adapter/config SHA256=`52d945cc...2c00`/`4f90d28f...5996` |
+| AB/首分歧构造 | O3中先保留完整video SID精确出现在I-36 `user_ce`历史的SID-caption对，再排除O1懂物料、全部登记E exact/mode与描述、I-35正式prompt；供给51,065唯一SID/25,244 AB，确定性取3,072唯一SID/2,560 AB，其中512个AB有第二个不同C视图。I-35 step548单父BF16 Beam64x3得到A/B/C首错/完整命中=`1076/1060/591/345`，模型候选只作负例、gold只来自O3 |
+| 正式数据 | `assets/derived/processed/data_i39_i35_userab_firstdiv_retkl_v1.jsonl`，2,560行/20,927,751 bytes/SHA256 `0a5cb2e55fff2c21deb1452216e08eae104bb5ce7d7e68a599ac52908261a3e2`；物料首分歧512（A/B/C/完整锚=`128/128/192/64`，480唯一AB、32个双C首错组）、关联用户128（action/topic=`96/32`，每行历史输入均命中所选物料SID）、I-12父保持1,920，比例`20%/5%/75%`；T/E训练行0 |
+| 路由sidecar | `assets/derived/processed/data_i39_i35_userab_firstdiv_retkl_v1_sidecar.jsonl`，2,560行/2,200,966 bytes/SHA256 `d9d74eb573523eb70d0593076542c49d047fdcd4eb616a88d777476e5532bd14`；与训练行按qwen3_nothink prompt token hash严格双射，锁定route/task/response/父hash及物料gold ABC、focus、hard negatives；单父helper兼容字段`teacher_score`已删除且不得解释为第二教师 |
+| 训练前冻结门 | `assets/evaluation/holdout/data_i39_userab_firstdiv_gate_v1.jsonl`，313行/418,832 bytes/SHA256 `293fc361295db56196acc035bd639d63e426168b93ea36f2d21c3890c2a34d40`；256唯一AB，A/B/C首错/完整锚=`85/120/65/43`，57个双C组、4个双C均首错组。与正式训练在exact/mode prompt、物料AB、三路输入输出完整SID/AB上均零交集。结果前配置`configs/evaluation/i39_i35_ab_firstdiv_material_checkpoint_gate_v1.json` SHA256 `89737747...d504`：A/B/C各层要求focus gold logp与hard-negative margin均值不退且margin改善行率>=0.55；43条完整锚要求parent Top1一致率>=0.99、KL<=0.005、gold logp delta>=-0.01；全体只要求KL<=0.01，不在首错行强保父错误Top1。不进入训练、不估线上分 |
+| 训练目标/物理 | A/B/C首错行在对应位置做`0.50*softplus(margin=0.10)+0.02*gold CE+8.0*KL(parent||policy)`；完整锚做`16.0*parent KL`；用户微剂量做`0.05*CE+16.0*parent KL`；I-12保持做`16.0*parent KL`。r112 merge后fresh r8/alpha8/dropout0.05/all-linear；batch1xacc4、lr5e-6 cosine、warmup0.03、wd0.001、BF16、640步、无中间checkpoint |
+| 实现/预检 | builder/trainer/config/registry/launcher/evaluator SHA256=`a12617ca...c810`/`a979a843...b343`/`ebe0227d...605d`/`6cdb3525...3221`/`fc8f1990...239b`/`c3b409e5...8ee`；formal audit `logs/data/i39_i35_userab_firstdiv_retkl_v1_audit.json` SHA256 `c52921ca...a718`。独立复算确认2,560双射、token prompt全唯一、teacher_score=0、跨路由/gate泄漏0；trainer全量重渲染预检最长9,431<16,384、路由与目标计数一致、精确640步；launcher额外锁定结果前gate-config，shell/负参数/dry-run/W&B online身份和`WANDB_DISABLED`拒绝检查通过。evaluator另绑定唯一I-39 canonical包及exact-combine audit，实测拒绝I-37 r120 |
+| 唯一训练结果 | GPU3单卡、world size 1；W&B [`51yko99h`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/51yko99h)服务端`finished`，640/640步、epoch1、runtime `1435.1195s`、train loss `1.4501802083104849`。最终microbatch路由retention/material/user=`1920/512/128`，物料full/C/B/A=`64/192/128/128`，与冻结契约精确一致；训练日志`logs/train/i39_i35_userab_firstdiv_retkl_r8_v1.log`为114,935 bytes/SHA256 `d1534b07...62d6d`，无OOM/NaN/traceback。fresh r8 adapter/config SHA256=`5fdf62fcd80f7b71806fc58e6ce8b31caa36fb519ba97252460d6b6d9bd1f9bd`/`b869ae92e27f98736a1b02578c253a75724172772b84f7dc455e1301c324092b`，392 tensors全有限且只含5,046,272个LoRA参数。末行`[i36] training PASS`是I-39复用I-36已审计单卡runtime的固定打印标签；I-39数据/loss/常量/输出与最终合约均由wrapper覆盖并独立验收，不是第二次或错脚本训练 |
+| 唯一组合产物 | fresh r8只与固定I-35 step548 r112按1.0/1.0组合一次；`submissions/i39_i35_userab_firstdiv_retkl_r120_step640_platform/`严格两文件，r120/alpha120、392 tensors，adapter/config=`302,829,416/1,076` bytes、SHA256=`746b9c8986a4c9f0e5cf87d2d0f6e93bf3e1fa81e68e9464474ec928418f8be7`/`7838994a5e6a608b1d0250826a9e06a0a76f1b241c8ac9b2911b45077a6fcf1c`。独立逐tensor复核196个A与196个B的parent112维/residual8维切片逐值相等；package audit `logs/package/i39_i35_userab_firstdiv_retkl_r120_step640_audit.json` SHA256 `7bdc36d9...5d950` |
+| 冻结门结果 | 313/313完成、`error_count=0`，报告`logs/probe/i39_i35_ab_firstdiv_material_gate_v1.json` 9,476 bytes/SHA256 `25b694584a6f696c6deb814696743ccea65352bd6206f19224450f11d62772ca`。A/B/C focus margin delta=`+0.181618/+0.124826/+0.189423`、改善率=`0.741176/0.650000/0.830769`、focus gold logp delta均为正，首分歧方向全部通过；但full-anchor Top1 agreement/KL/gold-logp delta=`0.976744/0.0101559/-0.0479034`，分别未达`0.99/<=0.005/>=-0.01`，全体KL `0.0105687`也高于`0.01`，故`teacher_forced_pass=false`。全体gold Top1 token仅`+2`，不能据此估线上material档位或总分 |
+| 队友full v4行为结果 | GPU3单卡、seed42、完整mat/rec/action/topic/world，报告/控制台SHA256=`252736fd...cd12`/`29f92f15...f16f`，无ERROR/OOM/traceback。I-39相对同协议I-35：mat fresh `60/542`对`55/542`（ad/living/prod/video=`18/1/21/20`对`16/1/21/17`），I-39训练物料与fresh集完整gold SID及描述子串重合均为0；mat train `50/300`对`48/300`但有4条训练prompt重合故只作辅助。rec四域总命中`36/4000`对`35/4000`；action F1/JSON-ok/trunc=`0.3018/0.932/0.068`对`0.3050/0.942/0.058`；topic/world=`0.0325/0.424`对`0.0275/0.422`。86条官方记录确认material `0.2452961672473868→0.27595818815331014`精确等价有效命中`8→9/574`，但唯一同协议完整父子校准I-35→I-37是离线`55→57/542`而官方仍`8→8`；故I-39只支持“物料方向比I-37更强且未观察到大崩坏”，不支持预计0.276或总分 |
+| 唯一候选边界 | 只允许从固定I-35 step548干净启动一次fresh r8训练；只验收完整640步残差，并只允许与固定r112按1.0/1.0精确拼成一个r120候选。不生成/比较中间checkpoint，不扫rank、LR、epoch、scale或第二个seed；任何启动前契约失败先修复且不计训练，优化器一旦开始不得重跑 |
+| 当前状态 | **UNIQUE_RUN_COMPLETE_DIAGNOSTICS_CONFLICT_ONE_OFFICIAL_PROBE_RECOMMENDED**；teacher-forced保持门失败，但独立full v4圈外material相对I-35多5/542且全维无结构性崩坏，因此撤销“仅凭冻结门不上传”的最终性结论，建议只占一次正式额度验证。该建议不是预计提分；正式结果前I-35 step548仍是当前最高与默认交付，不续训、不扫checkpoint/rank/LR/seed/scale |
+
+## 已完成训练、冻结门否决且不上传：i38_i23_material_i35_teacher_retkl_r16_v1（I-38M）
+
+| 项 | 记录 |
+|---|---|
+| 目标/可证伪点 | 反转I-30/I-33从r96追I-23 material的失败方向：从I-23开始保住其线上material一题阶跃，同时把I-35 step548的非material行为蒸馏进fresh residual。I-35总分加I-23相对I-35的material离散增量给出条件算术上限`1.0650906058125589`，只作上限，不是预计分 |
+| 起点与教师 | policy/material anchor=`submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform`，adapter/config SHA256=`0e5fa9bb...c6b8`/`b3f2a1b5...e7e7`；nonmaterial teacher=`submissions/i35_r96_video_boundary_retkl_r112_step548_platform`，SHA256=`52d945cc...2c00`/`4f90d28f...5996` |
+| 正式数据 | `assets/derived/processed/data_i38_i23_material_i35_teacher_retkl_v1.jsonl`，2,740行/16,532,122 bytes/SHA256 `5d8ca1a6fa9190841187543559ead1d497d48a50b082382c9fa8501add928d58`；逐行复用I-35登记D且不改题面/标签，material anchor/I35-retention=`1370/1370`，T/E/model-generated训练行0；builder/audit SHA256=`0581b1f3...926a`/`f2f0cb5d...a99c` |
+| 训练目标/物理 | material只做`8.0*KL(policy || exact merged-I23 start)`；action/topic/video/prod/ad/living/world只做`8.0*KL(policy || frozen I35 step548)`，最多128个均匀答案位置；两路gold CE均0。I23 merge后fresh r16/alpha16/dropout0.05/all-linear；单GPU、W&B online、batch1xacc4、lr5e-6 cosine、warmup0.03、wd0.001、BF16、685步、无中间checkpoint |
+| 预检/实现 | 全量2,740/2,740 qwen3_nothink renderer、route与cutoff通过，material/retention=`1370/1370`，最长8,864<16,384。trainer/config/registry SHA256=`1111bd6d...1c7`/`45a35e6f...893`/`de6260b8...7c0`；step0必须通过fresh residual与merged I23 logits `max_abs<=1e-4` |
+| 冻结门 | `configs/evaluation/i38_i23_material_i35_teacher_checkpoint_gate.json`。400行gate SHA256 `311b298f...ed41f`是I33/I32已冻结holdout确定性子集，与训练prompt交集0；material双向要求对I23 KL<=0.005、Top1>=0.99、gold delta>=-0.01；七个非material任务均须比I23更接近I35且Top1 agreement不退，聚合I35-KL至少下降10%。通过后再做itemic 0/60与精确拼接审计 |
+| 唯一候选/提交边界 | 只允许完整685步fresh r16与I23 r64以1.0/1.0精确拼成r80/alpha80；不生成或比较中间checkpoint，不扫rank、dtype、插值、residual scale或LR。冻结门是机制否决器，不是线上估分器 |
+| 正式训练 | 单GPU GPU0/W&B [`f92senkn`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/f92senkn)服务端`finished`；685/685步、runtime `1282.5365s`（21:22.53）、train loss `0.6860710371149717`，最终路由material/retention=`1370/1370`，无NaN/OOM。残差位于`checkpoints/i38_i23_material_i35_teacher_retkl_r16_v1/`；adapter/config SHA256=`1690bdde80a19b0910484c842c73f8855f8f7e1da5e68b8c5d8c67ff59e45b52`/`a4e7e6eea49063a1de99d3126d0fab6a63b6c6c0224b748ad3c0a35565b07978` |
+| 精确组合包 | `submissions/i38_i23_material_i35_teacher_retkl_r80_step685_platform/`，仅`adapter_model.safetensors`与`adapter_config.json`；r80/alpha80、392 tensors、201,904,514 bytes；adapter/config SHA256=`74a86b037d48aa4ec88e88873f348ab66f0d8dc2423b27d6b4deddf7de3d5d94`/`4768770a600b8ab4c60eb04ad81a026a5ef8b6f2f8be79a8c4ab3192fa664d06`。审计`logs/package/i38_i23_material_i35_teacher_retkl_r80_step685_audit.json` SHA256=`3460fcc26f082d2287b550f72adfd13bb60c204f67eb3959e58e72ad5a21691c`，逐tensor恒等式`delta_combined = delta_parent + delta_residual`通过 |
+| 冻结门结果 | 报告`logs/probe/i38_i23_material_i35_teacher_gate_v1.json` SHA256=`2e2e9f3a39164da09fa52bd3b25003bc47752f420aea4eb1be6b539fc3f69b13`；`teacher_forced_pass=false`。material desc2sid candidate→I23 KL/Top1=`0.0085404261/0.959375`，sid2desc=`0.0020746744/0.9722088`，均未达`0.005/0.99`；rec_video与rec_ad Top1保护失败。retention aggregate candidate→I35 KL ratio=`0.1988513`通过，但不足以覆盖硬失败；按预注册不跑itemic、不上传、不续训、不扫scale |
+| 离线行为诊断 | 队友`offline_eval.py` v4报告`logs/offline_eval/i38_i23_material_i35_teacher_retkl_r80_step685_matrec32.json` SHA256=`da2a5b96859f208770464d7b7694eacbc87d973db383fc411f252ef4d34c6671`；mat fresh/train pass@64=`0.0938/0.1719`，rec video/prod/ad/live pass@64=`0/0/0/0.0312`。该报告为小样本生成行为回归，不能换算线上总分或推翻冻结门 |
+| 当前状态 | **LOCAL_GATE_FAIL_NO_UPLOAD_I35_STEP548_RETAINED**；I-38 full包仅作复现审计，当前最高且默认交付仍为I-35 step548（线上`1.0344285849069457`）；不提交I-38、不从该失败分支继续训练 |
+
+## 已完成正式训练与官方评测、线上回退后关闭：i37_strict_future_rec_r8_v1（I-37）
+
+| 项 | 记录 |
+|---|---|
+| 目的/父模型 | 从当前线上最高I-35 step548 r112 `submissions/i35_r96_video_boundary_retkl_r112_step548_platform/`启动，只补其已观测增益来源推荐域；父adapter/config SHA256=`52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00`/`4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996` |
+| 正式数据 | `assets/derived/processed/data_i37_strict_future_rec_v1.jsonl`，2,048行/21,427,796 bytes/SHA256 `2f663a7e4f477126d765a9c8e8aaa676caf1a014b0be206978f3c93f19e948b4`。O2严格未来video/ad各512；I-12全任务KL-only保持1,024，future:retention=`1:1`；T/E/model-rollout=0 |
+| 标签约束 | video只取`play_done=1`且时间晚于最后video历史超过10分钟的current；ad只取`outer_loop_deep_target_pid`且严格晚于最后广告历史；完整target泄漏0，video/ad唯一target=`512/504`。这是官方源派生D，不称官方直发 |
+| 训练目标/物理 | future答案体`0.10*CE + 16.0*I35-parent-KL`；retention只做`16.0*I35-parent-KL`。r112 merge后fresh r8/alpha8/dropout0.05/all-linear；单GPU、W&B online、batch1xacc4、lr5e-6 cosine、warmup0.03、wd0.001、BF16、512步 |
+| 配置/实现 | config `configs/active/i37_strict_future_rec_r8_v1.yaml` SHA256 `371a1df3be3694b6fc4d79b4b1056393ed010b2e40690d5332dce46e5d17fdd1`；trainer `scripts/train/train_i37_strict_future_rec.py` SHA256 `568fb843c33d3c719d73915f58697c72a60e62b7c077c44f8b20a78d1f48ef61`；dataset registry SHA256 `0d7b8a0b038f4c51a7acbc2307a1afea70b0e000f1b28772a84c183b7d9e2bd5`；builder/audit SHA256=`b390446e...150f`/`c30f0940...6ad0` |
+| 预检/产物限制 | trainer self-test通过；qwen3_nothink 2,048/2,048路由一致、最长8,228<16,384、截断0、精确512 optimizer steps。首轮step256保存校验器误把r8按r16检查，目录已移入`checkpoints/i37_strict_future_rec_r8_v1_failed_save_guard_step256/`，禁止resume、评测或打包；正式run只从父模型step0开始 |
+| 正式训练 | 单GPU/W&B [`c2crod0w`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/c2crod0w)完成512/512步、1 epoch；runtime `1178s`（19:37.98）、train loss `1.2019`，最终路由`future_ce/retention_kl=1024/1024`，无NaN/OOM；full residual位于`checkpoints/i37_strict_future_rec_r8_v1/checkpoint-512/`，adapter SHA256=`8c25566cebeebfac8d48cd66ae771e100d12c6d2d7548f4f8afd19223f8cea69`，config为r8/alpha8 |
+| 唯一提交包 | `submissions/i37_i35_strict_future_rec_r120_v1_platform/`，只含`adapter_model.safetensors`与`adapter_config.json`；r120/alpha120、392 tensors、302,829,416 bytes；adapter/config SHA256=`e91c773cad2324a74dbb6cf58ff13ff9e44fec85dfbbdc2104279cd33f767252`/`7838994a5e6a608b1d0250826a9e06a0a76f1b241c8ac9b2911b45077a6fcf1c`。package audit=`logs/package/i37_i35_strict_future_rec_r120_v1_audit.json`，逐tensor拼接核对通过，恒等式为`delta_combined = delta_parent + delta_residual` |
+| 离线队友v4回归 | 报告`logs/offline_eval/i37_i35_strict_future_rec_r120_teammate_v4.json`，SHA256=`4698d1aea0dc3e714823839df1ed69c365adfbe806c6c7eeb28edf3dc3048ca3`，runtime `1722.1s`；mat fresh/train=`0.1052/0.1567`，rec video/prod/ad/live=`0.006/0.003/0.002/0.028`，action=`0.3030`（JSON=`0.945`、截断=`0.055`），topic=`0.0244`，world=`0.432`。相对I-35 step548 v4：video/live/world改善，action/topic回退；v4不作线上分数估计器 |
+| 正式线上评测 | StreamLake任务`i37_i35_strict_future_rec_r120_V1_eval_20260723082428`，evalTaskId `eval-task-0yco4c-1784766273`、modelId `md-z9m20x-1784766072216356022`、`SUCCEEDED`、retryCount=0、duration=4,036秒。总分`1.02762520217381`；material/action/topic/video/prod/ad/live/world=`0.2452961672/0.1204379107/0.0394833175/0.0768/0.1292/0.1484/0.1089/0.1591078067`。相对I-35 step548逐项=`0/+0.0006705816/+0.0007260356/-0.0096/-0.0102/+0.0098/+0.0018/0`，总分`-0.0068033827` |
+| 当前状态 | `ONLINE_EVAL_FAILED_BRANCH_CLOSED_I35_STEP548_RETAINED`；full包仅保留复现审计，不上传step256、不扫scale、不把I-37作为后续父模型 |
+
+## 已完成正式训练与双点打包：i36_i35_user_expand_retkl_r16_v1（I-36）
+
+| 项 | 记录 |
+|---|---|
+| 目的/父模型 | 从当前线上最高I-35 step548 r112 `submissions/i35_r96_video_boundary_retkl_r112_step548_platform/`启动，直接补其action/topic短板，同时保持I-35已取得的material、推荐和world能力；父adapter/config SHA256=`52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00`/`4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996` |
+| 原始数据审计 | 用户提供15,023行生成数据，其中10,001 action、5,022 topic。审计发现action重复target、非历史顺序以及事件label/domain错配；topic还存在同事件重复SID和prompt示例污染。原始文件已移入D区，SHA256=`62f13962d4cfc0d4c2b591f2b9fd598d820e37ffcf5ac51433a0d5b9b8dd5ffa`，不直接训练 |
+| 正式数据 | `assets/derived/processed/data_i36_i35_user_expand_retkl_v1.jsonl`，16,500行/159,306,138 bytes/SHA256 `2720746a2e8aa7804d519698ce9f2b127e9be2db1d4488e642e800a5337b692d`。用户CE=4,000 action+1,500 topic，I-35保持=material 2,500、video 2,000、prod/ad各1,750、living/world各1,500，严格user:retention=`1:2`；O1/E历史交集均0，T/E训练行0 |
+| 清洗约束 | action去掉错域事件、target去重并按历史首次出现重排，保留1--56个历史内SID；topic严格3--5个时间递增事件、每事件单SID且日期/action与清洗后timeline逐字匹配。全部正式SID在登记O2 Pid2Sid映射中可验证；用户history在action/topic内部唯一且两者互斥 |
+| 训练目标/物理 | user答案体CE + 0.10冻结I-35 KL；11,000保持行只做4.0冻结I-35 KL，最多128个均匀答案位置。r112 merge后fresh r16/alpha16/dropout0.05/all-linear；单GPU、W&B online、batch1xacc4、lr5e-6 cosine、warmup0.03、wd0.001、BF16、完整一轮4,125步 |
+| 配置/实现 | config `configs/active/i36_i35_user_expand_retkl_r16_v1.yaml` SHA256 `2a2194ecef159786368c37c334166922dbfedcf3f366bec7353c073c79f43db3`；trainer `scripts/train/train_i36_i35_user_expand_retkl.py` SHA256 `e760cba91fe02553e1545d1fff8f3da303bfa4304974a0106f3c00a1db9ff9e3`；dataset registry SHA256 `dee54b0c94a12bf04edc6c99b45fe20cce9950033d0aa4f48e7d132b19f4ffce`；builder SHA256 `9b1b31e5341bb443e1ab25555da4ee8c763b3cdda34ce206a57b176ce5a41574`；formal audit SHA256 `eb426018525f9e3e1d682e1c89e5ca3dc8963b0a57c104911e1197324e464240`；launcher/package SHA256=`9eeee580...0a67`/`1475c444...c1a` |
+| 失败边界 | 第一次W&B `onqds9a5`在step18被外部SIGKILL；cgroup `oom_kill=0`，日志无CUDA OOM/NaN且没有生成checkpoint。失败日志SHA256 `8d653797...affe`；该run禁止resume、打包或作训练证据 |
+| 正式训练 | GPU0单张H100，W&B [`mmenbci2`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/mmenbci2)服务端`finished`；4,125/4,125步、完整1 epoch，runtime `7921.5533s`、train loss `1.0296107737223308`、samples/s `2.083`、steps/s `0.521`。最终microbatch路由retention/action/topic=`11000/4000/1500`，无NaN/OOM/CUDA错误；正式日志SHA256 `67e349b3...5b66` |
+| r16 checkpoint | step2063 adapter/config SHA256=`00860000...8b1`/`1ad9650e...d41`；最终root adapter/config SHA256=`954db7b1...7da`/`1ad9650e...d41`。两者均为fresh r16残差，不可单独作为平台最终模型上传 |
+| r128提交包 | `submissions/i36_i35_user_expand_retkl_r128_step2063_platform/`与`submissions/i36_i35_user_expand_retkl_r128_step4125_platform/`已完成。adapter SHA256=`f6a219c9...f590`/`9e936b46...127d`，config SHA256均为`daa3106d...7f3`；每包r128/alpha128、392 tensors、严格两文件、323,015,596 bytes，逐tensor精确等于固定r112 parent + 对应r16 residual。package audit SHA256=`a3e07724...4be3`/`ad95b6f8...a427`；只允许这两个点，不扫scale、LR或额外checkpoint |
+| 线上结果/停止 | step4125任务`i36_i35_user_expand_retkl_r128_step4125_V1_eval_20260722183137`完成，耗时`1h5m22s`，总分`0.9865`；八项=`0.2453/0.1070/0.0331/0.0672/0.1292/0.1414/0.1035/0.1599`。相对I-35父模型，用户和推荐显著回退；step2063残差范数仅比step4125小约9.2%、方向余弦约0.9869，不作为无条件线上补测点 |
+| 当前状态 | **STEP4125_ONLINE_FAILED_I36_CLOSED_STEP2063_HELD** |
+
+## 线上新高、剩余一个剂量对照：i35_r96_video_boundary_retkl_r16_v1（I-35）
+
+| 项 | 记录 |
+|---|---|
+| 目的/父模型 | 从当前最高单次线上观测1.0253的验收r96 `submissions/i19_world_external_r96_s875_platform/`启动，只推动懂物料desc2sid中父模型已经接近解码阈值的gold，同时用同一父模型保持其余能力；父adapter/config SHA256=`4fba17eb...078e`/`78b62143...1b64f` |
+| 与I-34的区别 | I-34检验“I-23 Beam64命中而r96未命中”的teacher-only gap并已失败关闭；I-35不使用I-23正例或其gap，改为平台真实system/user renderer、O1 think/no-think同标签统一后E-clean全池，以及r96自身gold在Beam128的rank65--128边界。不是降低I-34准入线或续训失败checkpoint |
+| Beam128 | pool主/运行分片=`1369/1`，ledger SHA256=`3c5845f6...3595`/`84385a13...a4b`，audit `b2fde171...18c7`；r96 Top128完整gold命中230、invalid 0。边界66条覆盖41个rank，共583个负例；first-divergence A/B/C=`254/188/141`，来源rank56--63/shared-prefix/fallback=`349/193/41` |
+| 正式数据 | `data_i35_video_boundary_retkl_v1.jsonl` 2,740行/16,223,872 bytes/SHA256 `9c044e47...7100`；material/retention=`1370/1370`。material boundary/preserve=`66/1304`；retention action/topic/video/prod/ad/living/world=`207/206/206/207/206/207/131`。E/T/其它teacher正例均0，exact+mode交集均0 |
+| 训练目标 | boundary只在评测实际解码的A/B/C三位置做first-divergence margin0.1 + 0.05 gold CE + 0.10 r96 KL；preserve material只做4.0 r96 KL；七任务retention最多96个均匀位置做4.0 r96 KL。EOS/domain不做CE，非gold模型候选永不作正例 |
+| 训练物理 | r96 merge后fresh r16/alpha16/dropout0.05/all-linear；single GPU、W&B online、batch1xacc4、lr1e-5 cosine、warmup0.03、wd0.001、BF16、685步、seed19260835；adapter-only五等分checkpoint=`137/274/411/548/685` |
+| 配置/实现 | config `configs/active/i35_r96_video_boundary_retkl_r16_v1.yaml` SHA256 `0a1491af...1ebd`；trainer `scripts/train/train_i35_video_boundary_retkl.py` SHA256 `927ebe80...4e4`；dataset registry SHA256 `87278e05...3ff`；builder SHA256 `c588721d...023e`；formal audit SHA256 `7f72ebee...ad1` |
+| 完整预检 | 2,740/2,740行renderer/tokenizer/sidecar/route全通过，最长8,864<16,384；legacy retention精确为unmatched-think 2、internal-EOS 1，均与I-33上游逐字一致且只作parent KL，material仍严格解析 |
+| 正式训练 | GPU0单卡，W&B [`0b4p3siy`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/0b4p3siy)服务端`finished`；685/685步，runtime `1594.5949s`，train loss `0.16564965731036055`，无NaN/OOM/CUDA错误。step-0 parent fingerprint max_abs=`0`，optimizer仅含392个fresh-r16 tensors；最终路由material/retention=`1370/1370`、boundary/preserve=`66/1304`。训练日志SHA256 `b60d03dc...f95c` |
+| r16 checkpoint | step137/274/411/548/685 adapter SHA256依次为`76d13e18...21ca`/`10af32f0...45a`/`a8554bed...db6`/`3295b75b...1811`/`32650ad0...144f5`；统一config SHA256 `68a0504b...feb7`。root adapter与step685逐字节一致；五点仅作待合并残差，禁止单独上传 |
+| r112提交包 | 五包均已构建；`submissions/i35_r96_video_boundary_retkl_r112_step548_platform/`已上传并评测，`submissions/i35_r96_video_boundary_retkl_r112_step411_platform/`是唯一剩余授权点。五包adapter SHA256依次为`0a3904de...9866`/`06c40f2d...557c`/`e26eb9be...5d58`/`52d945cc...2c00`/`4b25e5d3...6c00`，config SHA256均为`4f90d28f...9966`。每包r112/alpha112、392 tensors、严格两文件、282,645,380 bytes；A/B分块已逐张量精确验证为`delta_parent + delta_residual`。step137/274/685禁止上传。 |
+| step548线上结果 | FORMAL评测`SUCCEEDED`，evalTaskId `eval-task-9nepj1-1784698215`，modelId `md-kqvjn7-1784697851382918150`，总分`1.0344285849069457`；八项material/action/topic/video/prod/ad/live/world=`0.2452961672/0.1197673291/0.0387572819/0.0864/0.1394/0.1386/0.1071/0.1591078067`。相对父模型原始`1.0252594563571054`逐项=`0/-0.002721708/-0.001093922/+0.0096/+0.0068/-0.0014/-0.0009/-0.001115242`，总分`+0.009169129`；当前81条同步评测中排名第一。 |
+| 当前状态 | **STEP548_ONLINE_SUCCEEDED_STEP411_READY_FOR_CONTROLLED_UPLOAD** |
+
+## 已完成预计算并按门停止：i34_r96_material_beam_margin_r16_v1（I-34）
+
+| 项 | 记录 |
+|---|---|
+| 目的/父模型 | 从当前最高单次观测r96 `4fba17eb...078e`启动，只测试能否把I-23已观测的material完整SID beam命中迁到r96；I-23 `0e5fa9bb...c6b8`只作冻结构造评分器，不初始化policy、不提供非gold正例 |
+| 结果前数据协议 | 原始预注册文件SHA256 `f3090a7354bd6da25c34474f15046ac0cf49dbedf28682af8719478b65142b49`；D(O1) desc2sid按full SID去重、`domain+s_a+s_b`分组，固定seed19260834先隔离256行gate再取1,024行train pool，排除全部登记prompt型E/holdout及I-30/I-33正式训练。结果回填后的同文件SHA256为`f5f589af17380082fae841ee3c14f0635d05ed65c39c7595e3d0377977b7d84a` |
+| beam准入 | 同一O6 vLLM进程、BF16、平台no-think renderer、固定domain前缀、无约束beam64×3；hard gap严格为I-23含完整gold且r96不含。train/gate至少128/32，且train/gate四域至少16/4；不足即停止，不训练 |
+| 唯一训练物理 | 准入后固定128条hard material+384条七任务r96 KL-only保持；fresh r16/alpha16/dropout0.05/all-linear，first-divergence margin0.1 + 0.1 gold CE + 0.02 parent KL，保持4.0 parent KL；单GPU/W&B online、batch1×acc4、lr1e-5 cosine、128步，只看step64/128 |
+| 晋级/包装 | 先在256行冻结beam gate要求gap恢复至少50%、parent已有命中保持至少95%、总命中至少+8且四域不退，再过反向material/七任务/结构门；只允许scale1精确拼成r112/alpha112。任一门失败则不打包、不上传、不续训或扫参数 |
+| 完整beam结果 | runner SHA256 `0af4943f...0cc`，vLLM0.12.0/BF16/seed42/no-think/fixed-domain/beam64x3。train账本1,024行/SHA256 `364cd069...eb38`：r96/I-23命中147/148，共有141、r96-only 6、I-23-only 7，gap四域=`2/0/3/2`。gate账本256行/SHA256 `2242b179...a2f`：两者均命中37，共有36、各自only 1，gap四域=`1/0/0/0`。审计SHA256 `bd3afac4...8c6` |
+| 当前状态 | **PRECOMPUTE_GATE_FAILED_NO_TRAINING**；train/gate gap=`7/1`远低于`128/32`，且两边每域最低均为0。没有生成正式D训练数据/sidecar，没有W&B run、checkpoint、r112或提交包；staged trainer/config/launcher不得执行，I-34 v1禁止后验降门槛或扫LR/rank/margin/scale |
+
+## 已完成并本地否决：i33_r96_material_desc2sid_retkl_r8_v1（I-33）
+
+| 项 | 预注册记录 |
+|---|---|
+| 目的/父模型 | 从当前最高单次观测r96 `4fba17eb...078e`启动，只测试把material监督从双向256+256改为desc2sid 512能否提高物料项并保持其余七项；I-23 `0e5fa9bb...c6b8`只作冻结material KL teacher |
+| 成对数据 | treatment `data_i33_r96_material_desc2sid_retkl_v1` 2,048行/SHA256 `7d6a1e4a...70fd`；未训练control SHA256 `812a6f71...7d40`。两臂仅原256个sid2desc槽不同，共享1,536条逐位置相同保持；8个登记prompt型E/holdout exact+mode交集0，T/E训练行0 |
+| 训练物理 | O6+r96 merge后fresh r8/alpha8/dropout0.05/all-linear；material=`CE+0.5 I23 KL+0.1 r96 KL`，保持=`4.0 r96 KL`且最多96位置；单GPU、W&B online、effective batch4、lr2e-5 cosine、warmup0.03、wd0.001、bf16、512步、seed19260831 |
+| 配置/实现 | config `configs/active/i33_r96_material_desc2sid_retkl_r8_v1.yaml` SHA256 `c47c7f5d...53bb`；trainer `scripts/train/train_i33_r96_material_desc2sid_retkl.py` SHA256 `a437e351...d383`；builder `scripts/data/build_i33_r96_material_desc2sid_v1.py` SHA256 `9c27a666...ed1b`；dataset registry SHA256 `4fb0ef52...e8bd` |
+| 冻结门 | `configs/evaluation/i33_r96_material_desc2sid_checkpoint_gate.json` SHA256 `b6279bda6167d311cd0d139261f02d15f94aa8453cb24565d4ecef6e4b183b26`。新门720行/SHA256 `76acc6a3...f99`，另只取冻结I-32门的16行world；按64→128→256→512选最早全通过，sid2desc只作保护，不要求改善 |
+| 包装 | 只允许scale1.0的FP32精确r96+r8拼接，得到r104/alpha104；不扫scale、dtype、SVD或未注册checkpoint，严格两文件且总大小必须低于400MB |
+| 正式训练 | GPU0单卡，W&B [`io58fx1s`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/io58fx1s)服务端`finished`；512/512步、runtime927.6212s、train loss2.278109，最终路由retention/material=`1536/512`。根目录与step512 adapter逐字节一致，adapter/config SHA256=`90411c77...296c`/`a561f54b...cbce`；无NaN/OOM/CUDA训练错误 |
+| 冻结门结果 | step64/128/256/512的desc2sid gold均值=`-0.002863/-0.003636/-0.002636/-0.002306`，改善率=`46.484%/49.609%/47.266%/53.125%`，向I-23 teacher的KL变化也全部为正，四点均失败；sid2desc Top-1仅`0.9768–0.9783`，多项保持任务亦低于0.99。world均为11/16，与parent持平。报告`logs/probe/i33_r96_material_desc2sid_gate_v1.json` SHA256 `91d4ab80...ef3e` |
+| 当前状态 | **COMPLETE_LOCAL_GATE_FAIL_NO_PACKAGE_NO_UPLOAD**；`earliest_teacher_forced_pass=null`，故不运行itemic、不生成提交包。正式四个r8/r104点只作审计，禁止上传、resume、warm start或作父模型；未注册192/320/384/448按预注册在决策后删除；control从未训练 |
+
 ## 当前结论
 
-- I-14首次运行因启动器绑定临时PTY，在step 1,886/1,971被会话生命周期中断；`rerun1`随后按相同数据与超参从O6和全新输出目录干净完成。E3于2026-07-14 15:20平台评测为0.9518，八项=`0.2453/0.1045/0.0387/0.0480/0.1292/0.1414/0.1080/0.1368`。它没有替换I-13的当前榜分，但I-13属于E3 r64+用户残差r16参数拼接的融合灰区路线，只能作业务榜分对照，不能作I-14纯O1单体r80的科学基线；仓内没有同协议、同血统的直接对照，E1/E2亦未线上评测。
+- 当前最高单次线上观测是I-35 step548 r112：`1.0344285849069457`，八项=`0.2453/0.1198/0.0388/0.0864/0.1394/0.1386/0.1071/0.1591`。其直接父模型是已验收的`I19-world-residual` scale0.875 r96，原始线上`1.025259456`、后续同模型复测`1.025362611`；I-35相对两者分别高`0.009169129/0.009065974`。本次material仍为0.2453，净增益来自推荐四项合计；step411尚未评测。
+- `I19-world-residual` scale0.875 r96现为I-35的父模型与上一最高点。严格两文件包已在`submissions/i19_world_external_r96_s875_platform/`按报告SHA256验收；实际训练parent是独立复现的`i13_repro_combined_r80_s875`（线上`0.986703844`），不是仓内原I-13 s875或s800的bitwise同一权重。其parent/residual及训练链仍待接收；交接和哈希见[`I19_WORLD_RESIDUAL_HANDOFF.md`](I19_WORLD_RESIDUAL_HANDOFF.md)。
+- 本地优化候选已完成：`i19_local_world_residual_retkl_r16_ep1_s800` 使用仓内已验收的I-13 s800 r80 parent和`data_i19_local_world_residual_retention_v1`（3,146行，world/retention 1:1）训练fresh r16；第二次单卡/W&B run `xdzb35cp` 完成787步，最终路由world/retention=1573/1573，train_loss=0.5331。以residual scale 0.875合并为r96，包路径`submissions/i19_local_world_residual_retkl_r16_ep1_s800_combined_r96_s875_platform/`，adapter/config SHA256分别为`e31087a7...d41ac79`/`110b7457...a86d929`。它是待线上评测的本地候选，不能与报告版r96或1.0253混称。
+- I-14首次运行因启动器绑定临时PTY，在step 1,886/1,971被会话生命周期中断；`rerun1`随后按相同数据与超参从O6和全新输出目录干净完成。E3于2026-07-14 15:20平台评测为0.9518，八项=`0.2453/0.1045/0.0387/0.0480/0.1292/0.1414/0.1080/0.1368`。它没有替换I-13的当前榜分；I-13是E3 r64+用户残差r16参数拼接路线，主办方口径为不鼓励而非禁止，但其构造血统不同，只能作业务榜分对照，不能作I-14纯O1单体r80的科学基线。仓内没有同协议、同血统的直接对照，E1/E2亦未线上评测。
 - 2026-07-13下午平台修复评测不稳定问题；仓内可证实的协议切点位于I-10 E3（11:45）与I-11（16:40）之间。旧协议指纹为action `max_tokens=4096`、itemic单次beam64；固定协议指纹为action `max_tokens=1024`、itemic 7次`Race averaged evaluation`。日志两边都打印`version: v3.1`，故必须靠指纹分为`platform-pre-fix-v3.1`与`platform-stable-v3.1-20260713`，禁止跨协议作差。
 - I-10完整线上轨迹已完成：使用 `data_seed_teacher_v1` 32,644行（O1全量99.4976% + 164条独立judge满分teacher标签0.5024%，规则标签0）从O6训练r64连续3-epoch cosine；E1/E2/E3=`0.9100/0.9680/0.9849`。该曲线只在旧协议内部有效；E3是固定协议待重评的桥接父模型。
 - I-11是最早可证实的固定协议日志，单次线上0.9618；它不能与E3旧协议0.9849直接比较。继续同数据续训仍因缺少固定协议父分而不启动，但旧版“相对E3 -0.0231”结论撤销。
 - I-12固定协议单次线上0.9768，八项为`0.2453/0.1206/0.0393/0.0672/0.1292/0.1316/0.1053/0.1383`。同协议相对I-11总分+0.0150、用户合计+0.0097、推荐合计+0.0038、world+0.0015；ad单项-0.0098。I-12现为I-13的同协议直接对照。
-- I-13保持E3 r64不变，仅将I-12 r16用户残差缩放到0.875；固定协议线上0.9978，八项为`0.2453/0.1183/0.0390/0.0960/0.1224/0.1316/0.1062/0.1390`。同协议相对I-12总分+0.0210、用户合计-0.0026、推荐合计+0.0229、world+0.0007；当前固定协议主模型。
-- I-14 E3固定协议单次线上0.9518。相对I-13逐项为`0/-0.0138/-0.0003/-0.0480/+0.0068/+0.0098/+0.0018/-0.0022`、面板总分差-0.0460，但这只回答“是否替换融合灰区主模型”的榜分问题，不支持纯O1单体路线的因果否决。更接近的非融合固定协议参考I-11为0.9618，I-14名义低0.0100；I-11仍使用164条teacher、从I-10 E3续训且rank不同，也不是干净基线。原始日志已复核为action1024+itemic 7次race-average、8/8完成、失败0，evalTaskId `eval-task-lfrrhq-1784013605`。
+- I-13 s875保持E3 r64不变，仅将I-12 r16用户残差缩放到0.875；固定协议线上0.9978，八项为`0.2453/0.1183/0.0390/0.0960/0.1224/0.1316/0.1062/0.1390`。同协议相对I-12总分+0.0210、用户合计-0.0026、推荐合计+0.0229、world+0.0007；现为上一主模型。
+- I-13 s800只将同一r16用户残差系数继续降到0.80，不重训；同一提交包固定协议两次显示分为`1.0037/1.0048`，首测八项=`0.2453/0.1163/0.0401/0.0960/0.1224/0.1372/0.1089/0.1375`，复测八项=`0.2453/0.1166/0.0401/0.0960/0.1224/0.1358/0.1089/0.1398`。两次差0.0011按合理抖动处理，均值1.00425、最好显示分1.0048；当前本地保留、可直接交付的固定协议主模型。
+- I-14 E3固定协议单次线上0.9518。相对I-13首测逐项为`0/-0.0138/-0.0003/-0.0480/+0.0068/+0.0098/+0.0018/-0.0022`、面板总分差-0.0460，但这只回答“是否替换不同构造主模型”的榜分问题，不支持纯O1单体路线的因果否决。更接近的无参数拼接固定协议参考I-11为0.9618，I-14名义低0.0100；I-11仍使用164条teacher、从I-10 E3续训且rank不同，也不是干净基线。原始日志已复核为action1024+itemic 7次race-average、8/8完成、失败0，evalTaskId `eval-task-lfrrhq-1784013605`。
 - I-16于2026-07-14 12:19 UTC通过持久启动器在单卡启动，W&B [`packufor`](https://wandb.ai/3120252125-/llmrec-2026/runs/packufor)，600/600正常完成。policy从保留的I-10 E3继续同一个r64 adapter，reference为O6显式加载并合并同一E3 adapter；不新建adapter、不拼接参数、不做同容量蒸馏。step200/400/600使四推荐域聚合raw chosen胜率从32.03%升到52.73%/57.03%/58.59%，action始终保持93.75%，但推荐gold平均token logp分别下降0.01185/0.02030/0.02149，全部超过0.01保护线。I-16按原门槛本地否决，不上传；这些读数只作机制和剂量证据，不估线上分数。
 - I-17已在I-16 step400结果后、正式启动前注册，并于2026-07-14 12:57 UTC在I-16正常退出后顺序持久启动；W&B [`pfjlvm70`](https://wandb.ai/3120252125-/llmrec-2026/runs/pfjlvm70)服务端`finished`。它从原始I-10 E3重新开始，数据、beta和冻结E3 reference不变，只将峰值lr降至7e-7并用30步warmup后的constant日程把step200累计LR面积降为I-16 step200的74.8434%。step100/150/200全部满足量化保护线；按预注册“最早全通过”规则选step100，其推荐聚合raw chosen胜率32.03%→43.36%、gold平均token logp仅下降0.00327、action保持93.75%，itemic断裂0/60。step100固定协议线上0.9727，八项=`0.2453/0.1077/0.0380/0.0960/0.1156/0.1274/0.1044/0.1383`，低I-13 0.0251；相对I-12推荐合计+0.0101但用户合计-0.0142，总分-0.0041。直接父模型I-10 E3固定协议分仍缺失，因此不作DPO因果结论，桥接前不提交step150/200。
 - I-18截断CoT修复E3固定协议线上0.9697，八项=`0.2453/0.1083/0.0382/0.0768/0.1190/0.1316/0.1089/0.1416`，低I-13 0.0281、低I-17 0.0030，未替换主模型。日志8/8完成、失败0；I-10 E3缺同协议桥，不能将该差值作CoT修复的净因果结论。
@@ -21,12 +167,16 @@
 - I-20从保留的I-13/0.875原地更新同一r80，未加载I-19失败点。D(O1,O2.General) 12,260行由prod/ad正例与冻结I-13保持严格1:1组成；200/200步正常完成，W&B `1i153nai`。十档统一圈外诊断中step100是唯一做到prod/ad三SID宽候选`+3/128`且video/live `0/128`的点，但gold mean-logp仍为负漂移，故只视作线上实验候选。双通路行为与父模型近乎重合、itemic断裂0/60；严格两文件包已生成，I-13 0.9978在出分前仍是主模型。
 - I-21在I-13同一r80内做topic answer-token低剂量CE，其余行用冻结I-13 KL保持；单卡W&B [`wjjymcj9`](https://wandb.ai/3120252125-/llmrec-2026/runs/wjjymcj9)完成150/150。六点统一诊断选step150：topic/action gold sum-logp相对父模型`+0.09127/+0.03478`，prod/ad Top-64覆盖`+3/128`，video/live为`-2/128`；这些只用于选点，不是线上分数预测。结构门itemic断裂0/60、action复读1/30；严格双文件包已生成，等待一次线上实验。
 - I-22在I-13同一r80内完成world答案token低剂量CE，单卡W&B [`cohd8617`](https://wandb.ai/3120252125-/llmrec-2026/runs/cohd8617)完成150/150。46条未训练D(O2.General)选择集上，step25虽gold logp`+0.06628`且KL`0.00870`，但top-1掉3/46；step125的top-1不降且gold logp`+0.24041`，但KL`0.03381`超过预注册0.02。六点无一满足全部主门，按原规则本地否决，不跑后续保持门、不打包、不上传。
-- I-23在正式训练前冻结允许角色I-10 E3，以batch=1对538组全部1,836个去重gold只评分最终答案token，最终选中83组（video/prod/ad/live=`32/35/11/5`）；随后从O6按I-10/I-18同一r64三轮物理干净训练。E3固定协议线上0.9915，八项=`0.2760/0.1099/0.0383/0.0576/0.1258/0.1400/0.1053/0.1387`。相对I-13总分-0.0063，其中material +0.0307、用户合计-0.0091、推荐合计-0.0275、world-0.0003；没有替换I-13，但成为固定协议最高无参数拼接单adapter。用户已批准只将成功E3作为新action-answer-token CE + 冻结I-23 KL保持实验父模型；E1/E2仍禁止作父模型。
-- `i23_userres_r80_s625`线上为0.9866，未超过I-13；但相对同日I-23复测0.9884，material掉档`-0.0307`而其余七项合计`+0.0289`，说明用户残差确实补回用户并改善video/prod，只是0.625越过material临界点。下一发按冻结分支使用`s500`；若material保持，基于本次七项响应的条件中心约1.0115，仍掉档则约0.9808。原始日志未入仓前只作用户面板结果，不登记伪造evalTaskId。
+- I-23在正式训练前冻结允许角色I-10 E3，以batch=1对538组全部1,836个去重gold只评分最终答案token，最终选中83组（video/prod/ad/live=`32/35/11/5`）；随后从O6按I-10/I-18同一r64三轮物理干净训练。E3固定协议线上0.9915，八项=`0.2760/0.1099/0.0383/0.0576/0.1258/0.1400/0.1053/0.1387`。相对I-13总分-0.0063，其中material +0.0307、用户合计-0.0091、推荐合计-0.0275、world-0.0003；没有替换I-13，但成为固定协议最高无参数拼接单adapter。成功E3可作已登记action-retKL分支父模型；I-27 N4×K8 strict exact-hit yield已早停否决，条件RFT训练资格未生效。任何新RFT设计必须重新预注册；E1/E2及I-24/I-25失败点均禁止作父模型。
+- I-23跨父残差四点线上为s500/s53125/s5625/s625=`0.9882/0.9757/0.9925/0.9866`，material/video依次=`0.2760/0.0576`、`0.2453/0.0864`、`0.2453/0.0864`、`0.2453/0.0768`。末次预登记二分s53125相对s5625总分`-0.0168`，且material仍为0.2453；未满足M=0.2760、video≥0.0768、总分>1.0048的冻结成功条件。整个I-23跨父残差scale轴已关闭，禁止任何更细scale；s750只作接近s800抖动中心的低价值备包。四点原始日志/evalTaskId未入仓前只作用户面板结果，不登记伪造ID。
 - I-24已从成功I-23 E3原地完成200步action-only低剂量训练，W&B `f3ayytob`服务端finished，8个adapter-only剂量点齐全；但8/8均未通过启动前冻结的action硬门。step50是唯一action sum-logp均值为正的点（`+0.05031`），仍同时失败改善率`0.46875<0.55`、top-1 delta `-0.00080`和topic delta `-0.01223<-0.01`；所有点四域最大KL约`0.013–0.014>0.005`。整条分支按原规则本地关闭，不打包、不上传、不作父模型；条件算术点0.9999已被否决证据取代。
 - I-25已在任何正式训练前冻结：只从成功I-23有效模型新建隔离r16 action residual，不使用I-12残差或I-24失败点；复用已登记6106行数据，action1752行答案体CE+弱parent KL，其余4354行只做parent KL，完整一轮1527步。最终gate SHA256 `53b5b375...f212`先单轴冻结最早action通过checkpoint，再在该点按固定scale升序取最小全保持解；不得二维后验回选。配置/trainer/启动器静态验收通过，尚未因准备文件而宣称训练或涨分。
+- I-27按结果前冻结的512组video多正例、N4 reasoning×K8 item beam做s800正例-only RFT-lite yield smoke。用户明确授权后在共享低利用率GPU3单卡执行，vLLM显存上限25%，未修改或终止原进程；176组内5,632个候选结构有效率100%，但完整gold-set命中候选仅6、全QC接受组2（1.136%）。已完成与剩余组gold-count分布一致；要过128组门，剩余需126/336=37.5%，而当前接受率99.9%单侧上界6.215%，对应保守尾概率约`2.31e-63`。故节省资源早停，本N4×K8配方关闭；partial rollout只作D(O1;M-s800)诊断，不生成positive/final mix、不训练、不提交。
+- I-28已完成正式单卡训练并在第一层冻结门本地否决。W&B `t3xega98`正常完成128/128步，512个microbatch严格路由proposal/retention=`128/384`，step64/128均为policy adapter且root与step128逐字节一致。prompt-disjoint E gate的128组/539个主gold上，step64 set-logsumexp均值变化`+0.00219566`但只改善61/128组；step128为`+0.01413218`、改善69/128组，二者均未达到`improved_rate>=0.55`（至少71/128）。按预注册不运行后续保持门或N4×K8，不打包、不上传、不作RFT/GRPO父模型；本实验零线上提交。
+- I-29离线代理校准已完成，不是训练实验：固定首16个video多正例组，交叉`I23/s800 × legacy-system/canonical-user`；三格GPU生成各16行，25%显存上限下峰值21,537 MiB，生成阶段不接触gold，之后CPU scorer才评分。canonical下s800/I23 candidate prefix mass=`88/97`，主方向与已知线上video关系相反；group-any-ab=`2/1`虽同向但只是预登记secondary，exact均0。正式报告`logs/probe/i29_i23_s800_renderer_calibration_n16.json` SHA256=`4fc9ca83...ce25`，结论`COMPLETE_PROXY_CALIBRATION_FAIL_NO_TRAINING`：不做128组扩展、不训练I-23 video residual，也不将失败代理迁移到其他域。
+- `s800_native_general_replay_r8_v1`已完成训练前冻结但尚未训练：以s800为唯一父/reference，129条task-fit-reviewed官方原生General各一次做full-response `CE+0.05 KL`，384条八任务均衡保持只做`4.0 KL`。fresh r8设计最终拼为r88；数据/trainer/config/平台入口/checkpoint门SHA256=`87097135...fddd2`/`cee8c258...8071`/`c95c6116...de2f`/`30531cfd...d47`/`970d169d...c416`。I19-world r16/r96结果已覆盖其当前优先级，现暂停启动；保留预注册资产，不把该设计称为最高方案复现。当前无checkpoint、无W&B run、无提交包。
 - 撤回旧 I-09 规则数据资格：规则标签相对同源独立judge满分teacher参考的平均F1仅0.0429；匹配实际过滤条件的42条平均F1 0.0813且32条零交集。该teacher参考不是官方gold；`seed_o2_action_r64_lr1e4_ep3`因此在step16中止，W&B `sh96a1sq`，`checkpoints/seed_o2_action_r64_lr1e4_ep3/`无adapter且禁止resume。
-- 当前最高单次显示分和固定协议最高仍为I-13 `0.9978`；固定协议最高无参数拼接单adapter为I-23 `0.9915`，最严格纯O1单体仍为I-14 `0.9518`。I-10 E3旧协议0.9849仍只能作旧轨迹父模型记录；E3固定协议桥缺失不妨碍I-13在现有固定协议候选中确定为主模型，但仍禁止计算I-13相对E3的净增益。
+- 当前最高单次线上观测与本卷可交付最高均为I-35 step548 r112 `1.0344285849069457`；其父模型I19-world r96原始/复测为`1.025259456/1.025362611`。固定协议最高无参数拼接单adapter仍为I-23 `0.9915`，最严格纯O1单体仍为I-14 `0.9518`。I-10 E3旧协议0.9849仍只能作旧轨迹父模型记录；禁止跨协议计算净增益。
 - r64 同一训练轨迹 E1/E2 已线上评测：E1=0.8839，E2=0.9187；E3未评测且不再建议上传。本地门禁原先只选 E1、拒绝 E2，线上排序相反，门禁不再承担正向 checkpoint 排名。
 - `riders_fk_clean_r64_ep3` 训练事实不变：GPU1 单卡，r64/α64、3 epoch、353 steps/epoch、总 1,059 steps；W&B online run [`6gyi8mzc`](https://wandb.ai/3120252125-/llmrec-2026/runs/6gyi8mzc)。E2 action 0.0981 创本账号新高，但 material E1/E2 均为6题。
 - `i01_action_distill_r64_ep3` 已完成：3 epoch/1,047 steps，action 截断相对预登记比较对象 riders 减半但 F1 未涨，world v4 大幅回退；状态为本地否决、不上传。蒸馏正式累计 11,432,127 API token。
@@ -34,6 +184,42 @@
 - `seed_o2_action_r64_lr15e5_ep1` 已完成：`D(O1,O2)` 33,644 行，O2 唯一 action 行 1,164（3.4598%），r64/alpha64、lr1.5e-4、单卡 1 epoch/710 steps。itemic 结构通过，但 action 0/5 闭合、material 39/13，状态为本地否决、不上传。
 - E2 的本地 checkpoint 存在，但 `submissions/riders_fk_clean_r64_e2_platform/` 不存在；平台日志只记录临时 `/tmp/eval_model/merged`。在缺上传 manifest 时，不能声称平台工件哈希已由本地 adapter 哈希证明。
 - 旧实验的中间 checkpoint、optimizer、失败 checkpoint 和 merged 工作副本已于 2026-07-11 删除；本轮用户批准的 r64 E1/E2/E3 例外已单独列入下表。
+
+## 已完成训练并打包待线上评测：i19_local_world_residual_retkl_r16_ep1_s800
+
+| 项目 | 记录 |
+|---|---|
+| 父模型/数据 | 仓内 I-13 s800 r80；`data_i19_local_world_residual_retention_v1` 3,146 行，world/retention=1,573/1,573，数据 SHA256 `ef64cb72...b7484b` |
+| 训练 | fresh r16/alpha16；world full-response CE+0.05 parent KL，retention 0 CE+2.0 parent KL；单卡 GPU0、W&B `xdzb35cp`、787/787 steps、最终 train_loss `0.5331`；最终路由契约 PASS，step-0 parent fingerprint PASS |
+| 工件 | residual root及同权重epoch点`checkpoints/i19_local_world_residual_retkl_r16_ep1_s800_v2/`、`checkpoints/i19_local_world_residual_retkl_r16_ep1_s800_v2/checkpoint-787/`，adapter/config SHA256均`5c9f452b...137538`/`1bd5e4c5...b2ea0`；r96 合并 `checkpoints/i19_local_world_residual_retkl_r16_ep1_s800_combined_r96_s875/`；严格两文件包 `submissions/i19_local_world_residual_retkl_r16_ep1_s800_combined_r96_s875_platform/` |
+| 首次失败输出 | `checkpoints/i19_local_world_residual_retkl_r16_ep1_s800/`仅残留`trainer_log.jsonl`，无adapter/checkpoint；W&B `s3e4i3tz`因world路由前缀误判在约50%终止。禁止resume、禁止作父模型，不把该日志目录计为成功checkpoint |
+| 哈希/状态 | residual adapter/config `5c9f452b...137538` / `1bd5e4c5...b2ea0`；r96 adapter/config `e31087a7...d41ac79` / `110b7457...a86d929`；392 tensors，scale=0.875；**COMPLETE_LOCAL_PACKAGED_AWAITING_ONLINE_SCORE**，不声称复现报告版 1.0253 |
+
+## 已冻结但暂停启动：s800_native_general_replay_r8_v1
+
+| 项目 | 记录 |
+|---|---|
+| 目的/父模型 | 只测试129条官方原生静态General能否在不损伤其余七项的情况下补少量world；唯一父/reference为当前本地保留模型`s800` adapter/config SHA256=`bb86eb8...f63c6`/`e3c3ace0...c4ac0`，线上同包显示`1.0037/1.0048`、world `0.1375/0.1398` |
+| 正式数据 | `data_s800_native_general_replay_v1` 513行/SHA256 `87097135...fddd2`：General 129各一次，八个保持任务各48；旧world_zh、world_zh_ext、68数学MC、T/E/model rollout均0。builder/audit/route manifest SHA256=`ca9e1ee5...7130`/`96b6c636...5e04`/`630ec7d0...04af` |
+| 损失/实现 | LLaMA-Factory先合并s800 r80，再建fresh r8；`disable_adapter()`为exact merged-s800 reference。General full target `CE+0.05 KL`，保持full target `4.0 KL-only`。trainer SHA256 `cee8c258...8071`按exact qwen3 target hash fail-closed路由；step0 residual/parent logits、最终129/384路由及32/64/96/129保存序列均有运行时硬闸 |
+| 训练物理 | 单GPU，batch1×acc4，lr1e-5，warmup8后constant，129 optimizer steps；r8/alpha8/dropout0.05、target all。config/registry/GLM容器入口 SHA256=`c95c6116...de2f`/`571ea552...7c8`/`30531cfd...d47`；W&B必须online并由Training Task内secret实时verify |
+| 冻结选点门 | `configs/evaluation/s800_native_general_replay_checkpoint_gate_v1.json` SHA256 `970d169d...c416`。32→64→96→129取最早全通过：23条scoring E的A-D/all-vocab正确数不低于5/3、gold logp均值不退且至少12/23改善；256条八任务保持的overall/task KL、row p95及各任务parent argmax agreement均过线；60条itemic断裂0。四点全失败即关闭，禁止scale、续训、阈值放宽或回混其他world数据 |
+| 输出与拼接 | 预期仅生成fresh residual checkpoint 32/64/96/129；残差不能独立提交。最早通过General目标门与八任务保持门的点，才允许用现有exact additive脚本拼成`s800 r80 + residual r8 = 单个r88`；主办方口径是不鼓励模型融合而非禁止，必须完整披露血统 |
+| 当前状态 | **FROZEN_BUT_SUSPENDED_SUPERSEDED_BY_I19_WORLD_HANDOFF**；开发机未训练、无checkpoint、无W&B run。I19-world工件接收、验收和稳定性判断完成前禁止创建平台训练任务；若未来恢复，仍必须使用原冻结secret/挂载/entry与选点门，不得后验改设计 |
+
+## 已完成并本地主门否决：i28_i23_rec_multigold_proposal_retkl_v1（I-28）
+
+| 项目 | 记录 |
+|---|---|
+| 目的/父模型 | 只改善成功I-23 E3的video proposal分布；policy与冻结reference都从`submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform`开始，adapter/config SHA256=`0e5fa9bb...c6b8`/`b3f2a1b5...e7e7`。I-23 E1/E2、I-24/I-25失败点和I-27 rollout均禁止作父或训练数据 |
+| 正式数据 | `assets/derived/processed/data_i28_video_multigold_proposal_retkl_v1.jsonl`，`D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General)`，512行/SHA256 `f74a22b96bf7651a97cdb5b578f346eea0109045329efafb80092f91756fbb6a`；128 proposal（64组×2）+384 retention，严格1:3；builder/audit SHA256=`98b41293...bf11`/`b0036b97...3be2`；T/E/O3目标元数据/model rollout/负例训练行均0 |
+| 损失/实现 | proposal只在`video-domain+a+b+c+EOS`做CE并加0.2×冻结I-23 forward KL；retention只做4.0×冻结I-23 KL、最多128位置。修复后trainer `scripts/train/train_i28_multigold_proposal_retkl.py` SHA256 `72fa991433698cd7f705a700d7d72c467356e5530e1f625547e84a6ecaef7253`：reference从post-upcast policy逐tensor复制并继续要求bit-identical/首logit一致；另强制active/enabled/unmerged、optimizer只含policy、policy-only保存无reference子目录、embedding/head冻结和最终128/384路由签名 |
+| 配置/训练物理 | `configs/active/i28_i23_rec_multigold_proposal_retkl_v1.yaml` SHA256 `f6086e468b91a9df93804d7ab6421549bb8767a07522a1340aac9939772f077a`；I-23同一r64原地更新，单GPU、batch1×acc4、lr1e-7、warmup16后constant、128步/完整一轮、save64/128。哈希锁launcher SHA256 `74842f9be793f318eef4b2894d9d9f773dab37f04478ad53b14d1fdc5eb5146e`；W&B [`t3xega98`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/t3xega98) online并正常finished |
+| 训练完成 | 128/128步、runtime1153.78s、train loss5.94656、退出码0；512 microbatch最终路由proposal_video/retention=`128/384`，step0 policy/reference logits max_abs=0。训练日志`logs/train/i28_i23_rec_multigold_proposal_retkl_v1.log` 93,410 bytes/SHA256 `8bdff61bf40c8e143215a3b34c234cc5aba95bc3d0f95c7992013446669ea01d`；无NaN/Inf/OOM/Traceback/route/fingerprint/save错误 |
+| 产物/允许角色 | step64 adapter/config SHA256=`0683593b7d97ee4979753862ddd5f47c5f9a8b290a8b627ff30fb0c491c97376`/`33b749b6290e11715cf6a8612a0a52cb1fac59baa131c83b3ba1ed49dd6933b5`；step128=`06f43f197a91cb7fd4057ba270381708d1735939451f2fed082ac508b0dc7eec`/同config，根目录与step128两文件逐字节一致。无optimizer/scheduler/scaler/RNG/reference权重；门禁失败后两点只作审计，不得打包、提交、warm start或作RFT/GRPO父模型 |
+| 评测实现机械重冻结 | 首次调用在模型加载前因PEFT对相同`target_modules`集合的JSON顺序不同而退出；修复为集合语义并拒绝重复。第二次在任何forward前发现原循环只做到batch内parent-first，主动终止于加载parent adapter，并改为完整parent→step64→step128。科学指标/阈值均未改；最终gate/evaluator SHA256=`fd777bd3594139dd02008e4587ad79dd69496a3885869f0ef0405ea407bc7e82`/`d8e5da2d4fdee326d00b4f1f246ea9f926a0f5a8ee5eeb38b392e3ac65095c55` |
+| 冻结主门 | 报告`logs/probe/i28_multigold_set_path_v1.json` 188,781 bytes/SHA256 `96bd457768a0f406b7215b05f9e8a0333ac5bcb12d159438831f67b501e51dee`，status=`COMPLETE_NOT_AN_ONLINE_SCORE_ESTIMATE`。step64 set-LSE delta mean/improved=`+0.00219566`/`61/128=0.4765625`；step128=`+0.01413218`/`69/128=0.5390625`；冻结要求均值`>=0`且改善率`>=0.55`，两点均FAIL。best-gold只作诊断：step64/128均值变化=`-0.01204291/+0.01320961` |
+| 状态 | **COMPLETE_LOCAL_REJECT_STAGE1_NO_PACKAGE_NO_UPLOAD**；两个候选均停止于set-path第一层，因此保持门、结构门和N4×K8均未运行。I-28分支关闭，不放宽阈值、不续训、不在线评测、不消耗全队约3发/日配额。旧失败run `u9d24puh`/`bbh3x6qr`继续禁止resume |
 
 ## 已完成并本地否决：i23_action_ansretkl_v1（I-24）
 
@@ -64,7 +250,7 @@
 | 配置/实现 | config `configs/active/i23_actionres_r16_ansretkl_ep1.yaml` SHA256 `da46f0b1...5dbd`；trainer `scripts/train/train_i23_actionres_retkl.py` SHA256 `0071a088...7c02`；online/detached launcher SHA256 `b76392a8...fcbd` / `f898bd44...26da`。self-test、`py_compile`、YAML、`bash -n`、原始6106行路由计数和workspace audit均PASS |
 | 冻结门 | `configs/evaluation/i23_actionres_r16_checkpoint_gate.json`最终SHA256 `53b5b375...f212`。Stage1按250→500→750→1000→1250→1527仅用action机制门冻结最早全通过训练点；Stage2只在该点按0.25→0.375→0.5→0.625→0.75取最小material/topic/四推荐域/生成/结构全通过scale。任一阶段失败即关闭，禁止回选checkpoint、新增scale或放宽阈值 |
 | 预注册输出 | 根目录`checkpoints/i23_actionres_r16_ansretkl_ep1/`；训练保存`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-250/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-500/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-750/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1000/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1250/`、`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1500/`；成功完成后launcher从根adapter/config原子生成并逐字节复核`checkpoints/i23_actionres_r16_ansretkl_ep1/checkpoint-1527/`。step1500只作已登记轨迹，不进入Stage1候选序列 |
-| 线上边界 | 只完整补回action 0.0084且其他七项完全不动的条件算术上限为0.9999；恢复75%仅追平I-13 0.9978。任何离线门都不保证material第9题。最终I-23 r64+r16 residual拼成r80仍属参数拼接/融合审核灰区，不得称直接单adapter训练 |
+| 线上边界 | 只完整补回action 0.0084且其他七项完全不动的条件算术上限为0.9999；恢复75%仅追平I-13 0.9978。任何离线门都不保证material第9题。最终I-23 r64+r16 residual拼成r80属于参数拼接；规则是不鼓励而非禁止，但不得误称为直接单adapter训练 |
 | 正式启动 | 2026-07-16 06:00 UTC在物理GPU0 `GPU-d3c522d6-ed0f-2579-01cd-2d97da749980` detached启动；父PID `3763410`由PID1接管且无TTY，日志/PID/退出码=`logs/train/i23_actionres_r16_ansretkl_ep1.{log,pid,exit_code}`；W&B [`x8fl7r86`](https://wandb.ai/3120252125-/llmrec-2026/runs/x8fl7r86)。运行时确认6,106 examples、1,527 steps、10,092,544 trainable params，step0 residual-disabled I-23 fingerprint `max_abs=0` |
 | 正式训练结果 | Trainer完成1,527/1,527，runtime `2794.8687s`、train loss `0.4148307616`、最终route action/retention=`1752/4354`；W&B服务端`finished`，根与step1527 adapter SHA256均`676d80fd...b67b`，日志SHA256 `3cbefe68...693f`。无NaN/OOM/Traceback，GPU0已回基线 |
 | 保留冲突/恢复锁 | Trainer终点额外保存step1527后，`save_total_limit=6`自动轮转删除已保存的step250，外层后置检查因缺step250返回1；这是工件postcondition失败，原退出码不得改写。恢复plan `configs/evaluation/i25_step250_deterministic_recovery_plan.json` SHA256 `94da5c04...a1ec`锁定同GPU从O6+I-23干净重放、原1527步scheduler horizon、callback在step250后停训；1000 microbatch route必须=`278/722`，adapter/config必须逐字节命中删除前记录的`4af72967...28e9`/`6c127a34...e976a`，否则不安装并关闭I-25 |
@@ -80,7 +266,7 @@
 
 | 项 | 完成记录 |
 |---|---|
-| 目的/父模型 | 直接优化固定协议最高分I-13/0.875；policy与冻结reference均为adapter SHA256 `71bc3c2c...ffd5b`。在原r80内更新，不叠加新adapter；I-13融合灰区属性不因此消失 |
+| 目的/父模型 | 直接优化固定协议最高分I-13/0.875；policy与冻结reference均为adapter SHA256 `71bc3c2c...ffd5b`。在原r80内更新，不叠加新adapter；I-13已有参数拼接来源不因此消失，规则仍是不鼓励而非禁止 |
 | 数据 | `data_i13_rec_balanced_preference_v1_train`，D(O1) 2,688对，SHA256 `baf8a825...d2a8f`；从已登记O1 hard-negative训练集确定性抽取，ad/prod/living/video=`768/768/768/384`，标签改写0，O2/T/E/teacher/model-rollout均0 |
 | 配置 | 启动时`configs/active/i13_s875_dpo_rec_balhard_lowdose_v1.yaml` SHA256 `467965b6...5800`；完成后只加禁重启头，当前SHA256 `e4633b6a...e195`。r80/alpha80、beta0.1、effective batch8、lr4e-7、warmup10、constant、75步；adapter-only每25步保存 |
 | 训练 | GPU1单卡；75/75，runtime361.5s，train loss0.6637，退出码0，无NaN/Inf/OOM/Traceback；W&B [`0bm73wt9`](https://wandb.ai/3120252125-/llmrec-2026/runs/0bm73wt9)，日志SHA256 `4841bc3d...6a2f` |
@@ -91,7 +277,7 @@
 | 对I-13 | 总分-0.0215；逐项=`0/-0.0002/+0.0012/-0.0096/-0.0068/-0.0070/+0.0009/0`；用户合计+0.0010、推荐合计-0.0225。离线四域hard-negative margin全部改善却线上三域下降，证明该门不能再作正向选点依据 |
 | 提交包 | `submissions/i13_s875_dpo_rec_balhard_lowdose_v1_step25_platform/`严格两文件且与step25逐字节一致；已完成本次固定协议评测 |
 | 线上日志 | `logs/eval/i13_s875_dpo_rec_balhard_lowdose_v1_step25_20260715.log`，2,764,972 bytes，SHA256 `6c57f8fbf98cc965f28d6508154d8452508f5ceab6d1b012c98c99d34be87099`；action1024、itemic 7次race-average、8/8完成、失败0；evalTaskId `eval-task-40k2ig-1784100661` |
-| 状态 | **COMPLETE_ONLINE_0.9763_REJECT_BRANCH**；不提交step50/75，不作后续训练父模型，I-13 0.9978继续为主模型 |
+| 状态 | **COMPLETE_ONLINE_0.9763_REJECT_BRANCH**；不提交step50/75，不作后续训练父模型；本次评测后s875 0.9978继续为主模型，当前主模型已为s800（同包1.0037/1.0048） |
 
 ## 已完成训练并打包step100：i13_s875_posrec_pa_ansretkl_v1
 
@@ -107,7 +293,7 @@
 | 双通路行为门 | 父/step100均按v4参数跑相同64×4域；旧dev在I-13上video/prod/ad命中均0，确认不能作正向分数门。step100相对父的copy-direct变化video/prod/ad/live=`0/+0.0049/+0.0015/+0.0010`，distinct-s_a变化=`-0.06/+0.10/-0.01/+0.18`，未见生成坍塌；日志SHA256 `9de45e6b...fca0` / `74d981f1...e13` |
 | 结构门/选点 | step100临时merge后itemic断裂0/60=`PASS`；action复读3/30、选择题格式7/8仅作diagnostic。日志`logs/precheck/i20_step100_20260715.log` SHA256 `7b5ed2ed...bb69`。其余step只保留为剂量轨迹，不提交 |
 | 提交包 | `submissions/i13_s875_posrec_pa_ansretkl_v1_step100_platform/`严格两个文件且与step100逐字节一致；adapter/config SHA256 `43199b5f...6ccc` / `fc2594ff...64b` |
-| 当前状态 | **COMPLETE_LOCAL_PROVISIONAL_STEP100_PACKAGED_AWAITING_ONLINE**；离线证据混合，只值得占一次实验配额，不宣称稳涨；I-13 0.9978在出分前仍为主模型 |
+| 当前状态 | **COMPLETE_LOCAL_PROVISIONAL_STEP100_PACKAGED_AWAITING_ONLINE**；离线证据混合，不宣称稳涨；未经s800新主模型重新排序，当前不占用优先提交位 |
 
 ## 已完成训练并打包step150：i13_s875_topic_ansretkl_v1
 
@@ -120,7 +306,7 @@
 | 统一诊断 | `logs/probe/i21_topic_path_20260715.json` SHA256 `832868c6...c09b`与`i21_rec_gold_path_20260715.json` SHA256 `112627b5...f2a`；step150 topic/action gold sum-logp变化`+0.09127/+0.03478`，prod/ad Top-64 `+3/128`、video/live `-2/128`。诊断源不回灌训练且不映射为线上分数 |
 | 结构门 | step150临时merge后itemic断裂0/60=`PASS`；action复读1/30、选择题格式6/8、占位符0/8、简单题4/8只作diagnostic。日志`logs/precheck/i13_s875_topic_ansretkl_v1_step150_20260715.log` SHA256 `6978d655...647`；临时merge已删、GPU7归零 |
 | 提交包 | `submissions/i13_s875_topic_ansretkl_v1_step150_platform/`严格两文件且与step150逐字节一致；adapter/config SHA256 `c8be262f...5e5d0` / `a7114c7d...caa4` |
-| 状态 | **COMPLETE_LOCAL_PROVISIONAL_STEP150_PACKAGED_AWAITING_ONLINE**；只作为topic正交实验，不替换I-13 0.9978主模型 |
+| 状态 | **COMPLETE_LOCAL_PROVISIONAL_STEP150_PACKAGED_AWAITING_ONLINE**；只作为topic正交实验，当前不替换也不优先于I-13 s800（同包1.0037/1.0048）主模型 |
 
 ## 已完成并本地否决：i13_s875_world_ansretkl_v1
 
@@ -158,7 +344,7 @@
 | 线上 | UI `seed_teacher_cotfix_v3_r64_lr1e4_ep3_V1_eval_20260716104410`；2026-07-16 10:44:15平台记录，1h8m40s；总分0.9915；八项按material/action/topic/video/prod/ad/live/world为`0.2760/0.1099/0.0383/0.0576/0.1258/0.1400/0.1053/0.1387` |
 | 线上日志 | 原始opaque路径`logs/eval/cTcxR1eV47RWIQxg-RK2TPl_Ogc9CHEFe6KS-zDweNUhj42UWiOmOKU12arRKtTTXrH1x7JrKIVHAhlE1zCsLXwKN6d42WnvrA6j-Z02MpufbYg4vQpJPrd8igyHdY7h.log`，2,779,725 bytes，SHA256 `dc354e4b5396b115af69be4ba297c100b584d7fc92ea6cd375f04804be5b4237`；action1024、itemic 7次race-average、8/8完成、失败0；evalTaskId `eval-task-t51r8o-1784169855` |
 | 对照 | 相对I-13总分-0.0063，逐项=`+0.0307/-0.0084/-0.0007/-0.0384/+0.0034/+0.0084/-0.0009/-0.0003`；相对I-18总分+0.0218、material +0.0307、用户+0.0017、推荐-0.0076、world-0.0029。单次平台观测不作稳定方差或83条CoT筛选的净因果估计 |
-| 当前状态 | **COMPLETE_ONLINE_0.9915_HIGHEST_NON_SPLICE_ADAPTER**；未替换I-13 0.9978；只允许成功E3作为新action-answer-token CE + 冻结I-23 KL保持实验父模型，E1/E2继续只作剂量轨迹 |
+| 当前状态 | **COMPLETE_ONLINE_0.9915_HIGHEST_NON_SPLICE_ADAPTER**；低I-13 s800首测0.0122、低同包最好显示分0.0133；成功E3仍允许作已登记action-answer-token分支父模型。I-27 N4×K8 strict exact-hit yield门已早停否决，未获得RFT训练资格；任何扩beam/改采样/改reward的新RFT设计必须重新预注册，E1/E2及I-24/I-25失败点继续禁止作父模型 |
 
 ## 已完成并线上0.9697：seed_teacher_cotfix_v2_r64_lr1e4_ep3
 
@@ -199,14 +385,29 @@
 | I-18 E2剂量轨迹 | seed_teacher_cotfix_v2_r64_lr1e4_ep3 | `checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/checkpoint-1330/` | adapter/config SHA256 `14071ab8...bdc38` / `65732b4d...26fa` | adapter-only；只作2 epoch轨迹，不打包、不上传、不作父模型 |
 | I-18已评测E3 | seed_teacher_cotfix_v2_r64_lr1e4_ep3 E3 | `checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/checkpoint-1995/`；根目录`checkpoints/seed_teacher_cotfix_v2_r64_lr1e4_ep3/`逐字节同adapter | adapter/config SHA256 `07cd6628...2a9e3` / `65732b4d...26fa` | 固定协议线上0.9697；未替换I-13，不作默认父模型 |
 | I-18已评测E3 LoRA包 | seed_teacher_cotfix_v2_r64_lr1e4_ep3 | `submissions/seed_teacher_cotfix_v2_r64_lr1e4_ep3_platform/` | adapter/config SHA256 `07cd6628...2a9e3` / `65732b4d...26fa` | 严格两文件且与E3逐字节一致；固定协议线上0.9697 |
-| I-23已评测E3/action-retKL获准父模型 | seed_teacher_cotfix_v3_r64_lr1e4_ep3 E3 | `checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/checkpoint-1995/`；根目录`checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/`逐字节同adapter | adapter/config SHA256 `0e5fa9bb...c6b8` / `b3f2a1b5...e7e7` | 固定协议线上0.9915；最高无参数拼接单adapter；只允许作新action-answer-token CE + 冻结I-23 KL保持父模型 |
+| I-23已评测E3/action-retKL父与I-30 material teacher | seed_teacher_cotfix_v3_r64_lr1e4_ep3 E3 | `checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/checkpoint-1995/`；根目录`checkpoints/seed_teacher_cotfix_v3_r64_lr1e4_ep3/`逐字节同adapter | adapter/config SHA256 `0e5fa9bb...c6b8` / `b3f2a1b5...e7e7` | 固定协议线上0.9915；除已登记action-retKL角色外，用户现批准其只作I-30 material构造评分器和冻结KL teacher；不作为I-30 policy初始化。I-24/I-25失败点禁止复用 |
 | I-23已评测E3 LoRA包 | seed_teacher_cotfix_v3_r64_lr1e4_ep3 | `submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform/` | adapter/config SHA256 `0e5fa9bb...c6b8` / `b3f2a1b5...e7e7` | 严格两文件且与E3逐字节一致；固定协议线上0.9915 |
+| I-28本地主门否决剂量点 | i28_i23_rec_multigold_proposal_retkl_v1 step64 | `checkpoints/i28_i23_rec_multigold_proposal_retkl_v1/checkpoint-64/` | adapter/config SHA256 `0683593b...7376` / `33b749b6...6933b5` | set-path改善61/128，低冻结门71/128；仅作审计，禁止打包、上传、warm start或作父模型 |
+| I-28本地主门否决末点 | i28_i23_rec_multigold_proposal_retkl_v1 step128 | `checkpoints/i28_i23_rec_multigold_proposal_retkl_v1/checkpoint-128/`；根目录`checkpoints/i28_i23_rec_multigold_proposal_retkl_v1/`两文件逐字节一致 | adapter/config SHA256 `06f43f19...eec` / `33b749b6...6933b5` | set-path改善69/128，低冻结门71/128；分支关闭，仅作审计，禁止打包、上传、warm start或作父模型 |
+| I-33本地否决r8正式候选 | i33_r96_material_desc2sid_retkl_r8_v1 step64/128/256/512 | `checkpoints/i33_r96_material_desc2sid_retkl_r8_v1/checkpoint-64/`、`checkpoints/i33_r96_material_desc2sid_retkl_r8_v1/checkpoint-128/`、`checkpoints/i33_r96_material_desc2sid_retkl_r8_v1/checkpoint-256/`、`checkpoints/i33_r96_material_desc2sid_retkl_r8_v1/checkpoint-512/`；根目录与step512同adapter | adapter SHA256依次`01773f00...5af1`/`c4f40ceb...2fcc`/`91c2b1c6...81b3`/`90411c77...296c`；config统一`a561f54b...cbce` | r8/alpha8正式轨迹；四点冻结门均失败，仅作训练审计，禁止打包、上传、resume、warm start或作父模型 |
+| I-33本地否决r104组合候选 | i33_r96_material_desc2sid_retkl_r8_v1 step64/128/256/512 scale1 | `checkpoints/i33_r96_material_desc2sid_retkl_r104_step64/`、`checkpoints/i33_r96_material_desc2sid_retkl_r104_step128/`、`checkpoints/i33_r96_material_desc2sid_retkl_r104_step256/`、`checkpoints/i33_r96_material_desc2sid_retkl_r104_step512/` | adapter SHA256依次`4e4d2185...c2d1`/`8135de55...d2a`/`1570765b...21a`/`a213deb4...df64`；config统一`46bd7146...a205`；各262,460,268 bytes | 精确FP32 r96+r8得到r104/alpha104；736行冻结门全部失败且`earliest_teacher_forced_pass=null`。无提交包，禁止上传、继续训练或作父模型 |
+| I-32本地否决r8训练轨迹 | i32_task_restore_retkl_r8_v1 step64/128/192/256/320/384/448/512 | `checkpoints/i32_task_restore_retkl_r8_v1/checkpoint-64/`、`checkpoints/i32_task_restore_retkl_r8_v1/checkpoint-128/`、`checkpoints/i32_task_restore_retkl_r8_v1/checkpoint-192/`、`checkpoints/i32_task_restore_retkl_r8_v1/checkpoint-256/`、`checkpoints/i32_task_restore_retkl_r8_v1/checkpoint-320/`、`checkpoints/i32_task_restore_retkl_r8_v1/checkpoint-384/`、`checkpoints/i32_task_restore_retkl_r8_v1/checkpoint-448/`、`checkpoints/i32_task_restore_retkl_r8_v1/checkpoint-512/`；根目录与step512同adapter | adapter SHA256依次`ff72efd8...c44`/`5e06010a...e33`/`16750417...641`/`888eb67e...01b`/`23854f67...a70`/`77ed9305...c31`/`aacb34bd...fe7`/`9e71d6cb...107`；config统一`fbf08a81...d67` | r8/alpha8训练轨迹；192/320/384/448从未获科学选择资格，其余四点门禁失败。全部仅作审计，禁止打包、上传、resume、warm start或作父模型 |
+| I-32本地否决r168组合候选 | i32_task_restore_retkl_r8_v1 step64/128/256/512 scale1 | `checkpoints/i32_task_restore_retkl_r8_v1_combined_r168_step64/`、`checkpoints/i32_task_restore_retkl_r8_v1_combined_r168_step128/`、`checkpoints/i32_task_restore_retkl_r8_v1_combined_r168_step256/`、`checkpoints/i32_task_restore_retkl_r8_v1_combined_r168_step512/` | adapter SHA256依次`81e60e91...58b`/`6c0756e7...523`/`91190212...9d2`/`2c1c0f84...690`；config统一`b31258a0...031` | 656行冻结门全部失败，`earliest_teacher_forced_pass=null`。step128仅因用户事后授权每日额度探索而允许一次手工上传；其余点及全部点的继续训练/父模型角色仍禁止 |
+| I-32门外探索FP32拒绝包 | i32_task_restore_retkl_r168_step128_exploratory | `submissions/i32_task_restore_retkl_r168_step128_exploratory_platform/` | adapter/config SHA256 `6c0756e7...523` / `b31258a0...031`，423,940,024 / 1,076 bytes；package audit SHA256 `826debff...d4e4` | r168/alpha168、392 FP32 tensors；平台因两文件总计423,941,100 bytes超过400MB在任务创建前拒绝，无evalTaskId。只作源身份参考，禁止重传 |
+| I-32门外探索BF16 r168拒绝包 | i32_task_restore_retkl_r168_step128_exploratory_bf16 | `submissions/i32_task_restore_retkl_r168_step128_exploratory_bf16_platform/` | adapter/config SHA256 `a9cc127f...4da` / `b31258a0...031`，211,996,792 / 1,076 bytes；package audit `logs/model/i32_task_restore_r168_step128_exploratory_bf16_package.json` SHA256 `7f29d24f...1090` | r168/alpha168、392 BF16 tensors；大小合格但平台因rank超过128在任务创建前拒绝，无evalTaskId。只作身份参考，禁止重传 |
+| I-32用户授权门外探索合法r128包 | i32_task_restore_retkl_r128_step128_svd_bf16 | `submissions/i32_task_restore_retkl_r128_step128_svd_bf16_platform/` | adapter/config SHA256 `edadde1f...d46` / `daa3106d...7f3`，161,533,944 / 1,076 bytes；package audit `logs/model/i32_task_restore_r128_step128_svd_bf16_package.json` SHA256 `10190999...0705` | r128/alpha128、392 BF16 tensors；总计161,535,020 bytes。656行material两向gold均值`+0.001988/+0.000350`、world 11/16，itemic 0/60。`READY_FOR_MANUAL_UPLOAD_NOT_ONLINE_EVALUATED`，唯一允许手工上传的I-32包 |
+| I-31用户授权线上探索合法r128包 | i31_r96_i23_exact_interp_r128_l010_svd_bf16 | `checkpoints/i31_r96_i23_exact_interp_r128_l010_svd_bf16/`；`submissions/i31_r96_i23_exact_interp_r128_l010_svd_bf16_platform/` | adapter/config SHA256 `93d247a2...803f` / `daa3106d...07f3`，161,533,944 / 1,076 bytes；压缩审计`logs/model/i31_r96_i23_exact_interp_r128_l010_svd_bf16_compression.json` SHA256 `56e31406...3856` | `delta=0.9×I19最高r96+0.1×I23 material强模型`的r160精确组合压为r128/alpha128、392 BF16 tensors；全局保留谱能量`0.9999999329`，总计161,535,020 bytes。严格两文件，`READY_FOR_ONLINE_SCORE_FIRST_PROBE`，尚未线上评测 |
+| I-32 r128压缩对照（禁止上传） | step128 global-SVD FP32 / prefix96+tail32-SVD FP32 | `submissions/i32_task_restore_retkl_r128_step128_svd_fp32_platform/`、`submissions/i32_task_restore_retkl_r128_step128_tail32_svd_fp32_platform/` | adapter SHA256 `3ef8710a...b92` / `f3990dc8...cf8`；门控报告SHA256 `ada2f34d...a6b9` / `17191448...69b0` | 全局FP32与选中BF16的656行指标逐项完全相同但更大；结构化96+32使material双向gold均值变负。两者只作压缩审计，禁止上传或作父模型 |
 | I-23 + 0.625用户残差已评线上探针 | i23_userres_r80_s625 | `checkpoints/i23_userres_r80_s625/` | adapter/config SHA256 `4a46fd29...0c70` / `4768770a...4d06`；组合审计`logs/model/i23_userres_r80_s625_combine.json` SHA256 `e3c630b9...3d32` | 固定协议线上0.9866，八项=`0.2453/0.1170/0.0399/0.0768/0.1326/0.1316/0.1044/0.1390`；相对同日I-23复测非material `+0.0289`、material `-0.0307`。原始日志/evalTaskId待入仓 |
-| I-23 + 0.625用户残差已评包 | i23_userres_r80_s625 | `submissions/i23_userres_r80_s625_platform/` | adapter/config SHA256 `4a46fd29...0c70` / `4768770a...4d06`，201,903,440 / 1,074 bytes | 严格两文件包与checkpoint逐字节一致；已线上0.9866，未替换I-13。初赛参数拼接审核灰区不变 |
-| I-23 + 0.5用户残差下一探针 | i23_userres_r80_s500 | `checkpoints/i23_userres_r80_s500/` | adapter/config SHA256 `d2b77c74...99bf` / `4768770a...4d06`；组合审计SHA256 `7b04c918...3be5` | CPU精确拼接`delta=I23+0.5×residual`；s625已满足“material掉档但七项显著正向”的预设触发条件，状态`READY_FOR_MANUAL_PLATFORM_SUBMISSION` |
-| I-23 + 0.5用户残差下一探针包 | i23_userres_r80_s500 | `submissions/i23_userres_r80_s500_platform/` | adapter/config SHA256 `d2b77c74...99bf` / `4768770a...4d06`，201,903,440 / 1,074 bytes | 严格两文件且与checkpoint逐字节一致，尚未上传；material保持/掉档条件中心约1.0115/0.9808，均非校准预测 |
-| I-23 + 用户残差加码备用 | i23_userres_r80_s750 | `checkpoints/i23_userres_r80_s750/` | adapter/config SHA256 `363a3b59...f365` / `4768770a...4d06`；组合审计SHA256 `5d890803...12a6` | CPU精确拼接`delta=I23+0.75×residual`；只有s625线上material保持且用户项确有正向时才允许进入评估/打包，当前未评测、未打包、未上传 |
-| I-23 + 用户残差加码备用 | i23_userres_r80_s875 | `checkpoints/i23_userres_r80_s875/` | adapter/config SHA256 `b24c17cc...f31f` / `4768770a...4d06`；组合审计SHA256 `ae4782ab...a8ad` | CPU精确拼接`delta=I23+0.875×residual`；只有前一在线剂量证明material保持且仍需补用户缺口时才允许进入评估/打包，当前未评测、未打包、未上传 |
+| I-23 + 0.625用户残差已评包 | i23_userres_r80_s625 | `submissions/i23_userres_r80_s625_platform/` | adapter/config SHA256 `4a46fd29...0c70` / `4768770a...4d06`，201,903,440 / 1,074 bytes | 严格两文件包与checkpoint逐字节一致；已线上0.9866，未替换I-13。参数拼接按规则是不鼓励而非禁止，构造链已披露 |
+| I-23 + 0.5用户残差已评线上探针 | i23_userres_r80_s500 | `checkpoints/i23_userres_r80_s500/` | adapter/config SHA256 `d2b77c74...99bf` / `4768770a...4d06`；组合审计SHA256 `7b04c918...3be5` | CPU精确拼接`delta=I23+0.5×residual`；固定协议线上0.9882，八项=`0.2760/0.1156/0.0399/0.0576/0.1258/0.1316/0.1035/0.1383`；状态`ONLINE_COMPLETE`，原始日志/evalTaskId待入仓 |
+| I-23 + 0.5用户残差已评包 | i23_userres_r80_s500 | `submissions/i23_userres_r80_s500_platform/` | adapter/config SHA256 `d2b77c74...99bf` / `4768770a...4d06`，201,903,440 / 1,074 bytes | 严格两文件且与checkpoint逐字节一致；UI `i23_userres_r80_s500_V1_eval_20260716190207`，已线上0.9882，不得重复提交 |
+| I-23 + 0.5625用户残差已评探针 | i23_userres_r80_s5625 | `checkpoints/i23_userres_r80_s5625/` | adapter/config SHA256 `1f17f41...a1ba` / `4768770a...4d06`；组合审计`logs/model/i23_userres_r80_s5625_combine.json` SHA256 `1e0e0b7e...fff3` | CPU精确拼接`delta=I23+0.5625×residual`，单个r80/alpha80、392 tensors；线上0.9925，material/video=`0.2453/0.0864`；状态`ONLINE_COMPLETE_NOT_MAIN`，触发一次s53125向下二分 |
+| I-23 + 0.5625用户残差已评包 | i23_userres_r80_s5625 | `submissions/i23_userres_r80_s5625_platform/` | adapter/config SHA256 `1f17f41...a1ba` / `4768770a...4d06`，201,903,440 / 1,074 bytes | 严格仅`adapter_model.safetensors`与`adapter_config.json`，与checkpoint逐字节一致；UI `i23_userres_r80_s5625_V1_eval_20260717220142`，已线上0.9925，不得重复提交 |
+| I-23 + 0.53125用户残差已评末次探针 | i23_userres_r80_s53125 | `checkpoints/i23_userres_r80_s53125/` | adapter/config SHA256 `fec25351...65e0` / `4768770a...4d06`；组合审计`logs/model/i23_userres_r80_s53125_combine.json` SHA256 `d39e2fc8...a030` | CPU精确拼接`delta=I23+0.53125×residual`，单个r80/alpha80、392 tensors；线上0.9757，八项=`0.2453/0.1159/0.0400/0.0864/0.1190/0.1260/0.1044/0.1387`；状态`ONLINE_COMPLETE_AXIS_CLOSED` |
+| I-23 + 0.53125用户残差已评包 | i23_userres_r80_s53125 | `submissions/i23_userres_r80_s53125_platform/` | adapter/config SHA256 `fec25351...65e0` / `4768770a...4d06`，201,903,440 / 1,074 bytes | 严格仅两文件且与checkpoint逐字节一致；UI `i23_userres_r80_s53125_V1_eval_20260718012851`，已线上0.9757，不得重复提交；冻结失败条件触发，整轴关闭 |
+| I-23 + 用户残差加码关闭备件 | i23_userres_r80_s750 | `checkpoints/i23_userres_r80_s750/` | adapter/config SHA256 `363a3b59...f365` / `4768770a...4d06`；组合审计SHA256 `5d890803...12a6` | CPU精确拼接`delta=I23+0.75×residual`；原准入条件“s625 material保持”已被线上0.2453否决，故不评测、不打包、不上传，仅保留历史工件 |
+| I-23 + 用户残差加码关闭备件 | i23_userres_r80_s875 | `checkpoints/i23_userres_r80_s875/` | adapter/config SHA256 `b24c17cc...f31f` / `4768770a...4d06`；组合审计SHA256 `ae4782ab...a8ad` | CPU精确拼接`delta=I23+0.875×residual`；上游准入条件已失败，故不评测、不打包、不上传，仅保留历史工件 |
 | I-25 step250确定性恢复失败证据 | i25_step250_deterministic_replay | 根`checkpoints/i25_step250_deterministic_replay/`；保存点`checkpoints/i25_step250_deterministic_replay/checkpoint-250/` | step250/root adapter SHA256 `9198538f...68d9`，config `70a62d4e...29a771`；结果SHA256 `fad1adf5...29bb` | scheduler/route复现但未逐字节命中删除前身份，硬闸拒绝；不得安装、Stage1、打包、上传或作父模型 |
 | I-10 已评测 E1 | seed_teacher_r64_lr1e4_ep3 | `checkpoints/seed_teacher_r64_lr1e4_ep3/checkpoint-665/` | adapter SHA256 `c1bfb4dada8260560327a5ce3a9a15cbb29c0249421616bb1a9d95d9dc11add8` | 1 epoch；线上0.9100 |
 | I-10 E1 LoRA上传包 | seed_teacher_r64_lr1e4_ep3 | `submissions/seed_teacher_r64_lr1e4_e1_platform/` | adapter SHA256 `c1bfb4dada8260560327a5ce3a9a15cbb29c0249421616bb1a9d95d9dc11add8`；config SHA256 `f27c697e8bb611802822ea44b156b672c63f6d2ec16a380d868395a9d0eb213f` | 已上传并评测为0.9100 |
@@ -228,10 +429,13 @@
 | I-12 v3残差 | e3_userres_r16_retkl_v3_ep1 | `checkpoints/e3_userres_r16_retkl_v3_ep1_residual/` | adapter SHA256 `e8caf0a39fee133b2172f2e74a3ef64c53b3d46f2d8dc82acbc821a00b524f98`；config `0ba92b34...63d7` | 相对已合并E3的r16；仅作训练审计，不得单独上传 |
 | I-12 v3组合adapter | e3_userres_r80_retkl_v3_ep1 | `checkpoints/e3_userres_r80_retkl_v3_ep1/` | adapter/config SHA256 `3fe85158...87cc6` / `e3c3ace0...c4ac0` | E3 r64+残差r16精确拼接；相对O6的单个r80 |
 | I-12 v3固定协议对照 | e3_userres_r80_retkl_v3_ep1 | `submissions/e3_userres_r80_retkl_v3_ep1_platform/` | 与组合adapter逐字节一致；严格两文件，SHA256同上 | 固定协议线上0.9768；已被I-13同协议高0.0210 |
-| I-13 固定协议主模型 | e3_userres_r80_retkl_v3_s875 | `submissions/e3_userres_r80_retkl_v3_s875_platform/` | adapter/config SHA256 `71bc3c2c86beb1c1aaafd41f98915ba94a7f964b6e8450079a883aebc32ffd5b` / `e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0` | 固定协议线上0.9978；当前主模型；复赛融合口径待官方确认 |
+| I-13 上一固定协议主模型 | e3_userres_r80_retkl_v3_s875 | `submissions/e3_userres_r80_retkl_v3_s875_platform/` | adapter/config SHA256 `71bc3c2c86beb1c1aaafd41f98915ba94a7f964b6e8450079a883aebc32ffd5b` / `e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0` | 固定协议线上0.9978；已被s800高至少0.0059；参数拼接不鼓励但不禁止，复现链已披露 |
 | I-13 scale0.90参数探针 | e3_userres_r80_retkl_v3_s900 | `submissions/e3_userres_r80_retkl_v3_s900_platform/` | adapter/config SHA256 `7c966fb2...a60a` / `e3c3ace0...c4ac0` | 精确参数拼接、严格两文件、结构门0/60 PASS；本地保持KL和action CE未支配0.875，因此未作为I-19父模型；仅作零训练备选，不据此声称涨分 |
-| I-13 scale0.80线上探针 | e3_userres_r80_retkl_v3_s800 | `submissions/e3_userres_r80_retkl_v3_s800_platform/` | adapter/config SHA256 `bb86eb8a...63c6` / `e3c3ace0...c4ac0` | 仅改变I-12残差系数，严格两文件；I-13与I-12两点之间的高优先级零训练线上探针，不宣称稳涨 |
-| I-13 scale0.75线上探针 | e3_userres_r80_retkl_v3_s750 | `submissions/e3_userres_r80_retkl_v3_s750_platform/` | adapter/config SHA256 `5aa80992...6233` / `e3c3ace0...c4ac0` | 精确参数拼接；itemic 0/60 PASS但action复读4/30，高风险高收益第二探针 |
+| I-35当前最高已评测包 | i35_r96_video_boundary_retkl_r112 step548 | `submissions/i35_r96_video_boundary_retkl_r112_step548_platform/` | adapter/config SHA256 `52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00` / `4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996` | 严格两文件，r112/alpha112、392 tensors；StreamLake description对应step548，正式线上`1.0344285849069457`，evalTaskId `eval-task-9nepj1-1784698215`；当前默认交付包 |
+| I-35唯一剩余授权点 | i35_r96_video_boundary_retkl_r112 step411 | `submissions/i35_r96_video_boundary_retkl_r112_step411_platform/` | adapter/config SHA256 `e26eb9befd0ad2a1b60e7f088d6788e8101f32b7e1d43d8d9a0114f75da35d58` / `4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996` | 严格两文件，r112/alpha112、392 tensors；离线成对对照已归档，建议只作一次低剂量线上对照；尚无同步评测记录；step137/274/685禁投 |
+| I19-world上一最高/I-35父模型 | i19_world_userres_retkl_r16_ep1_i13retain_v1 scale0.875 | `submissions/i19_world_external_r96_s875_platform/` | adapter/config SHA256 `4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e` / `78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f`，242,273,688 / 1,074 bytes | 严格两文件，r96/alpha96、392 tensors；固定协议原始/复测`1.025259456/1.025362611`；I-35直接父模型。原parent/residual与完整复现链仍未到卷 |
+| I-13 scale0.80上一完整本地复现主模型 | e3_userres_r80_retkl_v3_s800 | `submissions/e3_userres_r80_retkl_v3_s800_platform/` | adapter/config SHA256 `bb86eb8af0efd3560b7b7c8440f3830627e9255f4fcc2265b9274a27668f63c6` / `e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0` | 同包两次固定协议显示分1.0037/1.0048；差0.0011按合理抖动；训练复现链完整，线上分低于I19-world父模型与I-35当前最高包 |
+| I-13 scale0.75备包 | e3_userres_r80_retkl_v3_s750 | `submissions/e3_userres_r80_retkl_v3_s750_platform/` | adapter/config SHA256 `5aa80992c517f9dbc4074f0f48dbf49f864e0ff9bfd19196f2262a858ae76623` / `e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0` | 精确参数拼接；itemic 0/60 PASS、action复读4/30；旧曲率中心约1.0048已落入s800复测范围，降级为备包，不优先提交 |
 | I-19线上否决候选 | i13_s875_dpo_rec_balhard_lowdose_v1 step25 | `checkpoints/i13_s875_dpo_rec_balhard_lowdose_v1/checkpoint-25/` | adapter/config SHA256 `e6ebe4dc...fb2e0` / `a7114c7d...caa4` | 固定协议线上0.9763，低I-13 0.0215；仅保留作偏好目标失配证据，不上传、不作父模型 |
 | I-19未选剂量轨迹 | i13_s875_dpo_rec_balhard_lowdose_v1 step50 | `checkpoints/i13_s875_dpo_rec_balhard_lowdose_v1/checkpoint-50/` | adapter/config SHA256 `9dddc6a2...729c` / `a7114c7d...caa4` | step25线上已否决偏好目标；只作轨迹，禁止上传和作为父模型 |
 | I-19未选末点/最终输出 | i13_s875_dpo_rec_balhard_lowdose_v1 step75 | `checkpoints/i13_s875_dpo_rec_balhard_lowdose_v1/checkpoint-75/`；根目录逐字节同adapter | adapter/config SHA256 `42aa6577...bf1` / `a7114c7d...caa4` | step25线上已否决偏好目标；只作完整训练轨迹，禁止上传和作为父模型 |
@@ -249,7 +453,7 @@
 | 本地否决 checkpoint | i01_action_distill_r64_ep3 | `checkpoints/i01_action_distill_r64_ep3/` | adapter SHA256 `67273f14373b4f7ee14c6077cba3ebf0b6f75336abf0491137901d1241c8a875`；MD5 `6dc62479` | action 停止改善但语义未涨，world 方向性大退；禁止上传 |
 | 最新失败实验包 | seed_cotfix_v1_lora_ep1 | `submissions/seed_cotfix_v1_lora_ep1_platform/` | adapter MD5 `3bfc8803`；SHA256 `0b3bfea5...` | 线上 0.8674，已证伪；仅暂存交付 |
 
-`submissions/` 当前保留十一份：原十份已登记历史包，以及已上传并评测为0.9727的I-17 step100严格两文件包。历史riders r64 E2的本地标准提交包仍缺失；历史提交分数、配置和日志保存在实验台账与归档总账中。
+`submissions/` 同时保留已登记历史包、本地候选包和当前I19-world最高点严格两文件包；不再维护易失真的手工总数。历史riders r64 E2的本地标准提交包仍缺失；各包的允许角色、哈希、线上状态与复现边界以本表逐项记录为准。
 
 I-10 根目录最终产物为 `checkpoints/seed_teacher_r64_lr1e4_ep3/adapter_model.safetensors`，SHA256与E3同为 `37678b2516011d52494e1c34b66ee072f768911d68884218da56779c8f1c8fc2`。三个checkpoint和根目录均未保存optimizer、scheduler或RNG状态。
 
@@ -342,7 +546,87 @@ I-10 根目录最终产物为 `checkpoints/seed_teacher_r64_lr1e4_ep3/adapter_mo
 | 非融合参考 | 相对I-11总分名义-0.0100，逐项=`0/-0.0061/-0.0009/-0.0192/+0.0136/0/+0.0027/0`。I-11虽不是参数拼接模型，但含164条teacher、从I-10 E3续训且为r64，仍不能隔离O1-only或rank80效应；单次差值也不称稳定差异 |
 | 状态 | **EVALUATED_0.9518_CLEAN_SINGLE_MODEL_NOT_LEADERBOARD_REPLACEMENT**；纯O1直训r80同协议基线缺失，E1/E2未线上评测，不作路线因果否决 |
 
-## 当前固定协议主模型：e3_userres_r80_retkl_v3_s875
+## I-35父模型与上一最高、r96包已验收：I19-world-residual r96
+
+| 项 | 记录 |
+|---|---|
+| 名称边界 | 本节稳定名为`I19-world-residual`；仓内既有I-19仍指`i13_s875_dpo_rec_balhard_lowdose_v1`，两者不重编号、不混写 |
+| 构造 | 独立复现I-13-like r80 parent冻结；1,573条授权Frinkleko clean world与1,573条八任务KL保持组成3,146行1:1混合，训练fresh r16；再以`scale=0.875`参数空间精确拼接为单个r96 adapter |
+| Parent边界 | 实际parent `i13_repro_combined_r80_s875`线上`0.986703844`，与仓内原I-13 s875配方相同但权重非bitwise一致；禁止用原s875 `0.9978`或s800 `1.0048`替代该父分计算净增益 |
+| 训练 | r16/alpha16/dropout0.05/all-linear；lr5e-5 cosine、warmup0.03、wd0.001、batch1×acc4、cutoff4096、bf16、seed19260821、1 epoch/787 steps；world为CE+0.05 parent KL，保持为0 CE+2.0 parent KL |
+| 上一最高点/I-35父分 | `scale=0.875`原始总分`1.025259456`，后续同模型复测`1.025362611`；原始八项=`0.2453/0.1225/0.0399/0.0768/0.1326/0.1400/0.1080/0.1602`；原始evalTaskId `eval-task-g4y7us-1784436397`，复测evalTaskId `eval-task-ol0sje-1784615810`，平台模型ID均为`md-cm6gw1-1784436350784564154` |
+| 相邻点 | `scale=0.75/0.8/0.9`总分=`0.996570849/0.990238620/0.977796092`；三点video均`0.0576`，只有0.875为`0.0768`，所以最高点可能是孤立非单调效应或评测噪声，四点都只有一次观测 |
+| 报告哈希 | 实际r80 parent `a63a45c3...15ed0`；r16 residual `144ee8ef...d4d6d`；0.875 r96 `4fba17eb...078e`；3,146行混合 `a8af6884...edb86` |
+| 当前存在性 | r96严格两文件包已在`submissions/i19_world_external_r96_s875_platform/`验收：adapter/config SHA256=`4fba17eb...078e`/`78b62143...1b64f`，242,273,688/1,074 bytes，r96/alpha96、392 tensors。报告所列parent/residual、发布数据目录、builder/trainer/audit/config或W&B run仍缺 |
+| 下一动作 | 接收实际r80 parent/r16 residual、数据发布件、源码/配置/combine audit、训练日志与W&B run；逐项通过哈希、行数、路由、父身份和逐tensor拼接恒等式验收，闭合完整复现链 |
+| 详情 | [`I19_WORLD_RESIDUAL_HANDOFF.md`](I19_WORLD_RESIDUAL_HANDOFF.md) |
+| 状态 | **I35_PARENT_PREVIOUS_HIGHEST_PACKAGE_VERIFIED_REPRO_CHAIN_INCOMPLETE** |
+
+## 已完成并本地否决：i30_r96_material_teacher_retkl_r8_v1
+
+| 项 | 预注册记录 |
+|---|---|
+| 目的 | 在当前最高观测`1.025259456` r96上只迁移I-23的material优势；不改world/video等第二个训练目标，不把离线logp解释成线上估分 |
+| 父模型/允许角色 | `submissions/i19_world_external_r96_s875_platform/`，adapter/config SHA256=`4fba17eb...078e`/`78b62143...1b64f`；允许作为本实验冻结parent和fresh r8初始化基点。该许可不补齐其仍缺的原r80/r16复现链 |
+| teacher/允许角色 | I-23 E3严格包，adapter/config SHA256=`0e5fa9bb...c6b8`/`b3f2a1b5...e7e7`；只允许作material构造评分器和material响应KL teacher，不作为policy初始化，不复用I-24/I-25/I-28失败点 |
+| 构造选择 | `data_seed_teacher_v1`的O1 material按seed19260831每向先留128条门，再取1,024条构造池；以相同O6上I-23减r96的答案体gold mean-logp排序，每向只选前256条严格正优势行。固定算法在任何模型forward前登记 |
+| 训练混合 | `assets/derived/processed/data_i30_r96_material_teacher_retkl_v1.jsonl`，2,048行/17,701,923 bytes/SHA256 `0df9a192...c4a4`；512条material teacher+1,536条七任务r96 KL-only保持，严格1:3。T/E训练行0；builder/ledger/audit SHA256=`a57c17e2...ab8a`/`b303a501...5b3d`/`6b46775b...9226` |
+| 损失/训练物理 | material答案体CE+0.5 I-23 KL+0.1 r96 KL；保持4.0 r96 KL。fresh r8/alpha8/dropout0.05/all-linear，lr2e-5 cosine、warmup0.03、wd0.001、batch1×acc4、cutoff16384、单GPU、W&B online、1轮512步 |
+| 冻结候选 | step128→256→384→512取最早全过点；residual scale固定1.0，禁止新增scale网格。两向material门、七任务保持、world MC和itemic零断裂任一失败则本地关闭 |
+| 独立门 | `assets/evaluation/holdout/data_i30_r96_material_teacher_gate_v1.jsonl`，704行/SHA256 `dd744ee2...7a0`；material双向各128、其余七任务各64，与全部训练prompt交集0，训练梯度为0 |
+| 配置/实现 | config/trainer/launcher SHA256=`e351827c...9db4`/`60fa31d5...9f39`/`97d55880...256b`；结果前门SHA256 `895a9a62...eadc`。全量O6 tokenizer预检2,048/2,048，路由512/1536，最长8,864<16,384 |
+| 正式训练 | `checkpoints/i30_r96_material_teacher_retkl_r8_v1/`；单GPU0、W&B [`ir2r0nd4`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/ir2r0nd4)，512/512步、928.9s、train loss `2.1403`、路由material/retention=`512/1536`，正常退出。保留adapter-only点：`checkpoints/i30_r96_material_teacher_retkl_r8_v1/checkpoint-128/`、`checkpoints/i30_r96_material_teacher_retkl_r8_v1/checkpoint-256/`、`checkpoints/i30_r96_material_teacher_retkl_r8_v1/checkpoint-384/`、`checkpoints/i30_r96_material_teacher_retkl_r8_v1/checkpoint-512/`；adapter SHA256=`3c97c61c...ca2`/`ec78d0bd...45d7`/`6fc60bbb...b6ae`/`a52496c6...daf9`，均r8/alpha8且无optimizer/scheduler/RNG |
+| 精确组合 | 与冻结r96按scale1拼为r104：`checkpoints/i30_r96_material_teacher_retkl_r8_v1_combined_r104_step128/`、`checkpoints/i30_r96_material_teacher_retkl_r8_v1_combined_r104_step256/`、`checkpoints/i30_r96_material_teacher_retkl_r8_v1_combined_r104_step384/`、`checkpoints/i30_r96_material_teacher_retkl_r8_v1_combined_r104_step512/`；adapter SHA256=`bf9ea69c...d42`/`506fc314...e3b`/`fd772199...5e4`/`192f6a93...21d`，config统一`46bd7146...205` |
+| 冻结门结果 | 704/704完成；正式报告`logs/probe/i30_r96_material_teacher_gate_v1.json` SHA256 `3e12f088...92bf`。四点两向material联合门全部失败；最佳gold mean-logp delta约`+0.00207`，但改善率不足且candidate-to-I23 KL delta均为正。保持KL均小于0.005且gold保护通过，但topic/video/prod/ad/living/world若干Top-1低于0.99；world精确正确数为49/50/49/49，对照49，均不下降 |
+| 决策 | `earliest_teacher_forced_pass=null`；依预注册关闭I-30，不运行下一层itemic，不生成submission，不上传，不把离线结果解释成线上估分，不续训或后验搜索失败残差scale |
+| 状态 | **COMPLETE_LOCAL_GATE_FAIL_NO_PACKAGE_NO_UPLOAD** |
+
+## 已完成开发探针并获用户授权线上探索：i31_r96_i23_exact_interpolation_dev_probe
+
+| 项 | 记录 |
+|---|---|
+| 目的/边界 | 零训练检查直接参数插值能否绕过I-30训练残差的反向teacher-KL漂移；复用已看过的I-30 holdout只作开发，不能估线上分。2026-07-21用户明确要求取消本地门禁对上传的否决权，以真实平台分数决定是否继续该轴 |
+| 冻结设计 | `configs/evaluation/i31_r96_i23_exact_interpolation_dev_probe.json` SHA256 `409fd7ad...c957`；结果前固定`lambda=0.05/0.10/0.20/0.40`，精确恒等式`delta=(1-lambda)·delta_r96+lambda·delta_I23`，统一r160/alpha160，不追加后验点 |
+| 候选 | `checkpoints/i31_r96_i23_exact_interp_r160_l005/`、`checkpoints/i31_r96_i23_exact_interp_r160_l010/`、`checkpoints/i31_r96_i23_exact_interp_r160_l020/`、`checkpoints/i31_r96_i23_exact_interp_r160_l040/`；adapter SHA256=`4c28c7ca...1bb`/`5ad2e789...e64c`/`09e71cd3...64d7`/`39bc5d49...4df9`，config统一`6595df1b...92e6`，各403,754,928 bytes/392 tensors |
+| 开发结果 | 报告`logs/probe/i31_r96_i23_exact_interpolation_dev_probe.json` SHA256 `be917998...6db0`。`lambda=0.10`两向material gold delta=`+0.00533/+0.00048`、改善率=`58.59%/57.81%`、teacher-KL delta=`-0.00060/-0.00049`，是唯一两向material均过点；但world精确49→48且video/ad等保持未优于I-30。`lambda=0.05`world保持49但sid2desc gold delta为负；更高lambda的world为47/41 |
+| 平台合法化 | 将唯一两向material均改善的`lambda=0.10`候选逐模块最优截断SVD由r160压至r128并转BF16；`checkpoints/i31_r96_i23_exact_interp_r128_l010_svd_bf16/` adapter/config SHA256=`93d247a2...803f`/`daa3106d...07f3`，392 tensors，总计161,535,020 bytes；全局保留谱能量`0.9999999329`、BF16后相对Frobenius误差`0.00236582` |
+| 决策 | 不再用开发门禁阻止线上探索。只提交预先存在的`lambda=0.10`点，不后验新增lambda；真实平台总分决定该轴继续或关闭，尚未声称涨分 |
+| 状态 | **READY_FOR_ONLINE_SCORE_FIRST_PROBE** |
+
+## 已完成并本地否决：i32_task_restore_retkl_r8_v1
+
+| 项 | 预注册记录 |
+|---|---|
+| 目的 | 从I31唯一两向material有效的`lambda=0.10`起点学习task-conditioned恢复：保留I23 material移动，同时把七任务拉回当前1.0253 r96；离线门只作验收，不估线上分 |
+| 起点/参考 | 起点`checkpoints/i31_r96_i23_exact_interp_r160_l010/`，adapter/config SHA256=`5ad2e789...e64c`/`6595df1b...92e6`，恒等式`0.9*r96+0.1*I23`；冻结r96/I23 adapter SHA256=`4fba17eb...078e`/`0e5fa9bb...c6b8`分别只作retention/material reference |
+| 正式训练数据 | 复用已登记`data_i30_r96_material_teacher_retkl_v1.jsonl`，2,048行/SHA256 `0df9a192...c4a4`；material/retention=`512/1536`严格1:3，T/E训练行0。I32不创建或改写训练数据，只改变冻结损失路由，完整上游/构建器/混合比例沿用该D资产登记 |
+| 损失/训练 | fresh r8/alpha8/dropout0.05/all-linear；material只做`4.0*I23-to-policy KL`，retention只做`8.0*r96-to-policy KL`，gold CE均0。lr1e-5 cosine、warmup0.03、wd0.001、batch1×acc4、cutoff16384、单GPU、W&B online、512步一轮；初始fresh residual logits必须与r160起点max_abs<=1e-4 |
+| 新验收门 | `assets/evaluation/holdout/data_i32_task_restore_gate_v1.jsonl`，656行/4,998,481 bytes/SHA256 `f7510675...2f62`；material双向各128、action/topic/video/prod/ad/living各64、world16，与I30 train/dev prompt交集0。builder/audit SHA256=`758bda37...431c`/`035ca45e...ea8d`；world因严格排除后只有23个新prompt，结果前固定16，不复用旧门 |
+| 候选/停止 | 训练保存64间隔共8点，但科学候选只允许step64→128→256→512，分别与起点精确拼成固定scale1 r168；最早全过material双向、七任务保持、world exact和itemic 0/60者才打包。不得看192/320/384/448选点，不扫scale；无通过点即本地关闭 |
+| 实现哈希 | 训练前冻结trainer/config/evaluator/gate/launcher SHA256=`f6711e71...bce`/`58941c4b...7bc`/`d8682ae2...5d9c`/`41cb68a3...a1d`/`5ef67e1f...4830`；py_compile/self-test与全量2048行tokenizer预检PASS，路由512/1536、最长8,864<16,384。最终evaluator只机械修正两个旧常量为冻结`EXPECTED_COUNTS`引用，SHA256=`9bcde447...c161` |
+| 正式训练 | `checkpoints/i32_task_restore_retkl_r8_v1/`；单GPU0、W&B [`2lu9hw9k`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/2lu9hw9k)，512/512步、runtime1,074.3476s、train loss`0.0819712`、路由material/retention=`512/1536`、step0 fresh residual max_abs=0，正常退出。trainer log SHA256=`4f512ae8...6a8a`；无optimizer/scheduler/RNG |
+| 训练保存点 | `checkpoint-64/128/192/256/320/384/448/512` adapter SHA256=`ff72efd8...c44`/`5e06010a...e33`/`16750417...641`/`888eb67e...01b`/`23854f67...a70`/`77ed9305...c31`/`aacb34bd...fe7`/`9e71d6cb...107`，config统一`fbf08a81...d67`。192/320/384/448依预注册仅作审计、未评估 |
+| 精确组合 | 科学候选step64/128/256/512与r160按scale1拼为r168；adapter SHA256=`81e60e91...58b`/`6c0756e7...523`/`91190212...9d2`/`2c1c0f84...690`，config统一`b31258a0...031`。逐点combine audit SHA256=`65749f01...bf5f`/`5aa841cc...c835`/`30358b2f...2ae`/`f35cbfb7...9cdc` |
+| 冻结门结果 | 656/656完成；报告`logs/probe/i32_task_restore_gate_v1.json` SHA256=`c2912079...c4cd`。四点world exact均为parent/candidate=`11/11`，全部不退；material desc2sid/sid2desc改善率依次=`48.44/52.34%`、`53.91/51.56%`、`46.88/56.25%`、`48.44/54.69%`，无一点双向同时达到55%。四点KL均小于0.005且gold保护通过，但topic/video/prod/ad/living等多项Top-1低于0.99 |
+| 决策 | 原冻结结论仍为`earliest_teacher_forced_pass=null`且不自动进入itemic/包/上传。用户在知晓失败后明确以每日5次额度授权step128作一次门外探索：该点因双向material gold均为正、desc2sid最强、world 11/16不退而优先；提交级itemic 0/60后已打包。此例外不允许回看中间点、扫scale、续训、复用失败残差或自动提交其余三点 |
+| 探索包 | 原FP32 r168因423,941,100 bytes超过400MB被拒，BF16 r168又因rank168超过平台上限128被拒，均无evalTaskId。唯一待传为`submissions/i32_task_restore_retkl_r128_step128_svd_bf16_platform/`：逐模块截断SVD、r128/alpha128、392 BF16 tensors，adapter/config SHA256=`edadde1f...d46`/`daa3106d...7f3`，总计161,535,020 bytes。656行material两向gold均值`+0.001988/+0.000350`、world 11/16；precheck itemic 0/60、选择题8/8、action复读诊断2/30。package audit SHA256=`10190999...0705` |
+| 状态 | **COMPLETE_LOCAL_GATE_FAIL_USER_AUTHORIZED_STEP128_R128_BF16_PACKAGE_READY_NOT_ONLINE_EVALUATED** |
+
+## 上一完整本地复现主模型：e3_userres_r80_retkl_v3_s800
+
+| 项 | 记录 |
+|---|---|
+| 目的/构造 | 不重训；保持I-10 E3 r64父adapter不变，只将I-12 r16用户残差系数从s875的`0.875`降为`0.80`，精确拼为相对O6的单个r80 adapter |
+| 提交包 | `submissions/e3_userres_r80_retkl_v3_s800_platform/`严格只有两文件；adapter 201,903,440 bytes，SHA256 `bb86eb8af0efd3560b7b7c8440f3830627e9255f4fcc2265b9274a27668f63c6`；config 1,139 bytes，SHA256 `e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0` |
+| 线上 | 首测UI `e3_userres_r80_retkl_v3_s800_V1_eval_20260717000053`；平台记录时间2026-07-17 00:01:02；1h10m7s；总分`1.0037`；八项按material/action/topic/video/prod/ad/live/world为`0.2453/0.1163/0.0401/0.0960/0.1224/0.1372/0.1089/0.1375`。同包复测UI `e3_userres_r80_retkl_v3_s800_V1_eval_20260717000053_copy`；平台时间2026-07-17 15:07:19；1h9m3s；总分`1.0048`；八项=`0.2453/0.1166/0.0401/0.0960/0.1224/0.1358/0.1089/0.1398`；账号均`SL1ACE8AD6710` |
+| 线上日志 | `logs/eval/e3_userres_r80_retkl_v3_s800_20260717.log`，2,737,350 bytes，SHA256 `85f0357bd151b2f6fe1053915081aa9cfefad6c01221228738983bd020a52eb6`；action1024、itemic 7次race-average、8/8生成与计分完成、失败0；evalTaskId `eval-task-olteal-1784217662` |
+| 协议 | `platform-stable-v3.1-20260713`；与I-10 E3旧协议结果不可作差 |
+| 相对s875 | 总分`+0.0059`；material/action/topic/video/prod/ad/live/world=`0/-0.0020/+0.0011/0/0/+0.0056/+0.0027/-0.0015`。用户两项合计`-0.0009`，推荐四项合计`+0.0083`，world `-0.0015` |
+| 复测判读 | 同一包两次显示分差`+0.0011`，逐项显示差=`0/+0.0003/0/0/0/-0.0014/0/+0.0023`；按合理评测抖动处理，不当作第二个模型。两次均值`1.00425`、该包最好显示分`1.0048`；复测原始日志/evalTaskId尚未入仓 |
+| 判读/下一发 | s750三点曲率中心约`1.0048`已经落入s800复测范围，缺少明确上行，故继续为备包。I-23残差轴和I-29 video分支均已关闭。I19-world r96随后成为I-35父模型，I-35 step548又刷新至1.034428585；暂停从s800派生的新world训练 |
+| 状态 | **COMPLETE_FIXED_PROTOCOL_REPEAT_1.0037_1.0048_PREVIOUS_LOCAL_BASELINE** |
+
+## 上一固定协议主模型：e3_userres_r80_retkl_v3_s875
 
 | 项 | 记录 |
 |---|---|
@@ -355,13 +639,13 @@ I-10 根目录最终产物为 `checkpoints/seed_teacher_r64_lr1e4_ep3/adapter_mo
 | 硬门禁 | itemic断裂0/60=`PASS`；action复读2/30、选择题格式6/8、占位符0/8、简单题4/8，全部与I-12一致。日志`logs/precheck/e3_userres_r80_retkl_v3_s875_precheck.log`，SHA256 `cbd32b15...66bda`；临时merge已删、GPU1归零 |
 | 提交包 | `submissions/e3_userres_r80_retkl_v3_s875_platform/`严格两文件；adapter 201,903,440 bytes，SHA256 `71bc3c2c...ffd5b`；config 1,139 bytes，SHA256 `e3c3ace0...c4ac0`；组合审计`logs/model/e3_userres_r80_retkl_v3_s875_combine.json` |
 | GitHub最高分实现发布 | `assets/derived/releases/e3_userres_r80_retkl_v3_s875/`完整提交I-10父训练数据与I-12残差训练数据的确定性gzip、manifest和小型原始审计；`configs/active/i13_repro_parent_r64_ep3.yaml`与`i13_repro_residual_r16_retkl_ep1.yaml`保留历史训练字段并改为portable路径；`scripts/reproduce/i13_highscore.sh`覆盖双数据校验/还原、两阶段单卡W&B训练和0.875精确拼接。两份数据已从发布件完整解压并与历史输入逐字节一致；用历史r64/r16源adapter重新拼接也与线上r80包逐字节一致 |
-| 规则口径 | FAQ写明初赛基于OneReason-0.8B、允许蒸馏、全程不鼓励融合，并要求复赛结束提供单模型训练方案审核复现。该包运行时是单个r80 adapter，但参数由两个同基座LoRA拼接，存在融合认定灰区；没有官方书面确认，不把“初赛通常不审核”写成合规证明 |
+| 规则口径 | FAQ写明初赛基于OneReason-0.8B、允许蒸馏、全程不鼓励融合，并要求复赛结束提供单模型训练方案审核复现。“不鼓励”并非禁止；该包运行时是单个r80 adapter，参数由两个同基座LoRA拼接，当前按允许冲分处理，同时完整披露来源、拼接恒等式与单模型复现链 |
 | 线上 | `e3_userres_r80_retkl_v3_s875_V1_eval_20260714004418`；平台记录时间2026-07-14 00:44:35；1h7m21s；总分0.9978；八项按material/action/topic/video/prod/ad/live/world为`0.2453/0.1183/0.0390/0.0960/0.1224/0.1316/0.1062/0.1390`；账号`SL1ACE8AD6710` |
 | 线上日志 | `logs/eval/e3_userres_r80_retkl_v3_s875_20260714.log`，2,777,778 bytes，SHA256 `9291f8bf87871bb93846dda4cfcf60d43812354fb87a18e6ef6a5a349bdb3315`；8/8任务、Failed tasks 0；evalTaskId `eval-task-9ie86v-1783961075` |
 | 协议 | `platform-stable-v3.1-20260713`；action上限1024，itemic 7次race-average。与E3旧协议结果不可作差 |
 | 同协议相对I-12 | 总分+0.0210；material 0、action -0.0023、topic -0.0003、video +0.0288、prod -0.0068、ad 0、live +0.0009、world +0.0007。用户两项合计-0.0026，推荐四项合计+0.0229 |
-| 判读 | 缩放残差的总分方向得到一次线上支持，主要收益来自video而非用户两项。I-13是当前固定协议主模型；E3桥接仍缺失，不能声称相对父E3的净增益 |
-| 状态 | **COMPLETE_FIXED_PROTOCOL_0.9978_CURRENT_MAIN** |
+| 判读 | 缩放残差的总分方向得到一次线上支持，主要收益来自video而非用户两项。s875现为上一主模型；E3桥接仍缺失，不能声称相对父E3的净增益 |
+| 状态 | **COMPLETE_FIXED_PROTOCOL_0.9978_PREVIOUS_MAIN** |
 
 ## 上一固定协议实验：e3_userres_r80_retkl_v3_ep1
 

@@ -1,0 +1,32 @@
+{
+  "status": "PREREGISTERED_DEVELOPMENT_PROBE_ONLY",
+  "registered_at_utc": "2026-07-20T10:48:00Z",
+  "experiment": "i31_r96_i23_exact_interpolation_dev_probe",
+  "purpose": "Test whether exact parameter interpolation moves the verified r96 parent toward I-23's material behavior without the failed I-30 residual-training dynamics. This development probe is not an online-score estimate and cannot authorize a package.",
+  "base": "models/OneReason-0.8B-pretrain-competition",
+  "parent": {
+    "path": "submissions/i19_world_external_r96_s875_platform",
+    "rank": 96,
+    "adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e"
+  },
+  "material_endpoint": {
+    "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+    "rank": 64,
+    "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8"
+  },
+  "candidate_lambdas_in_order": [0.05, 0.1, 0.2, 0.4],
+  "exact_identity": "delta_candidate = (1 - lambda) * delta_r96 + lambda * delta_i23",
+  "combined_rank": 160,
+  "development_holdout": {
+    "path": "assets/evaluation/holdout/data_i30_r96_material_teacher_gate_v1.jsonl",
+    "sha256": "dd744ee2d2f584b9bcae938cde1f5976801a9eece39aa1972b284641603f97a0",
+    "rows": 704,
+    "role": "Development only because it has already been inspected for I-30. It must not be reused as an I-31 acceptance set."
+  },
+  "advance_rule": "Advance only if at least one frozen lambda improves both material directions versus r96, has non-positive candidate-to-I23 KL delta in both directions, and shows a materially better retention tradeoff than I-30. If so, build a new prompt-disjoint acceptance holdout before packaging. Otherwise close I-31 without a package.",
+  "forbidden": [
+    "No lambda additions or midpoint search after seeing this probe",
+    "No package or online upload from the development probe",
+    "No claim that development metrics estimate online score"
+  ]
+}

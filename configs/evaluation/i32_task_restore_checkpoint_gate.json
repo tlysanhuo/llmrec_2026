@@ -1,0 +1,120 @@
+{
+  "status": "PREREGISTERED_AND_HASH_FROZEN_READY_FOR_FORMAL_TRAINING",
+  "registered_at_utc": "2026-07-20T11:20:00Z",
+  "experiment": "i32_task_restore_retkl_r8_v1",
+  "purpose": "Preserve the I31 lambda-0.10 material movement while restoring the verified r96 behavior on the other seven tasks. Offline metrics are acceptance diagnostics, not online-score estimates.",
+  "base": {
+    "path": "models/OneReason-0.8B-pretrain-competition",
+    "config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+  },
+  "start": {
+    "path": "checkpoints/i31_r96_i23_exact_interp_r160_l010",
+    "rank": 160,
+    "adapter_sha256": "5ad2e7898f5ac52d286e634f2d38067b59a45c6b0d6be7d61d2af54a9ebde64c",
+    "identity": "0.90 * delta_r96 + 0.10 * delta_I23",
+    "allowed_role": "Merged initialization only. The I31 development result does not authorize this adapter as a submission."
+  },
+  "references": {
+    "retention_parent": {
+      "path": "submissions/i19_world_external_r96_s875_platform",
+      "adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e"
+    },
+    "material_teacher": {
+      "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+      "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8"
+    }
+  },
+  "training_data": {
+    "path": "assets/derived/processed/data_i30_r96_material_teacher_retkl_v1.jsonl",
+    "sha256": "0df9a192976eb61eb8dd333fd59edb994d1fcad482710e1282f36dd792bfc4a4",
+    "rows": 2048,
+    "upstream_asset_ids": [
+      "data_seed_teacher_v1.jsonl",
+      "data_user_residual_retention_v1.jsonl"
+    ],
+    "builder": "scripts/data/build_i30_r96_material_teacher_v1.py",
+    "mix": {
+      "material_teacher_kl": 512,
+      "r96_retention_kl": 1536
+    },
+    "mix_ratio": "1:3",
+    "third_party_rows": 0,
+    "evaluation_rows": 0
+  },
+  "frozen_training_recipe": {
+    "initialization": "merge exact r160 start into O6, freeze it, then create a zero-output fresh residual",
+    "residual_rank": 8,
+    "residual_alpha": 8,
+    "residual_dropout": 0.05,
+    "target_modules": "all linear",
+    "material_loss": "4.0 * I23-to-policy KL on all answer-body tokens; no gold CE and no r96 KL",
+    "retention_loss": "8.0 * r96-to-policy KL on at most 96 uniformly spaced answer-body tokens; no gold CE and no I23 KL",
+    "batch": 1,
+    "gradient_accumulation": 4,
+    "optimizer_steps": 512,
+    "dataset_exposures": 1,
+    "learning_rate": 0.00001,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.001,
+    "cutoff": 16384,
+    "seed": 19260831,
+    "single_gpu": true,
+    "wandb_mode": "online",
+    "saved_steps": [64, 128, 192, 256, 320, 384, 448, 512],
+    "candidate_steps": [64, 128, 256, 512],
+    "candidate_scale": 1.0,
+    "checkpoint_contents": "adapter-only; no optimizer, scheduler, scaler, or RNG state"
+  },
+  "acceptance_holdout": {
+    "path": "assets/evaluation/holdout/data_i32_task_restore_gate_v1.jsonl",
+    "sha256": "f75106758792163dd33d1d52639ba507a6d9e69094d8213d5f3b0969ee272f62",
+    "rows": 656,
+    "counts": {
+      "material_desc2sid": 128,
+      "material_sid2desc": 128,
+      "action": 64,
+      "topic": 64,
+      "rec_video": 64,
+      "rec_prod": 64,
+      "rec_ad": 64,
+      "rec_living": 64,
+      "world": 16
+    },
+    "prompt_overlap_i30_train_or_dev": 0,
+    "builder": "scripts/data/build_i32_task_restore_gate_v1.py",
+    "builder_sha256": "758bda374861fe7dbb8cce15417bbc2465a64b14c00f63c40b54690aef2a431c",
+    "audit_sha256": "035ca45e4ce1f0fed14d98ef90c70a88caf2b6d476a6758f90c6a3621628ea8d"
+  },
+  "formal_implementation": {
+    "trainer": "scripts/train/train_i32_task_restore_retkl.py",
+    "trainer_sha256": "f6711e7112520ec7ee772cc85ec6ab8ff29cc141fc60245469761e349c701bce",
+    "config": "configs/active/i32_task_restore_retkl_r8_v1.yaml",
+    "config_sha256": "58941c4b11d3258a66cc371288b74126efdd2cbc3fda9523261929feebace7bc",
+    "evaluator": "scripts/eval/audit_i32_task_restore_gate.py",
+    "evaluator_sha256": "d8682ae254d3e39af678fce7b076b8d30182bf308a664f461f0fdb888a6b5d9c"
+  },
+  "selection_rule": "Evaluate candidate steps 64, 128, 256, and 512 in that order and select the earliest point passing every hard gate. Do not evaluate or package the four intermediate save-only steps. Do not search residual scales.",
+  "hard_material_gate_each_direction": {
+    "gold_token_mean_logp_delta_vs_r96_min": 0.0,
+    "row_improved_rate_vs_r96_min": 0.55,
+    "candidate_to_i23_kl_delta_vs_r96_to_i23_max": 0.0
+  },
+  "hard_retention_gate_each_other_task": {
+    "r96_to_candidate_top1_agreement_min": 0.99,
+    "r96_to_candidate_forward_kl_mean_max": 0.005,
+    "gold_token_mean_logp_delta_vs_r96_min": -0.01
+  },
+  "hard_structural_gates": {
+    "world_mc_accuracy_decline_vs_r96_max": 0,
+    "itemic_breakage_count_out_of_60": 0,
+    "nan_inf_oom_traceback_start_fingerprint_or_route_error_count": 0,
+    "observed_microbatches": 2048,
+    "observed_routes": {
+      "material": 512,
+      "retention": 1536
+    }
+  },
+  "failure_action": "If no candidate passes, close I-32 locally with no package, no upload, no continuation, and no post-hoc scale search.",
+  "online_success_definition": "A selected candidate must keep material at least 0.2760 and exceed 1.025259456 under the same platform protocol. A single online result remains an observed point, not a stability claim."
+}

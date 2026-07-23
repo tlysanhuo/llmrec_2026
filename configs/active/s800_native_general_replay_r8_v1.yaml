@@ -1,0 +1,81 @@
+### Small official-native General replay over the current s800 parent.
+### Prepared for a single-GPU GLM Platform Training Task; never run this
+### formal entry on the development machine.
+###
+### Causal contract:
+### - Unique parent/reference: e3_userres_r80_retkl_v3_s800, whose repeat
+###   online score is 1.0048 and world component is 0.1398.
+### - LLaMA-Factory merges s800 r80 into O6, then creates a fresh r8/alpha8
+###   residual. disable_adapter() is the exact merged-s800 KL reference.
+### - The 129 task-fit-reviewed official native General rows occur once and
+###   receive full-response CE + 0.05 parent KL. They are official SFT
+###   supervision, not independently verified factual gold.
+### - The 384 unchanged parent-distribution rows are exactly 48 from each of
+###   material desc2sid/sid2desc, action/topic, and video/prod/ad/living.
+###   They receive 4.0 parent KL only and no gold CE.
+### - Runtime CE/KL routing is fail-closed by exact qwen3_nothink assistant-
+###   target token hashes, not by discarded JSONL metadata or text heuristics.
+###
+### Frozen artifact hashes:
+### - O6 config: 5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4
+### - s800 adapter/config: bb86eb8af0efd3560b7b7c8440f3830627e9255f4fcc2265b9274a27668f63c6 /
+###   e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0
+### - training JSONL (513 rows): 87097135eb7ddb866b78ae6427c24b8cc2712f898c892d7da92d58ff7e9fddd2
+### - route manifest: 630ec7d0c60363eb64e2a655057200cd70c49bcd4797c671cc7a14750f4004af
+### - builder: ca9e1ee57c2b7d7ed0838d0c3b6677b85c6cac2f07dcd7cb079c36c8b4f37130
+### - trainer: cee8c25828016f9a5d7df08507589a1fa996d5a845c2b498c347ed2373078071
+###
+### Dose: batch1, accumulation4, 129 optimizer steps, lr1e-5, 8-step
+### warmup then constant. Every one of the 513 rows is consumed exactly once;
+### the last optimizer step contains the final one-row partial accumulation.
+### A trainer callback saves residual-only checkpoints at 32/64/96/129.
+### The residual is not a standalone submission; a selected checkpoint must
+### later be exactly concatenated with s800 into one r88 adapter and disclosed.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/e3_userres_r80_retkl_v3_s800_platform
+create_new_adapter: true
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 8
+lora_alpha: 8
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_s800_native_general_replay_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/s800_native_general_replay_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/s800_native_general_replay_r8_v1
+logging_steps: 4
+save_strategy: "no"
+save_total_limit: 4
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: s800_native_general_replay_r8_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-5
+max_steps: 129
+num_train_epochs: 1
+lr_scheduler_type: constant_with_warmup
+warmup_steps: 8
+weight_decay: 0.0
+bf16: true
+seed: 19260831

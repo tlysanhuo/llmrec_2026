@@ -1,0 +1,99 @@
+{
+  "status": "PREREGISTERED_AND_HASH_FROZEN_READY_FOR_FORMAL_TRAINING",
+  "registered_at_utc": "2026-07-23T00:00:00Z",
+  "experiment": "i38_i23_material_i35_teacher_retkl_r16_v1",
+  "purpose": "Retain the I-23 material hit at 0.275958188153 while distilling I-35 step548 behavior on every non-material task into one fresh residual.",
+  "policy_start_and_material_anchor": {
+    "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+    "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+    "adapter_config_sha256": "b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7",
+    "rank_alpha": [64, 64],
+    "online_total": 0.991517391432338,
+    "online_material": 0.275958188153
+  },
+  "nonmaterial_teacher": {
+    "path": "submissions/i35_r96_video_boundary_retkl_r112_step548_platform",
+    "adapter_sha256": "52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00",
+    "adapter_config_sha256": "4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996",
+    "rank_alpha": [112, 112],
+    "online_total": 1.0344285849069457,
+    "online_material": 0.2452961672473868
+  },
+  "formal_data": {
+    "path": "assets/derived/processed/data_i38_i23_material_i35_teacher_retkl_v1.jsonl",
+    "sha256": "5d8ca1a6fa9190841187543559ead1d497d48a50b082382c9fa8501add928d58",
+    "rows": 2740,
+    "material_anchor_i23": 1370,
+    "retention_teacher_i35": 1370,
+    "mix_ratio": "1:1",
+    "upstream_asset_ids": ["data_i35_video_boundary_retkl_v1"],
+    "builder": "scripts/data/build_i38_i23_material_i35_teacher_v1.py",
+    "builder_sha256": "0581b1f38c6e66c0a89b774eb5975e6953023afefd2f46c0473e17de0610926a",
+    "audit": "logs/data/i38_i23_material_i35_teacher_retkl_v1_audit.json",
+    "audit_sha256": "f2f0cb5df91d370763c8dbf36854a05b3240284cb6e7cabbdbddfa9e0903a99c",
+    "training_t_rows": 0,
+    "training_e_rows": 0,
+    "model_generated_rows": 0
+  },
+  "frozen_training_recipe": {
+    "single_gpu": true,
+    "wandb_online_required": true,
+    "initialization": "Merge exact I-23 r64 into O6, then create one fresh trainable r16.",
+    "residual_rank_alpha": [16, 16],
+    "residual_dropout": 0.05,
+    "target_modules": "all linear",
+    "material_loss": "8.0 forward KL to the exact merged I-23 start; gold CE=0",
+    "retention_loss": "8.0 forward KL to frozen I-35 step548, capped at 128 uniformly spaced answer positions; gold CE=0",
+    "batch": 1,
+    "gradient_accumulation": 4,
+    "optimizer_steps": 685,
+    "dataset_exposures": 1,
+    "learning_rate": 0.000005,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.001,
+    "cutoff": 16384,
+    "precision": "bf16",
+    "seed": 19260838,
+    "save_strategy": "no intermediate checkpoints; one full candidate"
+  },
+  "formal_artifacts": {
+    "base_config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4",
+    "dataset_registry_sha256": "de6260b8083bec7bae47a0ec35d1901256af7ac7c71a67fb98df3e0f1899a7c0",
+    "trainer_sha256": "1111bd6dc7dfc54edbb599da5e987de51cf50f75acb5eecaa3f4a4987b0b41c7",
+    "config_sha256": "45a35e6fe21d4afdd80555bfa56ef3be2247188ac76d442e6beb7b36b0c71893",
+    "holdout": "assets/evaluation/holdout/data_i38_i23_material_i35_teacher_gate_v1.jsonl",
+    "holdout_rows": 400,
+    "holdout_sha256": "311b298f939a953aed7a8a11a694e257518e273a1e506537d76953720eaed41f",
+    "holdout_training_prompt_overlap": 0,
+    "holdout_audit_sha256": "b281ef99821853b373fe7b947b1d2421330c9d8c703f3dc389347b3286f1692b",
+    "evaluator_sha256": "73d23815a087be8de7ca41d3b29d6bf712ac4d3d590ed639fc729fe6497535c8"
+  },
+  "candidate_rule": "Evaluate only the full 685-step residual after exact I-23 r64 + residual r16 concatenation. No checkpoint, rank, dtype, interpolation, or residual-scale search.",
+  "teacher_forced_gate": {
+    "material_each_direction": {
+      "tasks": ["material_desc2sid", "material_sid2desc"],
+      "candidate_to_i23_forward_kl_mean_max": 0.005,
+      "candidate_i23_top1_agreement_min": 0.99,
+      "candidate_gold_mean_logp_delta_vs_i23_min": -0.01
+    },
+    "nonmaterial_each_task": {
+      "tasks": ["action", "topic", "rec_video", "rec_prod", "rec_ad", "rec_living", "world"],
+      "candidate_to_i35_forward_kl_mean": "strictly below I-23-to-I-35 baseline",
+      "candidate_i35_top1_agreement": "not below I-23-to-I-35 baseline"
+    },
+    "nonmaterial_aggregate": {
+      "candidate_to_i35_kl_ratio_vs_i23_max": 0.9
+    }
+  },
+  "next_gate": "Only if the teacher-forced gate passes: itemic breakage must be 0/60, then verify the two-file r80 package and exact additivity.",
+  "packaging_contract": {
+    "operation": "Exact concatenation I-23 r64 + fresh residual r16 at multipliers 1.0/1.0",
+    "final_rank_alpha": [80, 80],
+    "expected_tensor_count": 392,
+    "files": ["adapter_model.safetensors", "adapter_config.json"]
+  },
+  "conditional_score_ceiling": 1.0650906058125589,
+  "conditional_score_ceiling_definition": "Arithmetic only: I-35 step548 total plus the single observed material-score increment from 0.2452961672473868 to 0.275958188153. It is not a prediction.",
+  "online_success_definition": "One fixed-protocol observation above 1.0344285849069457 with material at 0.275958188153 and no material collapse in another subscore. A single observation is not a stability certificate."
+}

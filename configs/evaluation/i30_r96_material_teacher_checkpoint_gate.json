@@ -1,0 +1,117 @@
+{
+  "status": "PREREGISTERED_AND_HASH_FROZEN_READY_FOR_FORMAL_TRAINING",
+  "registered_at_utc": "2026-07-20T00:00:00Z",
+  "experiment": "i30_r96_material_teacher_retkl_r8_v1",
+  "purpose": "Test whether a fresh low-rank residual can transfer I-23's observed material advantage onto the verified 1.0253 r96 package while preserving the other seven tasks. Offline metrics are construction and safety diagnostics, not online-score estimates.",
+  "base": {
+    "path": "models/OneReason-0.8B-pretrain-competition",
+    "config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+  },
+  "parent": {
+    "path": "submissions/i19_world_external_r96_s875_platform",
+    "adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+    "adapter_config_sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+    "rank": 96,
+    "fixed_protocol_online_score": 1.025259456,
+    "fixed_protocol_online_subscores": {
+      "material": 0.2453,
+      "action": 0.1225,
+      "topic": 0.0399,
+      "video": 0.0768,
+      "prod": 0.1326,
+      "ad": 0.14,
+      "living": 0.108,
+      "world": 0.1602
+    },
+    "provenance_boundary": "The exact r96 submission package is verified. Its original r80/r16 training components remain unavailable, so this continuation is reproducible from the verified r96 package but does not close the upstream I19-world reproduction chain."
+  },
+  "material_teacher": {
+    "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+    "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+    "adapter_config_sha256": "b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7",
+    "fixed_protocol_online_material": 0.276,
+    "allowed_role": "Frozen construction scorer and frozen material-response KL teacher only; never policy initialization."
+  },
+  "construction_selection": {
+    "source": "assets/derived/processed/data_seed_teacher_v1.jsonl",
+    "source_sha256": "13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f",
+    "tasks": ["material_desc2sid", "material_sid2desc"],
+    "seed": 19260831,
+    "holdout_per_direction": 128,
+    "candidate_pool_per_direction": 1024,
+    "scored_tokens": "answer body after </think>, including EOS and excluding formatter-only trailing whitespace",
+    "metric": "I-23 minus r96 gold-token mean-logp",
+    "selection": "top 256 strictly positive rows per direction, descending delta then row SHA256",
+    "selected_per_direction": 256,
+    "selection_is_online_score_estimate": false
+  },
+  "frozen_training_recipe": {
+    "single_gpu": true,
+    "parent_initialization": "merge verified r96 into O6, freeze it, then create a fresh residual",
+    "residual_rank": 8,
+    "residual_alpha": 8,
+    "residual_dropout": 0.05,
+    "target_modules": "all linear",
+    "material_rows": 512,
+    "retention_rows": 1536,
+    "material_to_retention": "1:3",
+    "material_loss": "answer-body gold CE + 0.5 frozen-I23 forward KL + 0.1 r96 parent KL",
+    "retention_loss": "4.0 r96 parent KL only, capped at 96 uniformly spaced answer-body positions",
+    "batch": 1,
+    "gradient_accumulation": 4,
+    "optimizer_steps": 512,
+    "dataset_exposures": 1,
+    "learning_rate": 0.00002,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.001,
+    "cutoff": 16384,
+    "seed": 19260831,
+    "wandb_mode": "online",
+    "checkpoint_steps": [128, 256, 384, 512],
+    "checkpoint_contents": "adapter-only; no optimizer, scheduler, scaler, or RNG state"
+  },
+  "formal_artifacts": {
+    "data": "assets/derived/processed/data_i30_r96_material_teacher_retkl_v1.jsonl",
+    "data_rows": 2048,
+    "data_sha256": "0df9a192976eb61eb8dd333fd59edb994d1fcad482710e1282f36dd792bfc4a4",
+    "builder": "scripts/data/build_i30_r96_material_teacher_v1.py",
+    "builder_sha256": "a57c17e28900d4d5f14acdc2130e61f6f8e0c0e1282102bd765f1ceb7ca6ab8a",
+    "audit": "logs/data/i30_r96_material_teacher_retkl_v1_audit.json",
+    "audit_sha256": "6b46775be12f96ff8e3258266129633cf372dfb7cda28080d8581279a5d49226",
+    "holdout": "assets/evaluation/holdout/data_i30_r96_material_teacher_gate_v1.jsonl",
+    "holdout_rows": 704,
+    "holdout_sha256": "dd744ee2d2f584b9bcae938cde1f5976801a9eece39aa1972b284641603f97a0",
+    "selection_ledger": "logs/data/i30_r96_material_teacher_selection_v1.jsonl",
+    "selection_ledger_rows": 2048,
+    "selection_ledger_sha256": "b303a501dddb1f7ae3afef192298f349dd211cbda229eb1618a94634c82b5b3d",
+    "dataset_registry": "configs/datasets/i30_r96_material_teacher_retkl_v1/dataset_info.json",
+    "dataset_registry_sha256": "fd3b55c5d4d5c05422b9cfa01514c6b6bcbbdcb325d4e88ccf40357218024872",
+    "trainer": "scripts/train/train_i30_r96_material_teacher_retkl.py",
+    "trainer_sha256": "60fa31d5aa18d7bdb1d039f590a74c7edd4547def0b8f10734fdb54591db9f39",
+    "config": "configs/active/i30_r96_material_teacher_retkl_r8_v1.yaml",
+    "config_sha256": "e351827cca5f9cf2b4632a960006dbcc27af02280e167004b51445ca16d99db4"
+  },
+  "candidate_steps_in_order": [128, 256, 384, 512],
+  "checkpoint_selection_rule": "Evaluate all four registered checkpoints and choose the earliest checkpoint that passes every hard gate. Do not search residual scales: the only allowed scale is 1.0. If no checkpoint passes, close I-30 locally.",
+  "hard_material_gate_each_direction": {
+    "holdout_rows": 128,
+    "gold_token_mean_logp_delta_vs_r96_min": 0.0,
+    "row_improved_rate_vs_r96_min": 0.55,
+    "candidate_to_i23_kl_delta_vs_r96_to_i23_max": 0.0
+  },
+  "hard_retention_gate_each_other_task": {
+    "holdout_rows": 64,
+    "r96_to_candidate_top1_agreement_min": 0.99,
+    "r96_to_candidate_forward_kl_mean_max": 0.005,
+    "gold_token_mean_logp_delta_vs_r96_min": -0.01
+  },
+  "hard_structural_gates": {
+    "itemic_breakage_count_out_of_60": 0,
+    "world_mc_accuracy_decline_vs_r96_max": 0.0,
+    "nan_inf_oom_traceback_parent_fingerprint_or_route_error_count": 0,
+    "observed_microbatches": 2048,
+    "observed_routes": {"material": 512, "retention": 1536}
+  },
+  "online_success_definition": "A selected candidate must keep the material subscore at least 0.2760 and exceed total score 1.025259456 under the same fixed protocol. A single result remains an observed point, not a stability claim."
+}

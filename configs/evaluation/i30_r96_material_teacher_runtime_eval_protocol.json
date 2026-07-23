@@ -1,0 +1,54 @@
+{
+  "status": "MECHANICALLY_FROZEN_AFTER_STEP128_FILE_EXISTED_BEFORE_ANY_CANDIDATE_EVALUATION",
+  "frozen_at_utc": "2026-07-20T10:28:00Z",
+  "experiment": "i30_r96_material_teacher_retkl_r8_v1",
+  "training_gate": "configs/evaluation/i30_r96_material_teacher_checkpoint_gate.json",
+  "training_gate_sha256_at_launch": "895a9a6292f0ec4fdbc06865a8809be9c1845af04726530a18d2da606ae5eadc",
+  "freeze_boundary": "All scientific thresholds, candidate order, scale=1 rule, and earliest-pass selection were frozen in the launch gate before training. This file only operationalizes token spans and the world exact metric. checkpoint-128 already existed, but no I-30 checkpoint had been loaded, scored, generated from, or otherwise evaluated before this mechanical freeze.",
+  "holdout": {
+    "path": "assets/evaluation/holdout/data_i30_r96_material_teacher_gate_v1.jsonl",
+    "sha256": "dd744ee2d2f584b9bcae938cde1f5976801a9eece39aa1972b284641603f97a0",
+    "rows": 704,
+    "task_counts": {
+      "material_desc2sid": 128,
+      "material_sid2desc": 128,
+      "action": 64,
+      "topic": 64,
+      "rec_video": 64,
+      "rec_prod": 64,
+      "rec_ad": 64,
+      "rec_living": 64,
+      "world": 64
+    },
+    "training_prompt_overlap": 0
+  },
+  "adapters": {
+    "parent_r96_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+    "teacher_i23_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+    "candidate_representation": "exact parent-r96 plus checkpoint-r8 concatenation at residual scale 1.0, yielding one r104 adapter"
+  },
+  "candidate_steps_in_order": [128, 256, 384, 512],
+  "teacher_forced_protocol": {
+    "renderer": "qwen ChatML matching qwen3_nothink",
+    "material_positions": "all answer-body tokens after </think>, including EOS and excluding formatter-only trailing whitespace",
+    "retention_positions": "at most 128 uniformly spaced response-body tokens, always spanning first and final body positions",
+    "material_metrics_each_direction": {
+      "gold_mean_logp_delta_vs_r96_min": 0.0,
+      "row_improved_rate_vs_r96_min": 0.55,
+      "teacher_to_candidate_forward_kl_minus_teacher_to_r96_forward_kl_max": 0.0
+    },
+    "retention_metrics_each_task": {
+      "r96_top1_agreement_min": 0.99,
+      "r96_to_candidate_forward_kl_mean_max": 0.005,
+      "gold_mean_logp_delta_vs_r96_min": -0.01
+    }
+  },
+  "world_exact_protocol": {
+    "rows": 64,
+    "answer_extraction": "last standardized 正确答案是/最终答案是/correct answer is/answer is match; fallback final 选X",
+    "metric": "all gold option-letter tokens are top-1 under teacher forcing at the extracted final answer span",
+    "candidate_correct_count_min": "parent correct count",
+    "unparsed_rows_max": 0
+  },
+  "selection": "Choose the earliest step passing both material directions, all seven retention tasks, and world exact. Then require itemic breakage 0/60 before packaging. If structure fails, test the next teacher-forced-pass step. Never search residual scale."
+}

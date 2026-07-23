@@ -1,0 +1,201 @@
+{
+  "status": "PRECOMPUTE_GATE_FAILED_NO_TRAINING",
+  "registered_at_utc": "2026-07-21T00:00:00Z",
+  "completed_at_utc": "2026-07-21T11:00:39Z",
+  "preregistered_file_sha256": "f3090a7354bd6da25c34474f15046ac0cf49dbedf28682af8719478b65142b49",
+  "experiment": "i34_r96_material_beam_margin_r16_v1",
+  "purpose": "Test a new beam-aware material mechanism on the verified 1.025259456 r96 package. I-23 is used only to identify O1 description-to-SID rows whose full gold triple is present in the teacher beam64 and absent from the r96 beam64. This is a construction filter, not an online-score estimator.",
+  "immutable_models": {
+    "base": {
+      "path": "models/OneReason-0.8B-pretrain-competition",
+      "config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+    },
+    "parent": {
+      "path": "submissions/i19_world_external_r96_s875_platform",
+      "rank": 96,
+      "adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+      "adapter_config_sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+      "fixed_protocol_online_score": 1.025259456,
+      "fixed_protocol_online_material": 0.245296167
+    },
+    "construction_teacher": {
+      "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+      "rank": 64,
+      "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+      "adapter_config_sha256": "b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7",
+      "fixed_protocol_online_material": 0.275958188,
+      "allowed_role": "Frozen beam construction scorer only; never a policy initializer and never a non-gold positive-label source."
+    }
+  },
+  "result_before_training_protocol": {
+    "source": "assets/derived/processed/data_seed_teacher_v1.jsonl",
+    "source_sha256": "13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f",
+    "source_class": "D(O1)",
+    "task": "material_desc2sid",
+    "seed": 19260834,
+    "exclusions": "Every registered prompt-bearing E/holdout by exact and /think-/no_think-normalized prompt hash, plus formal I-30 and I-33 training prompts.",
+    "deduplication": "One deterministic row per full gold domain+s_a+s_b+s_c; conflicting prompts are rejected.",
+    "split_group": "domain+s_a+s_b; groups cannot cross train-pool and gate-pool.",
+    "train_pool_rows": 1024,
+    "gate_pool_rows": 256,
+    "beam_renderer": "Platform mirror: qwen3 no-think assistant prefix, append the gold domain token, unconstrained beam search width 64, max_tokens 3, BF16, seed 42.",
+    "valid_candidate": "Exactly s_a+s_b+s_c in that order; partial, invalid, early-stop, wrong-domain, or extra-token sequences are not candidates.",
+    "hard_gap": "The full gold triple occurs in I-23 beam64 and does not occur in r96 beam64.",
+    "train_admission": {
+      "train_hard_gap_rows_min": 128,
+      "gate_hard_gap_rows_min": 32,
+      "each_domain_train_hard_gap_rows_min": 16,
+      "each_domain_gate_hard_gap_rows_min": 4,
+      "candidate_pool_error_count": 0,
+      "prompt_mode_group_or_gold_sid_overlap_count": 0
+    },
+    "formal_material_selection": "Select 128 train hard-gap rows deterministically. First allocate 16 per domain by SHA256, then allocate the remaining 64 by global SHA256 round-robin over available domains. Do not rank or tune by beam score.",
+    "negative_selection": "Only complete wrong r96 beam triples are negatives. Exclude the gold and every known positive for the same normalized prompt; keep at most four unique candidates per first-divergence level in parent beam order. I-23 non-gold beams are never positives.",
+    "training_forbidden_before_admission": true
+  },
+  "precompute_result": {
+    "decision": "FAIL_NO_FORMAL_DATA_NO_TRAINING",
+    "runner": {
+      "path": "scripts/eval/generate_i34_material_beam_gap_v1.py",
+      "sha256": "0af4943f8a61f33695132bccf97dec311589521a270e1019cff80202301320cc",
+      "vllm_version": "0.12.0",
+      "dtype": "bfloat16",
+      "seed": 42,
+      "beam_width": 64,
+      "max_tokens": 3,
+      "error_count": 0
+    },
+    "train": {
+      "rows": 1024,
+      "parent_full_gold_hits": 147,
+      "teacher_full_gold_hits": 148,
+      "both_hit": 141,
+      "parent_only_hit": 6,
+      "teacher_only_gap": 7,
+      "neither_hit": 870,
+      "trainer_ready": 7,
+      "parent_invalid_candidates": 2,
+      "teacher_invalid_candidates": 1,
+      "teacher_only_gap_by_domain": {"ad": 2, "living": 0, "prod": 3, "video": 2},
+      "parent_hits_by_domain": {"ad": 47, "living": 17, "prod": 52, "video": 31},
+      "teacher_hits_by_domain": {"ad": 46, "living": 17, "prod": 54, "video": 31}
+    },
+    "gate": {
+      "rows": 256,
+      "parent_full_gold_hits": 37,
+      "teacher_full_gold_hits": 37,
+      "both_hit": 36,
+      "parent_only_hit": 1,
+      "teacher_only_gap": 1,
+      "neither_hit": 218,
+      "trainer_ready": 1,
+      "parent_invalid_candidates": 0,
+      "teacher_invalid_candidates": 0,
+      "teacher_only_gap_by_domain": {"ad": 1, "living": 0, "prod": 0, "video": 0},
+      "parent_hits_by_domain": {"ad": 9, "living": 4, "prod": 16, "video": 8},
+      "teacher_hits_by_domain": {"ad": 9, "living": 4, "prod": 16, "video": 8}
+    },
+    "admission": {
+      "train_teacher_only_gap": {"observed": 7, "required_min": 128, "passed": false},
+      "gate_teacher_only_gap": {"observed": 1, "required_min": 32, "passed": false},
+      "train_each_domain_min": {"observed": 0, "required_min": 16, "passed": false},
+      "gate_each_domain_min": {"observed": 0, "required_min": 4, "passed": false},
+      "all_hard_gates_passed": false
+    },
+    "known_positive_contract_check": {
+      "source_sha256": "13c40526b93c81d428e39e68404fdb9ebf6cb9b910bdad31ebf70c7d054eee4f",
+      "train_prompts_with_exactly_one_known_full_gold": 1024,
+      "gate_prompts_with_exactly_one_known_full_gold": 256,
+      "prompts_with_multiple_known_full_golds": 0,
+      "meaning": "For these frozen pools, excluding the row gold is exactly equivalent to excluding every known positive for the normalized prompt."
+    },
+    "interpretation": "The I-23 online material tier does not produce a transferable beam64 advantage on this frozen native-no-think desc2sid distribution: teacher minus parent full-gold hits is only +1/1024 on train and 0/256 on gate. The preregistered construction mechanism therefore has insufficient support.",
+    "forbidden_followups_in_v1": [
+      "formal training-data projection",
+      "r16 training or W&B run",
+      "checkpoint evaluation",
+      "r112 packaging or upload",
+      "post-result threshold, rank, learning-rate, margin, or scale sweep"
+    ]
+  },
+  "frozen_training_recipe_after_admission": {
+    "single_gpu": true,
+    "wandb_mode": "online",
+    "parent_initialization": "Merge the verified r96 into O6, freeze it, then create one fresh residual.",
+    "residual_rank": 16,
+    "residual_alpha": 16,
+    "residual_dropout": 0.05,
+    "target_modules": "all linear",
+    "material_rows": 128,
+    "retention_rows": 384,
+    "material_to_retention": "1:3",
+    "material_loss": "Mean over available first-divergence levels of mean softplus(0.1-(gold_logit-negative_logit)) + 0.1 gold CE on a,b,c,EOS + 0.02 frozen-r96 forward KL on a,b,c,EOS.",
+    "retention_loss": "4.0 frozen-r96 forward KL only, capped at 96 uniformly spaced answer-body positions.",
+    "batch": 1,
+    "gradient_accumulation": 4,
+    "optimizer_steps": 128,
+    "dataset_exposures": 1,
+    "learning_rate": 0.00001,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.001,
+    "cutoff": 16384,
+    "seed": 19260834,
+    "checkpoint_steps": [64, 128],
+    "checkpoint_contents": "Fresh r16 adapter only; no optimizer/scheduler/RNG and no frozen parent."
+  },
+  "checkpoint_gate": {
+    "candidate_steps_in_order": [64, 128],
+    "selection_rule": "Choose the earliest checkpoint that passes every hard gate. Residual scale is fixed at 1.0; no LR, margin, scale, rank, or checkpoint interpolation sweep is allowed in I-34 v1.",
+    "beam64_gate_on_256_frozen_rows": {
+      "teacher_only_gap_recovery_rate_min": 0.5,
+      "parent_hit_retention_rate_min": 0.95,
+      "total_full_gold_hits_delta_vs_parent_min": 8,
+      "per_domain_total_full_gold_hits_delta_vs_parent_min": 0,
+      "invalid_candidate_rate_delta_vs_parent_max": 0.0
+    },
+    "reverse_material_and_seven_task_gate": {
+      "gold_token_mean_logp_delta_vs_parent_min": -0.005,
+      "parent_to_candidate_top1_agreement_min": 0.99,
+      "parent_to_candidate_forward_kl_mean_max": 0.005,
+      "world_mc_accuracy_decline_vs_parent_max": 0.0
+    },
+    "structural_gate": {
+      "itemic_breakage_count_out_of_60": 0,
+      "nan_inf_oom_traceback_parent_fingerprint_route_or_sidecar_error_count": 0,
+      "observed_microbatches": 512,
+      "observed_routes": {"material": 128, "retention": 384}
+    }
+  },
+  "packaging_after_all_gates": {
+    "operation": "Exact LoRA concatenation r96+r16 at scale 1.0.",
+    "expected_rank": 112,
+    "expected_alpha": 112,
+    "rank_max": 128,
+    "two_file_total_bytes_max": 419430400,
+    "expected_float32_adapter_bytes_approx": 282644000,
+    "required_audits": [
+      "tensor-key/target-module/DoRA compatibility",
+      "float64 delta-matrix identity",
+      "fixed-prompt parent+residual versus concatenated logits identity",
+      "strict two-file package, rank, dtype, and byte count"
+    ]
+  },
+  "formal_artifacts": {
+    "train_pool": "logs/data/i34_material_beam_candidate_pool_v1.jsonl; rows=1024; sha256=cb5500a3485aa5b093e70c3d3c53ac73d4485839f1945bc8d58b5eb3d5c19022",
+    "gate_pool": "assets/evaluation/holdout/data_i34_material_beam_dev_v1.jsonl; rows=256; sha256=fec7f5cb5dd642e83addd4d23ec1f7f0c6d3e285960a417e0520d27b6938401c",
+    "retention_pool": "logs/data/i34_material_beam_retention_pool_v1.jsonl; rows=384; sha256=a1edf44988127be969cd881a2a93dc0a496d91d4f9711cdc85b7041116fb1493",
+    "pool_audit": "logs/data/i34_material_beam_pool_v1_audit.json; sha256=fdbc32a80a4e358a879b1d89cbdcfa11e6eea8a4c47ef99b3a12c194631e48e5",
+    "beam_train_ledger": "logs/data/i34_material_beam_train_ledger_v1.jsonl; rows=1024; sha256=364cd069ed017b8e101946beb4a5c7c84d802136b9d207d510b38e18e9b6eb38",
+    "beam_gate_ledger": "logs/probe/i34_material_beam_dev_ledger_v1.jsonl; rows=256; sha256=2242b1795d0e02b1ecf2de8581a26cf3269a13805d00aefa9b5967598f192a2f",
+    "beam_audit": "logs/probe/i34_material_beam_gap_audit_v1.json; sha256=bd3afac42ce8bf1d84fe441711342aff9d6f390edce00b6bff1cd3bd594ec8c6",
+    "formal_builder": "scripts/data/build_i34_material_beam_margin_v1.py; sha256=f189047a4edd8c776500b2e054733156c8d99d4cfde809ce259da5aec182ba2d",
+    "training_data": "NOT_GENERATED_PRECOMPUTE_GATE_FAIL",
+    "negative_sidecar": "NOT_GENERATED_PRECOMPUTE_GATE_FAIL",
+    "dataset_registry": "STAGED_NOT_AUTHORIZED; configs/datasets/i34_r96_material_beam_margin_retkl_v1/dataset_info.json; sha256=f7a35670e5124fd20fb9e37a2062191b76f2ad37768a9ce91bc942b61713c084",
+    "trainer": "STAGED_NOT_EXECUTED; scripts/train/train_i34_material_beam_margin_retkl.py; sha256=ad5fb60d877a75538999cc319d992a79d673c216e4c353d0ec1774ddd69f7dde",
+    "config": "STAGED_NOT_AUTHORIZED; configs/active/i34_r96_material_beam_margin_retkl_r16_v1.yaml; sha256=1a29c2f474838630fe594d3698c7aadd112d05374bf2cfad6307871ac277d757",
+    "launcher": "STAGED_FAIL_CLOSED; scripts/train/launch_i34_wandb_online.sh; sha256=9d6fc3f2b96bf129436b7fa4d71b062b103065cf9cb8f965d2854c76e73682bd"
+  },
+  "online_success_definition": "Only a locally accepted strict r112 package may use one manual platform evaluation. Success requires material >=0.275958188 and total >1.025259456 under the same fixed protocol. One result is an observed point, not a stability claim."
+}

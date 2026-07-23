@@ -1,0 +1,10 @@
+### Disposable full-model export for the user-authorized I-32 step128 exploratory gate.
+### Delete /tmp/i32_task_restore_r168_step128_exploratory_merged after evaluation.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i32_task_restore_retkl_r8_v1_combined_r168_step128
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/i32_task_restore_r168_step128_exploratory_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

@@ -1,0 +1,223 @@
+{
+  "status": "PREREGISTERED_BEFORE_I28_FORMAL_LAUNCH",
+  "registered_at_utc": "2026-07-17T08:28:11Z",
+  "experiment": "i28_i23_rec_multigold_proposal_retkl_v1",
+  "purpose": "Test whether one low-dose, group-balanced, positive-only video proposal update makes the successful I-23 single adapter a materially better rollout policy while preserving its material ninth-hit branch. This gate selects a bootstrap checkpoint and the next training method; it is not an online-score estimator and does not authorize a platform submission.",
+  "parent": {
+    "id": "seed_teacher_cotfix_v3_r64_lr1e4_ep3",
+    "allowed_role": "The successful I-23 E3 adapter is both the trainable policy initialization and the separately loaded frozen reference. I-23 E1/E2 and all I-24/I-25 checkpoints are forbidden.",
+    "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+    "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+    "adapter_config_sha256": "b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7",
+    "fixed_protocol_online_score": 0.9915,
+    "fixed_protocol_online_subscores": {
+      "material": 0.276,
+      "action": 0.1099,
+      "topic": 0.0383,
+      "video": 0.0576,
+      "prod": 0.1258,
+      "ad": 0.14,
+      "live": 0.1053,
+      "world": 0.1387
+    }
+  },
+  "base": {
+    "path": "models/OneReason-0.8B-pretrain-competition",
+    "config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+  },
+  "formal_training_data": {
+    "asset": "data_i28_video_multigold_proposal_retkl_v1",
+    "class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General), official-source derived and registered in ASSETS.md",
+    "path": "assets/derived/processed/data_i28_video_multigold_proposal_retkl_v1.jsonl",
+    "rows": 512,
+    "sha256": "f74a22b96bf7651a97cdb5b578f346eea0109045329efafb80092f91756fbb6a",
+    "builder": "scripts/data/build_i28_video_multigold_proposal_v1.py",
+    "builder_sha256": "98b4129343db55c334c3768ddacbd908414eadb0d3be0e7ddc4e71ae20e4bf11",
+    "audit": "logs/data/i28_video_multigold_proposal_v1_audit.json",
+    "audit_sha256": "b0036b97fa210bd8738e75af348a6f0bbced83f5159c5e658624b5ee3c643be2",
+    "dataset_registry": "configs/datasets/i28_video_multigold_proposal_retkl_v1/dataset_info.json",
+    "dataset_registry_sha256": "1e8ba55adf40ec281a7ee1bf427c4f6e9bfaf083d4790b32b205a8f3d6a72e62",
+    "mix": {
+      "proposal_ce_rows": 128,
+      "proposal_prompt_groups": 64,
+      "known_nonhistory_positive_rows_per_group": 2,
+      "retention_kl_rows": 384,
+      "retention_task_rows": {
+        "material_desc2sid": 96,
+        "material_sid2desc": 96,
+        "action": 32,
+        "topic": 32,
+        "prod": 32,
+        "ad": 32,
+        "living": 32,
+        "world": 32
+      },
+      "proposal_to_retention": "1:3",
+      "O3_rows": 0,
+      "T_rows": 0,
+      "E_rows": 0,
+      "model_or_teacher_rollout_rows": 0,
+      "constructed_negative_rows": 0
+    }
+  },
+  "locked_rollout_gate": {
+    "path": "assets/evaluation/holdout/data_i28_video_multigold_proposal_v1_gate.jsonl",
+    "rows": 128,
+    "sha256": "48dd7f4224e7ca9e98805d966ca901814fdb76b85471afcf1ec7d98a0c22c7e5",
+    "gold_scope": "complete non-history O1-known video gold set for each prompt group; any O1-known gold that also occurs in prompt history is excluded from the primary reward and retained only as a separately reported audit statistic",
+    "training_use": false,
+    "prompt_hash_overlap_with_formal_training": 0,
+    "prompt_hash_overlap_with_i27_rollout_manifest": 0,
+    "parent_scored_before_any_candidate": true,
+    "generation_gold_visibility": false,
+    "scorer_gold_visibility_only_after_generation": true
+  },
+  "implementation": {
+    "config": {
+      "path": "configs/active/i28_i23_rec_multigold_proposal_retkl_v1.yaml",
+      "sha256": "f6086e468b91a9df93804d7ab6421549bb8767a07522a1340aac9939772f077a"
+    },
+    "trainer": {
+      "path": "scripts/train/train_i28_multigold_proposal_retkl.py",
+      "sha256": "72fa991433698cd7f705a700d7d72c467356e5530e1f625547e84a6ecaef7253"
+    },
+    "multi_positive_set_path_evaluator": {
+      "path": "scripts/eval/audit_i28_multigold_set_path.py",
+      "sha256": "d8e5da2d4fdee326d00b4f1f246ea9f926a0f5a8ee5eeb38b392e3ac65095c55",
+      "required_report": "logs/probe/i28_multigold_set_path_v1.json",
+      "required_before_rollout_gate": true
+    },
+    "evaluator_mechanical_refreeze": {
+      "recorded_at_utc": "2026-07-17T10:32:01Z",
+      "old_sha256": "647f002dac412b9ba3c08f5bfb7ad18d73e7de51eb5ab11aa4d8887a0850f2d3",
+      "intermediate_unscored_sha256": "0d6ac9e6fbb3576fd64bd0d1ef69706d3c9e265ee59bc2bc0d63bb507dd477b6",
+      "new_sha256": "d8e5da2d4fdee326d00b4f1f246ea9f926a0f5a8ee5eeb38b392e3ac65095c55",
+      "reason": "The first invocation stopped before model loading because PEFT serialized the same seven target_modules in a different JSON list order for the parent and candidates. The evaluator now canonicalizes set-like target_modules/modules_to_save lists and rejects duplicates before comparison. Before any model forward, a second audit found that the loop was only parent-first within each batch; it is now adapter-outer so the complete parent pass precedes all step64 scoring and the complete step64 pass precedes step128.",
+      "scientific_threshold_or_metric_change": false,
+      "model_forward_before_refreeze": false,
+      "report_written_before_refreeze": false
+    },
+    "online_launcher": {
+      "path": "scripts/train/launch_i28_wandb_online.sh",
+      "state": "HASH_LOCKED; RELEASE IS CONTROLLED SEPARATELY BY THE LAUNCHER"
+    }
+  },
+  "frozen_training_recipe": {
+    "single_gpu": true,
+    "continued_adapter": "same I-23 r64/alpha64 adapter",
+    "create_new_adapter": false,
+    "packing": false,
+    "per_device_batch": 1,
+    "gradient_accumulation": 4,
+    "effective_batch": 4,
+    "optimizer_steps": 128,
+    "complete_dataset_exposures": 1,
+    "learning_rate": 1e-7,
+    "scheduler": "constant_with_warmup",
+    "warmup_steps": 16,
+    "proposal_loss": "answer-only CE over domain+a+b+c+EOS plus 0.2x frozen-I23 forward KL",
+    "retention_loss": "4.0x frozen-I23 forward KL only, capped at 128 response positions",
+    "checkpoint_steps": [
+      64,
+      128
+    ],
+    "checkpoint_contents": "adapter_model.safetensors and adapter_config.json only; no optimizer, scheduler, scaler, or RNG state",
+    "wandb_mode": "online"
+  },
+  "formal_run_integrity_requirements": {
+    "all_pending_hash_fields_replaced_before_launch": true,
+    "asset_registered_before_launch": true,
+    "wandb_authenticated_online_and_first_metric_visible": true,
+    "training_exit_code": 0,
+    "global_step_equal": 128,
+    "observed_microbatches_equal": 512,
+    "observed_proposal_routes_equal": 128,
+    "observed_retention_routes_equal": 384,
+    "initial_policy_reference_logits_max_abs_max": 0.0001,
+    "nan_inf_oom_traceback_parent_fingerprint_or_route_error_count": 0,
+    "checkpoint_64_exists": true,
+    "checkpoint_128_exists": true,
+    "root_adapter_equals_checkpoint_128": true,
+    "optimizer_scheduler_scaler_or_rng_files": 0
+  },
+  "candidate_steps_in_order": [
+    64,
+    128
+  ],
+  "response_only_route_contract": {
+    "proposal": "Exactly one empty <think>...</think> block followed, apart from whitespace, by exactly domain+s_a+s_b+s_c and EOS. CE is applied only to domain+s_a+s_b+s_c+EOS, never to prompt or think formatting.",
+    "retention": "Every response not matching the strict proposal signature is KL-only. The trainer must fail on an ambiguous malformed empty-think recommendation rather than silently route it as retention.",
+    "route_metadata_dependency": false,
+    "prompt_text_routing_dependency": false
+  },
+  "locked_unrestricted_rollout_recipe": {
+    "groups": 128,
+    "domain": "video",
+    "reasoning_samples_per_group": 4,
+    "item_beams_per_reasoning": 8,
+    "actual_item_candidates": 4096,
+    "same_prompt_order_seed_and_decode_for_parent_and_candidates": true,
+    "reasoning_temperature": 0.6,
+    "reasoning_top_p": 0.95,
+    "reasoning_top_k": 50,
+    "max_reasoning_tokens": 1024,
+    "item_generation": "unrestricted deterministic width-8 beam after the explicit video domain token; exactly three SID tokens",
+    "O3_catalog_or_trie_allowed_for_primary_gate": false,
+    "reward": "For each item candidate, max over the complete group non-history O1-known gold set of the longest contiguous prefix match length over (a,b,c), in {0,1,2,3}. Every candidate copied exactly from prompt history is masked from the primary reward. A reasoning-trace reward is the maximum unmasked candidate reward in its width-8 beam. Matches against the all-gold set including history overlaps are secondary audit statistics only.",
+    "group_has_reward_variance": "The four reasoning-trace rewards are not all equal.",
+    "full_qc_usable_group": "At least one trace closes exactly at </think>, has no nested ChatML/think control leakage, embeds no primary non-history gold answer in thought, mentions only prompt-grounded same-domain SIDs when it mentions SIDs, and yields at least one structurally valid unmasked candidate."
+  },
+  "hard_retention_requirements_for_each_candidate": {
+    "adapter_exists_and_hashes": true,
+    "training_integrity_passes_through_candidate_step": true,
+    "itemic_breakage_count_out_of_60": 0,
+    "placeholder_or_format_collapse": false,
+    "each_heldout_material_direction_parent_to_candidate_kl_mean_max": 0.005,
+    "each_heldout_material_direction_top1_agreement_min": 0.99,
+    "each_nonvideo_task_parent_to_candidate_kl_mean_max": 0.01,
+    "each_nonvideo_task_top1_agreement_min": 0.98
+  },
+  "hard_proposal_mechanism_requirements_for_each_candidate": {
+    "heldout_group_set_logprob_logsumexp_over_all_nonhistory_gold_paths_delta_mean_min": 0.0,
+    "heldout_group_set_logprob_logsumexp_over_all_nonhistory_gold_paths_improved_rate_min": 0.55,
+    "heldout_group_best_gold_mean_logp_delta_min_diagnostic": 0.0,
+    "structurally_valid_item_candidate_rate_min": 0.95,
+    "post_mask_groups_with_reward_variance_min_count": 45,
+    "post_mask_groups_with_reward_variance_delta_vs_parent_min_count": 13,
+    "full_qc_usable_groups_min_count": 39,
+    "full_qc_usable_groups_delta_vs_parent_min_count": 13,
+    "unrestricted_exact_hit_group_delta_vs_parent_min_count": 1,
+    "non_gold_history_copy_candidate_rate_delta_vs_parent_max": 0.0
+  },
+  "set_path_likelihood_protocol": {
+    "prompt": "Exact frozen /no_think gate prompt followed by the canonical empty-think prefix and an evaluator-supplied <|video_begin|> marker.",
+    "scored_tokens": "Teacher-force each primary non-history gold and sum only the three autoregressive s_a,s_b,s_c token log probabilities; the domain marker is context, not a scored target.",
+    "primary_group_metric": "set_logsumexp over every primary non-history gold path",
+    "secondary_metrics": [
+      "normalized_logmeanexp",
+      "best_gold_logprob"
+    ],
+    "paired_models": [
+      "frozen I-23 parent",
+      "I-28 checkpoint-64",
+      "I-28 checkpoint-128"
+    ],
+    "stochastic_sampling": false,
+    "required_report_status": "COMPLETE_NOT_AN_ONLINE_SCORE_ESTIMATE",
+    "candidate_pass_expression": "models.<candidate>.delta_vs_parent.set_logsumexp.delta_mean >= 0 and improved_rate >= 0.55",
+    "best_gold_cannot_substitute_for_primary_set_metric": true
+  },
+  "checkpoint_evaluation_order": [
+    "Run scripts/eval/audit_i28_multigold_set_path.py once to produce the frozen parent/step64/step128 paired JSON report. A checkpoint failing the set_logsumexp mean-delta or improved-rate gate stops there.",
+    "For each set-path pass, run the locked material and non-video retention checks plus itemic structure veto.",
+    "Run the N4xK8 unrestricted rollout gate only for checkpoints passing both the set-path and retention layers."
+  ],
+  "next_stage_branching": {
+    "strict_positive_only_rft": "If a retention-safe proposal-mechanism-pass candidate has at least 32/128 full-QC unrestricted exact-hit groups against the primary non-history gold sets, select the earliest such candidate and authorize only a separately preregistered strict exact-positive RFT build.",
+    "partial_reward_round_grpo": "Otherwise, select the earliest retention-safe proposal-mechanism-pass candidate and authorize only a separately preregistered single-round hierarchical-prefix GRPO smoke. Do not train on the diagnostic rollout JSONL.",
+    "close": "If neither checkpoint passes all retention and proposal mechanism requirements, close I-28 locally. Do not loosen thresholds, enlarge beam width post hoc, resume a checkpoint, or spend a platform submission."
+  },
+  "selection_rule": "First finish and audit the full 128-step trajectory. Score the frozen I-23 parent before candidates, then audit step64 and step128 with exactly the same locked manifests and decode. Prefer the earliest checkpoint eligible for strict positive-only RFT; if none is RFT-eligible, choose the earliest checkpoint eligible for partial-reward GRPO. A later checkpoint cannot replace an earlier checkpoint within the same branch merely because its offline likelihood gain is larger.",
+  "submission_budget_rule": "I-28 proposal checkpoints are bootstrap policies, not daily platform candidates. Spend zero of the team's approximately three daily submissions on I-28 unless a later separately preregistered final model passes its own submission gate.",
+  "interpretation_boundary": "The primary multi-positive likelihood metric is group set-logprob, computed as logsumexp over all non-history O1-known gold paths. Best-gold likelihood is only a diagnostic and cannot satisfy that mechanism gate by itself. All holdout and rollout diagnostics are selection/veto evidence only. They do not certify the discontinuous material ninth hit, predict an online score, or become training data. O3-constrained results may be reported separately as diagnostics but can never satisfy a primary gate."
+}

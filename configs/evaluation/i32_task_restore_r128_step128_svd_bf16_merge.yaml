@@ -1,0 +1,10 @@
+### Disposable full-model export for the platform-legal r128 BF16 package gate.
+### Delete /tmp/i32_task_restore_r128_step128_svd_bf16_merged after evaluation.
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i32_task_restore_retkl_r128_step128_svd_bf16_platform
+template: qwen3_nothink
+trust_remote_code: true
+export_dir: /tmp/i32_task_restore_r128_step128_svd_bf16_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false

@@ -1,0 +1,101 @@
+### I-26: isolated r16 action-answer residual over the successful I-23 E3.
+### Prepared only; formal GPU training is not authorized by this file creation.
+###
+### Causal target and model contract:
+### - Parent M is I-23 seed_teacher_cotfix_v3_r64_lr1e4_ep3 E3, fixed-
+###   protocol online 0.9915.  Its material/action/topic/video/prod/ad/live/world
+###   vector is 0.2760/0.1099/0.0383/0.0576/0.1258/0.1400/0.1053/0.1387.
+### - LLaMA-Factory first merges that retained I-23 r64 adapter into O6, then
+###   create_new_adapter=true creates a fresh r16/alpha16 residual.  Only the
+###   residual is trainable; disable_adapter() is the exact merged-I23 parent.
+### - The residual is not a standalone submission.  Any eventual candidate
+###   must be explicitly combined with I-23 and pass a preregistered scale/
+###   preservation gate before packaging.
+###
+### Asset ledger (registered inputs only):
+### - Base O6 config SHA256:
+###   5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4.
+### - Parent I-23 adapter/config SHA256:
+###   0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8 /
+###   b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7.
+### - Direct training asset ID: data_user_residual_retention_v1, class
+###   D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General),
+###   6,106 rows, SHA256
+###   bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0.
+### - Registered upstream asset IDs are data_seed_teacher_v1 and
+###   sft_world_knowledge (D(O2.General)); immutable builder
+###   scripts/data/build_user_residual_retention_v1.py SHA256
+###   454cf7d3f4cd1380886536406d0bd1730670041279431857d7b58ff2b66d6e43;
+###   audit logs/data/user_residual_retention_v1_audit.json SHA256
+###   0437b70ba1b323707560aaae5fdaf1167b732375328fd84673fb99ba3904e054.
+### - Formal loss mix: action 1,752 rows (28.693089%) receive answer-body CE;
+###   topic 1,301 plus parent-retention 3,053 = 4,354 rows (71.306911%)
+###   receive parent KL only.  The 164 registered teacher rows occur once
+###   inside action; O2 rule/T/E/model-rollout training rows are all 0.
+###
+### Loss and dose:
+### - Action CE starts strictly after </think> and leading whitespace; thinking
+###   tokens never receive CE.  The actual list terminator and EOS receive 2x
+###   CE.  Full response trace also receives weak 0.05 merged-I23 KL.
+### - Topic and every non-action row receive 2.0 merged-I23 KL only; their gold
+###   responses define teacher-forced positions but never contribute CE.
+### - Reuse the verified I-12 residual dose: r16/alpha16/dropout0.05, lr5e-5
+###   cosine with an explicit 46-step warmup (=ceil(1,527*0.03)), effective
+###   batch4, one complete 6,106-row epoch (1,527 optimizer steps).  No
+###   max_steps truncation is allowed.
+### - Save model-only checkpoints every 250 optimizer steps (250..1500) and
+###   retain the Trainer's direct end-of-epoch checkpoint-1527 by setting
+###   save_total_limit=7.  The launcher must never synthesize or overwrite the
+###   terminal checkpoint; it only byte-compares its adapter/config with root.
+###   Checkpoints are dose evidence, not permission to package or select by
+###   training loss.
+### - Trainer: scripts/train/train_i23_actionres_retkl.py, SHA256
+###   0071a0885cff480222c5d905f68ccf22c3f90a54d7967df55b08b6d951907c02.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform
+create_new_adapter: true
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 16
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_user_residual_retention_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/user_residual_retention_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i23_actionres_r16_ansretkl_ep1_retfix
+logging_steps: 5
+save_strategy: steps
+save_steps: 250
+save_total_limit: 7
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i23_actionres_r16_ansretkl_ep1_retfix
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 5.0e-5
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_steps: 46
+weight_decay: 0.001
+bf16: true
+seed: 19260821

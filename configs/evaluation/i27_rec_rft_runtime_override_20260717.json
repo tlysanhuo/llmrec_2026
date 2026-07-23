@@ -1,0 +1,52 @@
+{
+  "status": "PREREGISTERED_RUNTIME_ONLY_OVERRIDE_BEFORE_I27_ROLLOUT",
+  "registered_utc": "2026-07-17T07:18:11Z",
+  "supersedes_only": [
+    "/frozen_rollout_recipe/requires_process_free_gpu",
+    "/frozen_rollout_recipe/gpu_memory_utilization"
+  ],
+  "parent_gate": {
+    "path": "configs/evaluation/i27_rec_rft_rollout_gate.json",
+    "sha256": "e3d0bc51df2f6930cce8796d01355dbf6bc1198e5c7580fdbfec0c31e6e37264"
+  },
+  "authorization": {
+    "source": "explicit user instruction in the active conversation",
+    "instruction": "单卡试试呢？我们的占用不高吧",
+    "interpretation": "Use one low-utilization shared GPU with a conservative vLLM memory cap; do not alter data, decoding, reward, quality gates, or conditional training semantics."
+  },
+  "selected_gpu_snapshot": {
+    "index": 3,
+    "uuid": "GPU-2e02da23-05d1-dc7c-724c-6986d6e646e2",
+    "memory_used_mib_before_launch": 25393,
+    "memory_free_mib_before_launch": 55614,
+    "memory_total_mib": 81559,
+    "utilization_percent_before_launch": 0,
+    "preexisting_compute_processes": 1
+  },
+  "runtime_override": {
+    "single_gpu": true,
+    "requires_process_free_gpu": false,
+    "gpu_memory_utilization": 0.25,
+    "maximum_vllm_requested_memory_mib": 20389.75,
+    "minimum_observed_headroom_after_vllm_request_mib": 35224.25,
+    "abort_on_initialization_oom_or_insufficient_memory": true,
+    "do_not_kill_pause_or_modify_preexisting_processes": true
+  },
+  "unchanged_scientific_contract": {
+    "manifest_sha256": "c75e6a326dd02da07b671787a0bbc76cc391c0ec1254a7eaed0fa1cc250d0300",
+    "teacher_adapter_sha256": "bb86eb8af0efd3560b7b7c8440f3830627e9255f4fcc2265b9274a27668f63c6",
+    "groups": 512,
+    "reasoning_samples_per_group": 4,
+    "item_beams_per_reasoning": 8,
+    "max_reasoning_tokens": 1024,
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "top_k": 50,
+    "seed": 19260829,
+    "batch_prompts": 16,
+    "beam_batch_prompts": 16,
+    "max_model_len": 4096,
+    "dtype": "bfloat16",
+    "admission_gates_changed": false
+  }
+}

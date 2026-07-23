@@ -1,0 +1,61 @@
+### I-30 v1 continues the verified 1.0253 r96 package with one fresh r8
+### material-teacher residual.  It is intentionally fixed at residual scale 1.
+### Formal D data: 2048 rows, material/retention=512/1536 (1:3), SHA256
+### 0df9a192976eb61eb8dd333fd59edb994d1fcad482710e1282f36dd792bfc4a4.
+### Upstreams: data_seed_teacher_v1 13c40526...eee4f and
+### data_user_residual_retention_v1 bd947aad...b08f0. Builder/audit SHA256:
+### a57c17e28900d4d5f14acdc2130e61f6f8e0c0e1282102bd765f1ceb7ca6ab8a /
+### 6b46775be12f96ff8e3258266129633cf372dfb7cda28080d8581279a5d49226.
+### Frozen construction models: r96 parent 4fba17eb...078e and I-23 teacher
+### 0e5fa9bb...c6b8.  T/E training rows=0.  The 704-row gate has SHA256
+### dd744ee2d2f584b9bcae938cde1f5976801a9eece39aa1972b284641603f97a0
+### and is not referenced by this training config.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i19_world_external_r96_s875_platform
+create_new_adapter: true
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 8
+lora_alpha: 8
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_i30_r96_material_teacher_retkl_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/i30_r96_material_teacher_retkl_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i30_r96_material_teacher_retkl_r8_v1
+logging_steps: 8
+save_strategy: steps
+save_steps: 128
+save_total_limit: 4
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i30_r96_material_teacher_retkl_r8_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+max_steps: 512
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260831

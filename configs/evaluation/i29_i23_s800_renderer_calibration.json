@@ -1,0 +1,256 @@
+{
+  "status": "COMPLETE_PROXY_CALIBRATION_FAIL_NO_TRAINING",
+  "registered_at_utc": "2026-07-17T14:03:50Z",
+  "last_updated_at_utc": "2026-07-18T07:52:27Z",
+  "objective": "Calibrate the offline recommendation rollout proxy against the known online ordering s800 > I23 while isolating the I27 prompt-renderer error.",
+  "authorization_boundary": {
+    "generation_authorized": true,
+    "training_authorized": false,
+    "online_submission_authorized": false,
+    "claim_boundary": "This is a renderer/proxy calibration. It cannot by itself predict an online score or reopen the failed I27 recipe."
+  },
+  "causal_design": {
+    "fixed_groups": 16,
+    "factor_model": [
+      "s800",
+      "I23"
+    ],
+    "factor_renderer": [
+      "legacy_system",
+      "canonical_user"
+    ],
+    "reason": "The 2x2 design separates a renderer effect from the known model-direction effect; generating only s800 canonical would confound the two."
+  },
+  "frozen_assets": {
+    "base_model": {
+      "path": "models/OneReason-0.8B-pretrain-competition",
+      "config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+    },
+    "i23": {
+      "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+      "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+      "adapter_config_sha256": "b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7",
+      "lora_rank": 64
+    },
+    "s800": {
+      "path": "submissions/e3_userres_r80_retkl_v3_s800_platform",
+      "adapter_sha256": "bb86eb8af0efd3560b7b7c8440f3830627e9255f4fcc2265b9274a27668f63c6",
+      "adapter_config_sha256": "e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0",
+      "lora_rank": 80
+    },
+    "prompt_manifest": {
+      "path": "assets/derived/processed/o1_rec_multigold_v1_prompt_manifest.jsonl",
+      "full_rows": 512,
+      "full_sha256": "c75e6a326dd02da07b671787a0bbc76cc391c0ec1254a7eaed0fa1cc250d0300",
+      "selected_rows": "physical first 16 nonblank JSONL rows in file order",
+      "selected_raw_lines_sha256": "b3d7300f57847ce1a5e83e8ca438e167df00d80f720034278d3ce0280c2f5a57"
+    },
+    "gold_ledger": {
+      "path": "assets/derived/processed/o1_rec_multigold_v1_gold_ledger.jsonl",
+      "full_rows": 512,
+      "full_sha256": "ec3f39054e4ba1d3e4a476ff8deea3b057cd52eb4a28d07d1237962ab7081cf5",
+      "selected_rows": "physical first 16 nonblank JSONL rows in file order",
+      "selected_raw_lines_sha256": "d300cf7db5c3ff335133de89a49352ecefbee5d35b2eeef4281bb2f60986d04c",
+      "selected_unique_gold_items": 71,
+      "visible_to_generation_process": false
+    },
+    "legacy_s800_rollout": {
+      "path": "assets/derived/processed/o1_rec_multigold_v1_rollouts.jsonl",
+      "available_rows": 176,
+      "full_sha256": "c3dfe9bc5a2dbfb3161a9aa0d241692b1ad0616e7f954e096e9dd5caf4198fac",
+      "selected_rows": "physical first 16 nonblank JSONL rows in file order",
+      "selected_raw_lines_sha256": "53df39ccaaa0946e32bd6e16951feed25b7a6bb73a0e7eb5af94f4fd7e04884f"
+    },
+    "legacy_generator": {
+      "path": "scripts/rft/generate_rec_rft_rollouts.py",
+      "sha256": "668a7e09b1460bb57e80baa6bcbfc28af50e2d99352784294805b1a4c5fa8c0d",
+      "mutation_allowed": false
+    }
+  },
+  "renderers": {
+    "legacy_system": {
+      "messages": [
+        {
+          "role": "system",
+          "content": "instruction"
+        },
+        {
+          "role": "user",
+          "content": "input"
+        }
+      ],
+      "meaning": "Historical I27 renderer retained only as a matched control."
+    },
+    "canonical_user": {
+      "messages": [
+        {
+          "role": "user",
+          "content": "instruction + '\n' + input"
+        }
+      ],
+      "meaning": "Canonical Alpaca/LLaMA-Factory semantics used by the formal data path."
+    }
+  },
+  "cells": [
+    {
+      "id": "s800_legacy_system",
+      "model": "s800",
+      "renderer": "legacy_system",
+      "action": "reuse_first_16",
+      "path": "assets/derived/processed/o1_rec_multigold_v1_rollouts.jsonl"
+    },
+    {
+      "id": "s800_canonical_user",
+      "implementation_cell_name": "s800_canonical",
+      "model": "s800",
+      "renderer": "canonical_user",
+      "action": "generate",
+      "path": "logs/probe/i29_renderer_s800_canonical_n16.jsonl"
+    },
+    {
+      "id": "i23_legacy_system",
+      "implementation_cell_name": "i23_legacy",
+      "model": "I23",
+      "renderer": "legacy_system",
+      "action": "generate",
+      "path": "logs/probe/i29_renderer_i23_legacy_n16.jsonl"
+    },
+    {
+      "id": "i23_canonical_user",
+      "implementation_cell_name": "i23_canonical",
+      "model": "I23",
+      "renderer": "canonical_user",
+      "action": "generate",
+      "path": "logs/probe/i29_renderer_i23_canonical_n16.jsonl"
+    }
+  ],
+  "frozen_decode": {
+    "global_seed": 19260829,
+    "per_prompt_seed": "(global_seed + rollout_seed) modulo 2^31",
+    "reasoning_samples_per_group": 4,
+    "item_beams_per_reasoning": 8,
+    "expected_rows_per_cell": 16,
+    "expected_reasoning_traces_per_cell": 64,
+    "expected_item_candidates_per_cell": 512,
+    "max_reasoning_tokens": 1024,
+    "reasoning_temperature": 0.6,
+    "reasoning_top_p": 0.95,
+    "reasoning_top_k": 50,
+    "item_generation": "deterministic width-8 beam after an explicit domain token, exactly three generated SID tokens",
+    "batch_prompts": 16,
+    "beam_batch_prompts": 16,
+    "dtype": "bfloat16",
+    "max_model_len": 4096,
+    "gpu_memory_utilization": 0.25,
+    "vllm_max_lora_rank": 128
+  },
+  "implementation": {
+    "generator": {
+      "path": "scripts/eval/generate_i29_renderer_pair.py",
+      "sha256": "0960713403b1d49bf239c2c813136fa7a1b4e07a0ff67b190a42f1919b1c2090",
+      "cpu_checks": [
+        "py_compile PASS",
+        "self-test PASS",
+        "full input/hash preflight PASS"
+      ],
+      "vllm_imported_during_cpu_checks": false
+    },
+    "scorer": {
+      "path": "scripts/eval/score_i29_renderer_pair.py",
+      "sha256": "66ec98298aa1dcb0f549097c2b10ab868507d959d7b4f28b63dfb173d8fca701",
+      "cpu_checks": [
+        "py_compile PASS",
+        "self-test PASS",
+        "legacy first-16 reproduction PASS",
+        "missing completion marker, decode drift, and renderer drift are rejected before gold access"
+      ]
+    },
+    "gpu_generation_completed": true,
+    "gpu_generation_completed_at_utc": "2026-07-18T07:50:49Z",
+    "runtime_environment_rechecked": "2026-07-18 07:45 UTC: vLLM 0.12.0, torch 2.9.0, transformers 4.57.6, peft 0.19.1, flash-attn 2.8.3; GPU0 was empty immediately before launch.",
+    "gpu_run": {
+      "device": "physical GPU0 / GPU-d3c522d6-ed0f-2579-01cd-2d97da749980",
+      "gpu_memory_utilization": 0.25,
+      "observed_peak_memory_mib": 21537,
+      "first_attempt": "Failed before model loading and before any output publication because vLLM 0.12.0 subprocess parsing rejected a GPU UUID in CUDA_VISIBLE_DEVICES; retrying the same physical device by integer index changed no scientific parameter.",
+      "successful_log": "logs/probe/i29_renderer_pair_gpu_20260718_retry_index0.log",
+      "successful_log_sha256": "ede04354f2178b7fc357c3a4f551cfa3d556ed543c36eff3cf2a64475cb3f0f3"
+    }
+  },
+  "physical_blinding": {
+    "generation_script": "scripts/eval/generate_i29_renderer_pair.py",
+    "generation_must_not_accept_a_gold_argument": true,
+    "generation_must_not_read_the_gold_ledger": true,
+    "scoring_script": "scripts/eval/score_i29_renderer_pair.py",
+    "completion_marker": "Each generated JSONL must have a matching .meta.json with complete status, cell alias, config/rollout hashes, and 16/64/512 counts.",
+    "scoring_reads_gold_after_all_three_new_cells_exist": true,
+    "scoring_order": "Validate all three rollout/config/meta bundles without labels first; only then open the gold ledger."
+  },
+  "metrics": {
+    "candidate_longest_contiguous_gold_prefix_depth": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "primary_direction_metric": "sum of candidate prefix depths over the fixed 512 candidates",
+    "secondary_metrics": [
+      "group-max prefix-depth histogram",
+      "groups with any a/ab/abc prefix hit",
+      "unique matching a/ab/abc prefixes",
+      "exact-hit candidates and groups",
+      "valid-candidate count",
+      "reasoning exact-close count"
+    ],
+    "legacy_s800_first16_expected": {
+      "valid_candidates": 512,
+      "reasoning_exact_close": 62,
+      "candidate_lcp_histogram_0_1_2_3": [
+        414,
+        87,
+        11,
+        0
+      ],
+      "groups_any_a_ab_abc": [
+        8,
+        2,
+        0
+      ]
+    }
+  },
+  "interpretation": {
+    "generation_smoke_is_descriptive": true,
+    "exact_zero_alone_rejects_route": false,
+    "proxy_direction_check": "Under canonical_user, report whether s800 exceeds I23 in candidate prefix-depth mass without losing groups-any-ab. Treat disagreement as failure to calibrate the proxy, not proof of online inferiority.",
+    "renderer_check": "Within each model, compare canonical_user with legacy_system; do not attribute a cross-model difference to the renderer.",
+    "next_layer_if_direction_is_informative": "Implement a separate teacher-forced set-logsumexp calibration on the prompt-disjoint 128-group I28 gate.",
+    "teacher_forced_deduplication": "At each depth, deduplicate unique a, unique (a,b), and unique (a,b,c) prefixes before logsumexp so shared prefixes are not multiplicity weighted.",
+    "no_training_decision_from_this_smoke": true
+  },
+  "result": {
+    "status": "COMPLETE_PROXY_CALIBRATION_FAIL_NO_TRAINING",
+    "report_sha256": "4fc9ca8368e248f4a39d9f6153fc3b19e477859a1fced0a2ee4071b79285ce25",
+    "rollout_sha256": {
+      "s800_canonical_user": "e17a66928edb65706e2ad427dd6235c112a5132c71303e5fa3d91f3a08971f7e",
+      "i23_legacy_system": "12b27718d81504b366c82b2417a07359382a5b1470413372fb11dc2711966313",
+      "i23_canonical_user": "372bcc6ffb34b99254e296b82d49715580f09467daadebbdef0dcd550933c479"
+    },
+    "canonical_primary_candidate_prefix_mass": {
+      "s800": 88,
+      "i23": 97,
+      "s800_minus_i23": -9,
+      "direction": "opposite to the known online video ordering"
+    },
+    "canonical_secondary_group_any_ab": {
+      "s800": 2,
+      "i23": 1,
+      "s800_minus_i23": 1
+    },
+    "canonical_exact_groups": {
+      "s800": 0,
+      "i23": 0
+    },
+    "decision": "The preregistered primary canonical direction did not reproduce s800 > I23. The secondary group-any-ab direction was positive but cannot replace the primary metric post hoc. Treat the proxy as uncalibrated, do not implement the 128-group teacher-forced next layer, and do not authorize an I23 video-residual training run from I29."
+  },
+  "report_path": "logs/probe/i29_i23_s800_renderer_calibration_n16.json"
+}

@@ -1,6 +1,7 @@
 {
-  "status": "S625_ONLINE_COMPLETE_S500_READY_FOR_MANUAL_SUBMISSION",
+  "status": "S53125_ONLINE_COMPLETE_AXIS_CLOSED",
   "registered_at_utc": "2026-07-16T09:23:38Z",
+  "last_updated_at_utc": "2026-07-18T07:52:27Z",
   "objective": "Preserve I-23 material=0.2760 and prod/ad advantages while recovering the action/topic gap and avoiding further video loss.",
   "first_probe": {
     "id": "i23_userres_r80_s625",
@@ -50,7 +51,146 @@
     "calibrated_score_prediction": false,
     "transfer_command": "scp -r root@172.26.0.65:/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i23_userres_r80_s500_platform ~/Downloads/"
   },
-  "decision_after_first_result": [
+  "next_probe_result": {
+    "source": "user-provided platform panel; raw evaluation log and evalTaskId pending",
+    "ui_name": "i23_userres_r80_s500_V1_eval_20260716190207",
+    "submission_name": "i23_userres_r80_s500",
+    "platform_time": "2026-07-16 19:02:20",
+    "runtime": "1h7m20s",
+    "account": "SL1ACE8AD6710",
+    "total": 0.9882,
+    "vector_order": [
+      "material",
+      "action",
+      "topic",
+      "video",
+      "prod",
+      "ad",
+      "live",
+      "world"
+    ],
+    "vector": [0.2760, 0.1156, 0.0399, 0.0576, 0.1258, 0.1316, 0.1035, 0.1383],
+    "same_day_i23_repeat_total": 0.9884,
+    "same_day_i23_repeat_vector": [0.2760, 0.1099, 0.0380, 0.0576, 0.1224, 0.1400, 0.1062, 0.1383],
+    "delta_vs_same_day_i23_repeat": [0.0000, 0.0057, 0.0019, 0.0000, 0.0034, -0.0084, -0.0027, 0.0000],
+    "displayed_total_delta_vs_same_day_i23_repeat": -0.0002,
+    "rounded_component_delta_sum": -0.0001,
+    "delta_s625_vs_s500": [-0.0307, 0.0014, 0.0000, 0.0192, 0.0068, 0.0000, 0.0009, 0.0007],
+    "displayed_total_delta_s625_vs_s500": -0.0016,
+    "decision": "Scale 0.5 preserved material=0.2760 but did not recover video; scale 0.625 recovered two video score steps but crossed the material cliff. The interval [0.5, 0.625] brackets both discrete transitions."
+  },
+  "proposed_threshold_probe": {
+    "id": "i23_userres_r80_s5625",
+    "status": "ONLINE_COMPLETE_0.9925_NOT_MAIN",
+    "identity": "delta_candidate = delta_I23 + 0.5625 * delta_I12_user_residual",
+    "checkpoint_dir": "checkpoints/i23_userres_r80_s5625",
+    "submission_dir": "submissions/i23_userres_r80_s5625_platform",
+    "adapter_sha256": "1f17f41d8933d1df41a654a28b909e68dd322120fa071e7b504154980dc7a1ba",
+    "config_sha256": "4768770a600b8ab4c60eb04ad81a026a5ef8b6f2f8be79a8c4ab3192fa664d06",
+    "combine_audit": "logs/model/i23_userres_r80_s5625_combine.json",
+    "combine_audit_sha256": "1e0e0b7ec83503a13a79b9324cef4abb76231f089cc491bf5f1f26f18145fff3",
+    "package_contract": "Exactly adapter_config.json and adapter_model.safetensors; byte-identical to the audited checkpoint.",
+    "transfer_command": "scp -r root@172.26.0.65:/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i23_userres_r80_s5625_platform ~/Downloads/",
+    "role": "Robust midpoint probe for ordering the material and video thresholds; not a calibrated score prediction or a guaranteed improvement.",
+    "conditional_centers": {
+      "material_0.2760_video_0.0576": 0.9932,
+      "material_0.2760_video_0.0672": 1.0028,
+      "material_0.2760_video_0.0768": 1.0124,
+      "material_0.2453_video_0.0576": 0.9625,
+      "material_0.2453_video_0.0672": 0.9721,
+      "material_0.2453_video_0.0768": 0.9817
+    },
+    "decision_rule": "Only material=0.2760 and video=0.0768 clearly beats the current s800 best display 1.0048. If material holds and video is 0.0576 or 0.0672, probe 0.59375 once; if both full video steps land while material has dropped, probe 0.53125 once; if material drops before full video recovery, close the axis. The observed material=0.2453 and video=0.0864 naturally satisfies the pre-registered full-video-plus-material-drop predicate, so the 0.53125 branch is triggered without adding a post-hoc branch.",
+    "online_result": {
+      "source": "user-provided platform panel; raw evaluation log and evalTaskId pending",
+      "ui_name": "i23_userres_r80_s5625_V1_eval_20260717220142",
+      "submission_name": "i23_userres_r80_s5625",
+      "platform_time": "2026-07-17 22:01:46",
+      "runtime": "1h5m41s",
+      "account": "SL1ACE8AD6710",
+      "total": 0.9925,
+      "vector_order": [
+        "material",
+        "action",
+        "topic",
+        "video",
+        "prod",
+        "ad",
+        "live",
+        "world"
+      ],
+      "vector": [0.2453, 0.1160, 0.0392, 0.0864, 0.1224, 0.1372, 0.1062, 0.1398],
+      "displayed_total_delta_vs_s500": 0.0043,
+      "rounded_component_delta_vs_s500": [-0.0307, 0.0004, -0.0007, 0.0288, -0.0034, 0.0056, 0.0027, 0.0015],
+      "rounded_component_delta_sum_vs_s500": 0.0042,
+      "displayed_total_delta_vs_s625": 0.0059,
+      "rounded_component_delta_vs_s625": [0.0000, -0.0010, -0.0007, 0.0096, -0.0102, 0.0056, 0.0018, 0.0008],
+      "displayed_total_delta_vs_s800_first": -0.0112,
+      "displayed_total_delta_vs_s800_repeat": -0.0123,
+      "decision": "The model does not replace s800. Scale 0.5625 has already crossed the material cliff while reaching video=0.0864, so close the upper half and permit exactly one final midpoint probe at scale 0.53125."
+    }
+  },
+  "conditional_bisection": {
+    "id": "i23_userres_r80_s53125",
+    "status": "ONLINE_COMPLETE_0.9757_AXIS_CLOSED",
+    "identity": "delta_candidate = delta_I23 + 0.53125 * delta_I12_user_residual",
+    "checkpoint_dir": "checkpoints/i23_userres_r80_s53125",
+    "submission_dir": "submissions/i23_userres_r80_s53125_platform",
+    "adapter_sha256": "fec253518747fc6ac89dd3f2b4b6cc61d657a38d28b3daeca3e8da4f51a965e0",
+    "config_sha256": "4768770a600b8ab4c60eb04ad81a026a5ef8b6f2f8be79a8c4ab3192fa664d06",
+    "combine_audit": "logs/model/i23_userres_r80_s53125_combine.json",
+    "combine_audit_sha256": "d39e2fc82205132bbb6a03a2e457c07a982c4638bea4ec755a186eaca9f2a030",
+    "package_contract": "Exactly adapter_config.json and adapter_model.safetensors; byte-identical to the audited checkpoint.",
+    "transfer_command": "scp -r root@172.26.0.65:/lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i23_userres_r80_s53125_platform ~/Downloads/",
+    "interval": [0.5, 0.5625],
+    "role": "One final high-variance threshold-order probe; this is the only remaining scale on this branch and is not a calibrated score prediction.",
+    "non_material_video_sum_basis": {
+      "s500": 0.6547,
+      "s5625": 0.6608,
+      "linear_midpoint": 0.65775
+    },
+    "conditional_centers": {
+      "material_0.2760_video_0.0576": 0.99135,
+      "material_0.2760_video_0.0672": 1.00095,
+      "material_0.2760_video_0.0768": 1.01055,
+      "material_0.2760_video_0.0864": 1.02015,
+      "material_0.2453_video_0.0576": 0.96065,
+      "material_0.2453_video_0.0672": 0.97025,
+      "material_0.2453_video_0.0768": 0.97985,
+      "material_0.2453_video_0.0864": 0.98945,
+      "material_0.2453_video_0.0960": 0.99905
+    },
+    "success_condition": "The actual online result must retain material=0.2760, reach video>=0.0768, and beat the current s800 best display 1.0048.",
+    "stop_rule": "If material is 0.2453 at any video level, or material is 0.2760 with video<=0.0672, close this entire cross-parent residual scale axis. Do not add s515625, s546875, or any other post-hoc scale.",
+    "quota_rule": "Submit only if one high-variance information/upswing attempt is affordable. If only one final contest submission remains, reserve it for a stronger validated candidate instead.",
+    "online_result": {
+      "source": "user-provided platform panel; raw evaluation log and evalTaskId pending",
+      "ui_name": "i23_userres_r80_s53125_V1_eval_20260718012851",
+      "submission_name": "i23_userres_r80_s53125",
+      "platform_time": "2026-07-18 01:28:57",
+      "runtime": "1h6m41s",
+      "account": "SL1ACE8AD6710",
+      "total": 0.9757,
+      "vector_order": [
+        "material",
+        "action",
+        "topic",
+        "video",
+        "prod",
+        "ad",
+        "live",
+        "world"
+      ],
+      "vector": [0.2453, 0.1159, 0.0400, 0.0864, 0.1190, 0.1260, 0.1044, 0.1387],
+      "displayed_total_delta_vs_s500": -0.0125,
+      "rounded_component_delta_vs_s500": [-0.0307, 0.0003, 0.0001, 0.0288, -0.0068, -0.0056, 0.0009, 0.0004],
+      "displayed_total_delta_vs_s5625": -0.0168,
+      "rounded_component_delta_vs_s5625": [0.0000, -0.0001, 0.0008, 0.0000, -0.0034, -0.0112, -0.0018, -0.0011],
+      "displayed_total_delta_vs_s800_repeat": -0.0291,
+      "decision": "The result failed all three success requirements: material dropped to 0.2453, total remained below 1.0048, and the cross-parent response stayed strongly discrete/non-monotonic. Apply the preregistered stop rule and close the complete I23 x I12 residual scale axis without any finer scale."
+    }
+  },
+  "historical_decision_after_s625_result": [
     {
       "if": "material=0.2760 and action/topic improve",
       "then": "Use the observed component response to decide whether s750 deserves the next submission; package only after that decision."
@@ -75,7 +215,9 @@
     }
   ],
   "constraints": [
-    "Do not choose or package another scale before the s500 online component vector is available.",
+    "The s500 online component vector is now available; the original wait condition is satisfied.",
+    "The s53125 online result is complete at 0.9757 and applies the preregistered stop rule; the complete I23 x I12 residual scale axis is closed.",
+    "The video response is not monotonic across s5625 and s625, so conditional centers are arithmetic scenarios rather than a smooth calibrated scale curve.",
     "Do not start new training without explicit user approval.",
     "Offline quality metrics may reject only obvious structural collapse; they may not claim leaderboard direction."
   ]

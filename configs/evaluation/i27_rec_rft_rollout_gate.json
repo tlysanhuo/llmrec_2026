@@ -1,0 +1,139 @@
+{
+  "status": "PREREGISTERED_BEFORE_I27_ROLLOUT",
+  "registered_utc_date": "2026-07-17",
+  "objective": "Test whether set-wise exact-hit success trajectories from the s800 video-strong teacher are numerous and clean enough for positive-only RFT-lite on the I23 single-adapter parent.",
+  "causal_boundary": {
+    "target_metric": "video recommendation",
+    "teacher_online_video": 0.096,
+    "student_parent_online_video": 0.0576,
+    "student_parent_online_material": 0.276,
+    "claim_if_gate_passes": "The frozen rollout recipe produced enough strict O1-set exact hits to authorize one low-dose training experiment; it does not predict an online score increase.",
+    "claim_if_gate_fails": "This rollout recipe is closed without weakening exact-hit, validity, closure, or leakage requirements."
+  },
+  "frozen_assets": {
+    "base_config": {
+      "path": "models/OneReason-0.8B-pretrain-competition/config.json",
+      "sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+    },
+    "teacher_s800": {
+      "path": "submissions/e3_userres_r80_retkl_v3_s800_platform",
+      "adapter_sha256": "bb86eb8af0efd3560b7b7c8440f3830627e9255f4fcc2265b9274a27668f63c6",
+      "adapter_config_sha256": "e3c3ace0c049f84726b257e3bff66e1954e316c249f9f2f7d931a80944dc4ac0",
+      "runtime_artifact_sha256": "ed5366a6c38a3e4da3c90970d243bd1b0f86fe7aad3ea08074fd7f32c2633c51",
+      "lora_rank": 80,
+      "vllm_max_lora_rank": 128
+    },
+    "student_parent_i23": {
+      "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+      "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+      "adapter_config_sha256": "b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7",
+      "allowed_role": "Only the successful E3 adapter may be both policy initialization and frozen reference after all rollout gates pass."
+    },
+    "prompt_manifest": {
+      "path": "assets/derived/processed/o1_rec_multigold_v1_prompt_manifest.jsonl",
+      "rows": 512,
+      "sha256": "c75e6a326dd02da07b671787a0bbc76cc391c0ec1254a7eaed0fa1cc250d0300"
+    },
+    "gold_ledger": {
+      "path": "assets/derived/processed/o1_rec_multigold_v1_gold_ledger.jsonl",
+      "rows": 512,
+      "unique_gold_items": 2489,
+      "sha256": "ec3f39054e4ba1d3e4a476ff8deea3b057cd52eb4a28d07d1237962ab7081cf5",
+      "visible_to_rollout_process": false
+    },
+    "construction_audit": {
+      "path": "logs/data/o1_rec_multigold_v1_audit.json",
+      "sha256": "873236370f61fef8d9777fcb789dd92f2a0735a89e5553a932237571aaecbdb2"
+    }
+  },
+  "frozen_implementation": {
+    "rollout_generator": {
+      "path": "scripts/rft/generate_rec_rft_rollouts.py",
+      "sha256": "668a7e09b1460bb57e80baa6bcbfc28af50e2d99352784294805b1a4c5fa8c0d"
+    },
+    "positive_scorer": {
+      "path": "scripts/rft/build_rec_rft_positive_v1.py",
+      "sha256": "d701fb4165c9697a3103ba54ee48bcf02dcf63d3d232ef09354f786f08b94adc"
+    },
+    "final_mix_builder": {
+      "path": "scripts/data/build_i27_rec_rft_retkl_v1.py",
+      "sha256": "deb93c9b0e8304a9a51008c686cf2f51369ef1fd47012658c974b903aa86160e"
+    },
+    "trainer": {
+      "path": "scripts/train/train_rec_rft_retkl.py",
+      "sha256": "8bd94e4d3c7893f81e24f59403dd07ad44b290e91c4fdc94677cab54bd341189"
+    }
+  },
+  "frozen_rollout_recipe": {
+    "single_gpu": true,
+    "requires_process_free_gpu": true,
+    "domains": [
+      "video"
+    ],
+    "groups": 512,
+    "reasoning_samples_per_group": 4,
+    "item_beams_per_reasoning": 8,
+    "expected_reasoning_traces": 2048,
+    "expected_actual_item_candidates": 16384,
+    "max_reasoning_tokens": 1024,
+    "reasoning_temperature": 0.6,
+    "reasoning_top_p": 0.95,
+    "reasoning_top_k": 50,
+    "item_generation": "deterministic width-8 beam after an explicit domain token, exactly three generated tokens",
+    "seed": 19260829,
+    "batch_prompts": 16,
+    "beam_batch_prompts": 16,
+    "gpu_memory_utilization": 0.5,
+    "max_model_len": 4096,
+    "dtype": "bfloat16",
+    "prompt_token_preflight": {
+      "minimum": 128,
+      "p50": 1132,
+      "p90": 1742,
+      "p95": 1928,
+      "p99": 2325,
+      "maximum": 2845,
+      "rows_exceeding_max_model_len_minus_reasoning_and_item_budget": 0
+    }
+  },
+  "admission_gates": {
+    "rollout_rows_equal": 512,
+    "reasoning_traces_equal": 2048,
+    "actual_item_candidates_equal": 16384,
+    "valid_candidate_rate_minimum": 0.95,
+    "accepted_unique_groups_minimum": 128,
+    "accepted_rows_per_group_maximum": 1,
+    "positive_condition": "An actual structurally valid generated candidate exactly equals one member of the complete O1 prompt-domain gold set.",
+    "partial_prefix_or_component_reward_terms": 0,
+    "miss_or_invalid_training_rows": 0,
+    "reasoning_must_stop_on_exact_close_think": true,
+    "accepted_gold_item_in_thought": 0,
+    "accepted_exact_or_stripped_original_o1_thought": 0,
+    "accepted_chatml_or_nested_think_control_leakage": 0,
+    "accepted_ungrounded_or_malformed_thought_itemic": 0
+  },
+  "conditional_training_recipe": {
+    "authorized_before_all_admission_gates_pass": false,
+    "positive_to_retention": "1:3",
+    "positive_loss": "Full actual response CE including CoT, exact answer, and EOS, plus 0.2x frozen-I23 forward KL.",
+    "retention_loss": "Canonical empty-think response-body frozen-I23 KL only, capped at 128 positions and weighted 4.0x.",
+    "policy_update": "Update the same I23 r64 adapter in place; do not create, stack, merge, or resume another adapter.",
+    "effective_batch_size": 4,
+    "learning_rate": 5e-8,
+    "scheduler": "constant_with_warmup",
+    "warmup": "10 percent of the observed accepted-group optimizer-step count, frozen to an integer before launch",
+    "epochs": 1,
+    "optimizer_steps": "equal to accepted unique groups because the final data has 4N rows and effective batch is 4",
+    "checkpoint_policy": "adapter-only quartile checkpoints from the frozen observed optimizer-step count",
+    "wandb_online": true,
+    "single_gpu": true,
+    "forbidden_training_rows": {
+      "O3": 0,
+      "T": 0,
+      "E": 0,
+      "partial_hits": 0,
+      "misses": 0,
+      "invalid_candidates": 0
+    }
+  }
+}

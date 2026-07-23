@@ -1,0 +1,52 @@
+### I-39: AB/first-divergence material correction over I-35 step548.
+### The full routing sidecar locks 512 material, 128 linked user, and 1,920
+### parent-retention rows. This is the only fresh r8 run and has no
+### intermediate checkpoint candidates.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i35_r96_video_boundary_retkl_r112_step548_platform
+create_new_adapter: true
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 8
+lora_alpha: 8
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_i39_i35_userab_firstdiv_retkl_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/i39_i35_userab_firstdiv_retkl_v1
+template: qwen3_nothink
+cutoff_len: 16384
+generation_max_length: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i39_i35_userab_firstdiv_retkl_r8_v1
+logging_steps: 8
+save_strategy: "no"
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i39_i35_userab_firstdiv_retkl_r8_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 5.0e-6
+max_steps: 640
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260839

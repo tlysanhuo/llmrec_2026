@@ -1,0 +1,141 @@
+{
+  "status": "PREREGISTERED_AND_HASH_FROZEN_READY_FOR_FORMAL_TRAINING",
+  "registered_at_utc": "2026-07-20T00:00:00Z",
+  "experiment": "i33_r96_material_desc2sid_retkl_r8_v1",
+  "purpose": "Test whether reallocating the material half from SID-to-description into E-clean description-to-SID supervision improves the 1.025259456 r96 parent without degrading the other seven online tasks.",
+  "base": {
+    "path": "models/OneReason-0.8B-pretrain-competition",
+    "config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+  },
+  "parent": {
+    "path": "submissions/i19_world_external_r96_s875_platform",
+    "adapter_sha256": "4fba17eb8d487add264dceb8ce758cf3fe0685d1c7ef2c6f52a4fcebb72f078e",
+    "adapter_config_sha256": "78b6214367a134f9a805eeff169f28da491a0eba0da1a2baa42de1d34671b64f",
+    "rank": 96,
+    "online_score": 1.025259456,
+    "online_subscores": {
+      "material": 0.2453,
+      "action": 0.1225,
+      "topic": 0.0399,
+      "video": 0.0768,
+      "prod": 0.1326,
+      "ad": 0.14,
+      "living": 0.108,
+      "world": 0.1602
+    }
+  },
+  "teacher": {
+    "path": "submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform",
+    "adapter_sha256": "0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8",
+    "adapter_config_sha256": "b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7",
+    "online_material": 0.276,
+    "role": "Frozen construction scorer and material-response KL teacher only."
+  },
+  "paired_data_design": {
+    "control_path": "assets/derived/processed/data_i33_r96_material_bidirectional_e_clean_control_v1.jsonl",
+    "control_sha256": "812a6f711ff239737a9dde50acdff0588f6ac4885de037664dea58575c707d40",
+    "control_role": "Frozen untrained causal control.",
+    "treatment_path": "assets/derived/processed/data_i33_r96_material_desc2sid_retkl_v1.jsonl",
+    "treatment_sha256": "7d6a1e4a44238a79dcb0d31384f147c02baea95cd870224e2a6815444f8470fd",
+    "rows_each": 2048,
+    "different_positions": 256,
+    "different_position_role": "Original I-30 material_sid2desc positions only.",
+    "shared_retention_rows": 1536,
+    "shared_retention_byte_and_position_identical": true,
+    "training_arm": "treatment_only"
+  },
+  "provenance_and_leakage": {
+    "upstream_asset_ids": [
+      "data_seed_teacher_v1",
+      "data_user_residual_retention_v1",
+      "data_i30_r96_material_teacher_retkl_v1",
+      "i30_r96_material_teacher_selection_v1"
+    ],
+    "builder": "scripts/data/build_i33_r96_material_desc2sid_v1.py",
+    "builder_sha256": "9c27a666f4a95e834742e491e46fd8cf649bec98c654be0fbe302a13e1c5ed1b",
+    "audit": "logs/data/i33_r96_material_desc2sid_retkl_v1_audit.json",
+    "audit_sha256": "5e731caad45ece5c1192c4d0b1193babee9ff119608ad6f64152ec778ef62bc9",
+    "registered_prompt_bearing_e_holdouts_excluded": 8,
+    "exclusion_key": "exact and mode-normalized prompt SHA256",
+    "training_e_overlap": 0,
+    "training_t_rows": 0
+  },
+  "frozen_training_recipe": {
+    "single_gpu": true,
+    "wandb_online_required": true,
+    "parent_initialization": "Merge exact r96 into O6, then create one fresh trainable residual.",
+    "residual_rank": 8,
+    "residual_alpha": 8,
+    "residual_dropout": 0.05,
+    "target_modules": "all linear",
+    "material_rows": 512,
+    "material_direction": "description-to-SID only",
+    "retention_rows": 1536,
+    "material_loss": "answer-body CE + 0.5 I23 forward KL + 0.1 r96 forward KL",
+    "retention_loss": "4.0 r96 forward KL only, capped at 96 uniformly spaced answer-body positions",
+    "batch": 1,
+    "gradient_accumulation": 4,
+    "optimizer_steps": 512,
+    "dataset_exposures": 1,
+    "learning_rate": 0.00002,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.001,
+    "cutoff": 16384,
+    "precision": "bf16",
+    "seed": 19260831,
+    "save_steps": 64,
+    "adapter_only_checkpoints": true
+  },
+  "formal_artifacts": {
+    "holdout": "assets/evaluation/holdout/data_i33_r96_material_desc2sid_gate_v1.jsonl",
+    "holdout_rows": 720,
+    "holdout_sha256": "76acc6a39b248e4501a11e99bc889871f5208c811070485791b554538e658f99",
+    "world_holdout": "assets/evaluation/holdout/data_i32_task_restore_gate_v1.jsonl",
+    "world_holdout_rows_used": 16,
+    "world_holdout_sha256": "f75106758792163dd33d1d52639ba507a6d9e69094d8213d5f3b0969ee272f62",
+    "treatment_selection_sha256": "22e05c2181947995500dc300b68cad8c39ece9041a56da5bf6a9829793d588af",
+    "control_selection_sha256": "54fa513c2396e079ee8dc542b6117b81ce86047734cd6d04aa784003cbb36024",
+    "retention_replacement_sha256": "8c4774300a515e960abc8b49950030834e88af4c870828a6871d136ffcb18ca8",
+    "dataset_registry_sha256": "4fb0ef52686c8fc8f9caa49da75f5c463591c4440c0c4c01fecbc1ce4642e8bd",
+    "trainer_sha256": "a437e3513b9577acd794b143d49162dcf9c957c473a41a2320396d5aa69ed383",
+    "config_sha256": "c47c7f5d95bcb8fb0c671edca03601fbf4849ee0e97d8aba6d79803dfd9f53bb",
+    "evaluator_sha256": "fb4ff78e2f5615d18851c077712ee2a5504832f5fdf4f252822db910f72de44d",
+    "combiner_sha256": "aad9370860c4af498d773629a3e6daea47853a13868e9f56cd0cd37c12d841c1"
+  },
+  "candidate_steps_in_order": [64, 128, 256, 512],
+  "unregistered_saved_steps": [192, 320, 384, 448],
+  "unregistered_saved_steps_role": "Do not evaluate or select; delete after the registered decision.",
+  "teacher_forced_gate": {
+    "material_desc2sid_256": {
+      "gold_mean_logp_delta_vs_r96_min": 0.0,
+      "row_improved_rate_vs_r96_min": 0.55,
+      "candidate_to_i23_kl_delta_vs_r96_to_i23_max": 0.0
+    },
+    "material_sid2desc_protection_128": {
+      "r96_top1_agreement_min": 0.99,
+      "r96_to_candidate_forward_kl_mean_max": 0.005,
+      "gold_mean_logp_delta_vs_r96_min": -0.01
+    },
+    "retention_each_task": {
+      "tasks": ["action", "topic", "rec_video", "rec_prod", "rec_ad", "rec_living"],
+      "r96_top1_agreement_min": 0.99,
+      "r96_to_candidate_forward_kl_mean_max": 0.005,
+      "gold_mean_logp_delta_vs_r96_min": -0.01
+    },
+    "world_i32_16": {
+      "candidate_teacher_forced_exact_correct_min": "r96 parent correct count",
+      "unparsed_rows_max": 0
+    }
+  },
+  "selection_rule": "Evaluate only steps 64, 128, 256, and 512 in that order. Choose the earliest full teacher-forced pass, then require itemic breakage 0/60. Residual scale is fixed at 1.0; no scale, dtype, rank-compression, or post-hoc checkpoint sweep.",
+  "packaging_contract": {
+    "operation": "Exact FP32 concatenation r96 + r8 at multipliers 1.0/1.0",
+    "final_rank_alpha": [104, 104],
+    "platform_rank_legal": true,
+    "platform_size_limit_bytes": 419430400,
+    "expected_total_bytes_lt_limit": true,
+    "files": ["adapter_model.safetensors", "adapter_config.json"]
+  },
+  "online_success_definition": "One fixed-protocol observation with total score above 1.025259456 and material above 0.2453 while no other subscore shows a material collapse. It remains an observed point, not a stability certificate."
+}

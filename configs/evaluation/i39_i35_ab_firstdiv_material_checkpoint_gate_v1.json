@@ -1,0 +1,126 @@
+{
+  "status": "RESULT_PREDEFINED_HASH_FROZEN_BEFORE_FORMAL_TRAINING",
+  "registered_at_utc": "2026-07-23T00:00:00Z",
+  "experiment": "i39_i35_userab_firstdiv_retkl_r8_v1",
+  "purpose": "Mechanism-only teacher-forced gate for the unique final I-39 candidate. It tests whether the AB/first-divergence residual improves the frozen focus margins while remaining close to I-35 step548. It is not an online-score estimator.",
+  "immutable_base": {
+    "path": "models/OneReason-0.8B-pretrain-competition",
+    "config_sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4",
+    "artifact_sha256": "431cc7546a1813ed21a184974a1ac739139b7bdc4643d04e521d066f6ad20652"
+  },
+  "parent": {
+    "name": "i35_step548_r112",
+    "path": "submissions/i35_r96_video_boundary_retkl_r112_step548_platform",
+    "adapter_sha256": "52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00",
+    "adapter_config_sha256": "4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996",
+    "artifact_sha256": "fd98574e13585eca935570b1209eb518a204c903ce92f7b2a6eee701030546bd",
+    "rank_alpha": [
+      112,
+      112
+    ]
+  },
+  "candidate_rule": {
+    "evaluate_only": "The unique full 640-step I-39 residual after exact additive concatenation with I-35 step548.",
+    "required_rank_alpha": [
+      120,
+      120
+    ],
+    "required_files": [
+      "adapter_model.safetensors",
+      "adapter_config.json"
+    ],
+    "forbidden_search": [
+      "intermediate checkpoints",
+      "residual scale",
+      "interpolation",
+      "rank",
+      "dtype",
+      "threshold changes"
+    ]
+  },
+  "frozen_holdout": {
+    "path": "assets/evaluation/holdout/data_i39_userab_firstdiv_gate_v1.jsonl",
+    "sha256": "293fc361295db56196acc035bd639d63e426168b93ea36f2d21c3890c2a34d40",
+    "rows": 313,
+    "unique_ab_groups": 256,
+    "dual_view_ab_groups": 57,
+    "dual_c_firstdiv_ab_groups": 4,
+    "task": "material_desc2sid",
+    "route": "i39_material_gate",
+    "by_objective": {
+      "a_firstdiv": 85,
+      "b_firstdiv": 120,
+      "c_firstdiv": 65,
+      "full_anchor": 43
+    }
+  },
+  "frozen_beam_ledger": {
+    "join_key": "holdout.i39_source_row_sha256 == ledger.row_sha256",
+    "train": {
+      "path": "logs/data/i39_userab_video_beam64_beam_ledger_v1.jsonl",
+      "sha256": "d0c2da0e9e9722fe76beb849e76d6ae87a2a23071cf9fec684ae4987d2bf5f4e",
+      "rows": 3071
+    },
+    "dev": {
+      "path": "logs/probe/i39_userab_video_beam64_dev_ledger_v1.jsonl",
+      "sha256": "e3786b468c474c0d364ef0e49e4a593549c645f4ec1867d7f846b99b1af2b3a8",
+      "rows": 1
+    },
+    "audit": {
+      "path": "logs/probe/i39_userab_video_beam64_audit_v1.json",
+      "sha256": "3aec881213dd6ff62702d5271f32e2e46355ec9799e11d980772220d73b24eb9",
+      "schema_version": "i39-userab-video-beam64-audit-v1",
+      "beam_width": 64,
+      "single_parent_request": true
+    },
+    "allowed_negative_role": "I-35 step548 Beam64 candidates are hard negatives only. Gold remains the O3 aligned SID.",
+    "focus_negative_selection": "For each first-divergence row, use every unique ledger hard negative whose first_divergence equals the frozen objective focus index; there are at most four.",
+    "compatibility_teacher_score_rule": "If the raw ledger contains teacher_score, it must exactly equal parent_score and is ignored."
+  },
+  "teacher_forced_protocol": {
+    "template": "qwen3_nothink",
+    "positions": "Exactly the three logits predicting gold A, B, and C after the frozen video-domain token.",
+    "gold_metric": "Mean teacher-forced log probability of the three gold A/B/C tokens, reported for parent and candidate with paired deltas.",
+    "focus_margin": "For A/B/C first-divergence rows, mean over focus-matched hard negatives of log_p(gold_focus)-log_p(negative_focus).",
+    "parent_kl": "Forward KL(parent || candidate), averaged over the three A/B/C positions.",
+    "top1": "Candidate-to-parent top-1 agreement over the three A/B/C positions; gold top-1 rates are diagnostic only.",
+    "reporting": "Report aggregate, each frozen objective stratum, and the 57 dual-view AB groups with paired parent/candidate metrics.",
+    "generation": false,
+    "sampling": false
+  },
+  "hard_pass_thresholds": {
+    "each_firstdiv_stratum": {
+      "strata": [
+        "a_firstdiv",
+        "b_firstdiv",
+        "c_firstdiv"
+      ],
+      "focus_gold_vs_hard_negative_margin_mean_delta_vs_parent_min": 0.0,
+      "focus_margin_improved_row_rate_min": 0.55,
+      "focus_gold_logp_mean_delta_vs_parent_min": 0.0
+    },
+    "full_anchor": {
+      "candidate_parent_top1_agreement_min": 0.99,
+      "parent_to_candidate_forward_kl_mean_max": 0.005,
+      "gold_logp_mean_delta_vs_parent_min": -0.01
+    },
+    "aggregate_all_rows": {
+      "parent_to_candidate_forward_kl_mean_max": 0.01
+    },
+    "error_count_max": 0,
+    "decision_rule": "PASS only if every hard threshold passes. No threshold may be changed after observing candidate logits."
+  },
+  "output_contract": {
+    "status": "COMPLETE_NOT_AN_ONLINE_SCORE_ESTIMATE",
+    "required_sections": [
+      "locked_inputs",
+      "candidate",
+      "aggregate_all_rows",
+      "by_objective",
+      "dual_view_ab_groups",
+      "hard_checks",
+      "teacher_forced_pass"
+    ]
+  },
+  "next_action": "A pass authorizes only downstream package and structural checks. A fail does not authorize checkpoint, scale, or threshold search."
+}

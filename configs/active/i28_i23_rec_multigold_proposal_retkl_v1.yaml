@@ -1,0 +1,106 @@
+### I-28: group-balanced O1 multi-positive video proposal alignment on I-23.
+###
+### Frozen intent:
+### - Continue the successful I-23 E3 r64 adapter in place.  Do not create,
+###   stack, merge, or warm-start another adapter, and never use I-23 E1/E2 or
+###   the failed I-24/I-25 trajectories as a parent.
+### - Proposal rows receive answer-only positive CE plus 0.2x frozen-I23 KL.
+###   Retention rows receive 4.0x frozen-I23 KL and no gold CE.
+### - No history item is constructed as a negative.  O3/T/E/model-rollout rows
+###   are forbidden from training.  The training data is official-source
+###   derived D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,
+###   O2.General), never official direct data.  It must be registered in
+###   docs/reference/ASSETS.md before the first header may be removed.
+###
+### Frozen parent M:
+### - submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform
+### - adapter SHA256:
+###   0e5fa9bb182e13e1192e9e6afddad068b6ffc241fd7eeb9b880ea410f115c6b8
+### - adapter_config SHA256:
+###   b3f2a1b5c5f77986a385c928450505aa0a8e01266016cfbd0c9ecc9c1feed7e7
+### - O6 config SHA256:
+###   5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4
+###
+### Formal registered data/implementation ledger:
+### - Dataset key: data_i28_video_multigold_proposal_retkl_v1
+### - Dataset JSONL: 512 rows; 64 prompt groups x 2 deterministically selected
+###   non-history O1-known positives = 128 proposal-CE rows, plus 384 parent-
+###   retention KL-only rows; exact proposal:retention ratio 1:3.  SHA256:
+###   f74a22b96bf7651a97cdb5b578f346eea0109045329efafb80092f91756fbb6a.
+### - Proposal upstream: data_seed_clean_v1, D(O1), 32,480 rows, SHA256
+###   e526caea4a1afd8befbd5d266fb80d0378a5bf7eff90fdacd14934332d64d309.
+### - Retention upstream: data_user_residual_retention_v1, D(O1,O2.*), 6,106
+###   rows, SHA256
+###   bd947aad4f2e3e0ef409b53dbffa914e6a73bec7e32be41ca0834a9d923b08f0.
+### - Retention quotas: material desc2sid/sid2desc=96/96; action/topic/prod/
+###   ad/living/world=32 each.  These 384 rows receive no gold CE.
+### - Builder: scripts/data/build_i28_video_multigold_proposal_v1.py, SHA256
+###   98b4129343db55c334c3768ddacbd908414eadb0d3be0e7ddc4e71ae20e4bf11.
+### - Build audit: logs/data/i28_video_multigold_proposal_v1_audit.json,
+###   SHA256 b0036b97fa210bd8738e75af348a6f0bbced83f5159c5e658624b5ee3c643be2.
+### - Prompt-disjoint E gate: 128 groups/539 primary non-history known golds,
+###   assets/evaluation/holdout/data_i28_video_multigold_proposal_v1_gate.jsonl,
+###   SHA256 48dd7f4224e7ca9e98805d966ca901814fdb76b85471afcf1ec7d98a0c22c7e5;
+###   it is diagnostic-only and never loaded by this training config.
+### - Dataset registry SHA256:
+###   1e8ba55adf40ec281a7ee1bf427c4f6e9bfaf083d4790b32b205a8f3d6a72e62.
+### - Trainer: scripts/train/train_i28_multigold_proposal_retkl.py
+### - Trainer SHA256:
+###   72fa991433698cd7f705a700d7d72c467356e5530e1f625547e84a6ecaef7253
+###
+### Dose is frozen independently of dataset ordering: single GPU, effective
+### batch 4, lr 1e-7, 16-step warmup then constant, exactly 128 optimizer
+### steps.  The 512-row dataset is therefore exposed exactly once; the trainer
+### must observe exactly 128 proposal and 384 retention microbatches.  Adapter-
+### only checkpoints are saved at step 64 and 128; no optimizer, scheduler,
+### scaler, or RNG state is retained.  Offline gates may reject a checkpoint
+### but are not calibrated online-score estimates.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+create_new_adapter: false
+lora_rank: 64
+lora_alpha: 64
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_i28_video_multigold_proposal_retkl_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/i28_video_multigold_proposal_retkl_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i28_i23_rec_multigold_proposal_retkl_v1
+logging_steps: 4
+save_strategy: steps
+save_steps: 64
+save_total_limit: 2
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i28_i23_rec_multigold_proposal_retkl_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 1.0e-7
+max_steps: 128
+num_train_epochs: 1
+lr_scheduler_type: constant_with_warmup
+warmup_steps: 16
+weight_decay: 0.0
+bf16: true
+seed: 19260830

@@ -1,5 +1,6 @@
 # 离线评测台(offline_eval)— 设计与校准记录
 
+> **变更记录(2026-07-23 UTC)**：I-37队友v4全量回归相对I-35 step548显示video/live/world正向、action/topic轻微回退；随后官方线上I-37=`1.027625202`，低父模型`0.006803383`，真实逐项为video/product `-0.0096/-0.0102`、ad/live `+0.0098/+0.0018`。该例具体证明v4的rec小样本与圈外world读数不能排序榜分或保护线上分域收益。I-37结果前没有登记`score-direction-v1`的UP/DOWN判决，因此不计eligible outcome，也不事后改写预测；协议仍`NOT_CERTIFIED`，v4继续只作行为回归与结构保险丝。
 > **变更记录(2026-07-13 16:40 UTC)**：I-11线上0.9618，相对父模型E3单次显示差-0.0231。I-11结果前只有安全门禁，没有`score-direction-v1`前瞻台账行，因此不计eligible outcome，不能事后把PASS改写为DOWN预测；协议审计仍为eligible outcome 1、UP/DOWN判决0、NOT_CERTIFIED。
 > **变更记录(2026-07-12 07:17 UTC)**：回填 score-direction-v1 首个 eligible outcome（E1冻结 ABSTAIN、实际−0.0338）及同轨迹 E2 门禁反例（本地REJECT、平台名义+0.0010）。方向协议仍NOT_CERTIFIED；visible material/action/simple-world 从正向 checkpoint 排名器降为行为诊断，结构性崩坏保险丝继续保留。
 > **变更记录(2026-07-12 05:53 UTC)**:新增 §9“90%涨跌判决协议”。历史14个独立锚不足以认证90%准确率；正式判决改为 `UP/DOWN/ABSTAIN/REJECT` 四态，UP/DOWN分开做前瞻置信下界验收。修正 `offline_eval.py` 的rec/action/topic/world平台解码参数并升为v4；v3/v4禁止混合校准。

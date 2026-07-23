@@ -1,0 +1,55 @@
+### I-33 treatment continues the verified 1.0253 r96 package with one fresh
+### r8 material residual. The paired E-clean control is frozen but not trained.
+### Formal D data: 2,048 rows, desc2sid/retention=512/1,536 (1:3), SHA256
+### 7d6a1e4a44238a79dcb0d31384f147c02baea95cd870224e2a6815444f8470fd.
+### All registered prompt-bearing E/holdout assets are excluded by exact and
+### mode-normalized prompt hash. T/E training rows=0. Residual scale is fixed 1.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/i19_world_external_r96_s875_platform
+create_new_adapter: true
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 8
+lora_alpha: 8
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_i33_r96_material_desc2sid_retkl_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/i33_r96_material_desc2sid_retkl_v1
+template: qwen3_nothink
+cutoff_len: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i33_r96_material_desc2sid_retkl_r8_v1
+logging_steps: 8
+save_strategy: steps
+save_steps: 64
+save_total_limit: 8
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i33_r96_material_desc2sid_retkl_r8_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 2.0e-5
+max_steps: 512
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260831

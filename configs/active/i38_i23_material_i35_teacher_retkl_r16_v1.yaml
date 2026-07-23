@@ -1,0 +1,54 @@
+### I-38M starts from verified I-23 r64 and creates one fresh r16.
+### Material rows match the exact merged I-23 start; all non-material rows
+### match frozen I-35 step548. Both routes are KL-only: gold CE is zero.
+### Formal data: 2,740 rows, 1,370:1,370, SHA256
+### 5d8ca1a6fa9190841187543559ead1d497d48a50b082382c9fa8501add928d58.
+### T/E/model-generated training rows are all zero. One full candidate only.
+
+model_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/models/OneReason-0.8B-pretrain-competition
+adapter_name_or_path: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/submissions/seed_teacher_cotfix_v3_r64_lr1e4_ep3_platform
+create_new_adapter: true
+trust_remote_code: true
+flash_attn: fa2
+
+enable_liger_kernel: false
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 16
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target: all
+
+dataset: data_i38_i23_material_i35_teacher_retkl_v1
+dataset_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/configs/datasets/i38_i23_material_i35_teacher_retkl_v1
+template: qwen3_nothink
+cutoff_len: 16384
+generation_max_length: 16384
+packing: false
+overwrite_cache: true
+preprocessing_num_workers: 16
+dataloader_num_workers: 8
+
+val_size: 0
+eval_strategy: "no"
+
+output_dir: /lustre/prod_glm_volumes/volume-20260201002229-o7c51/llmrec_2026/checkpoints/i38_i23_material_i35_teacher_retkl_r16_v1
+logging_steps: 8
+save_strategy: "no"
+save_only_model: true
+plot_loss: true
+overwrite_output_dir: false
+report_to: wandb
+run_name: i38_i23_material_i35_teacher_retkl_r16_v1
+
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 4
+learning_rate: 5.0e-6
+max_steps: 685
+num_train_epochs: 1
+lr_scheduler_type: cosine
+warmup_ratio: 0.03
+weight_decay: 0.001
+bf16: true
+seed: 19260838
