@@ -1,7 +1,8 @@
 # Experiment And Artifact Index
 
-> 当前状态基线：2026-07-23 UTC。
+> 当前状态基线：2026-07-24 UTC。
 > 旧版完整历史表已归档到 `docs/archive/EXPERIMENT_INDEX_pre_cleanup_20260711.md`。
+> 变更记录（2026-07-24 UTC）：I-40 step1030正式评测`SUCCEEDED`，evalTaskId `eval-task-bwvd45-1784866180`、总分`0.9890615139753605`，相对I-35 step548为`-0.04536707093158521`。material/live不变，用户两项合计`+0.0002046763`，推荐四项合计`-0.0452`；本次实际结果再次证明v4离线行为优先级不能预测榜分。I-40分支关闭，不上传其它三点、不续训或扫参数；完整训练数据/sidecar的GitHub release继续保留用于复现。
 > 变更记录（2026-07-23 UTC）：I-40已从原始I-35 r112全新恢复为真正脱离终端的GPU1后台run [`34k0sdcj`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/34k0sdcj)，detached wrapper PID/SID=`2665551`、PPID=`1`，data/W&B身份、policy/reference、optimizer-only与step0 logits差0门均再次通过。前一run `9dp9wnbo`本地运行到step169后无错误栈/OOM/NaN地被外部终止，W&B状态`crashed`，未到step515故无checkpoint；日志SHA256=`41c55bb...356`，完整归档且不resume。
 > 变更记录（2026-07-23 UTC）：I-40有效正式run已在GPU1单卡启动，W&B [`9dp9wnbo`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/9dp9wnbo)。真实加载门通过：policy r112为392 tensors/70,647,808参数，冻结reference逐tensor精确快照后差0且未进入optimizer，step0 logits最大差0；25步loss=`0.2934384`、无OOM/NaN/路由错误，当前继续运行。第一次尝试在optimizer step0前因两条adapter加载精度路径最大差`2.43149698e-4`安全停止，无W&B run/checkpoint且禁止resume；失败日志已保留。
 > 变更记录（2026-07-23 UTC）：用户授权I-40按冻结方案启动：不是在I-35上再挂或拼一个低秩LoRA，而是直接加载当前最高I-35 step548 r112并继续更新这同一个r112。正式数据8,240行由I-36全部5,500条审计用户样本与I-35原2,740条组成；后者只作当前I-35自KL，不复用旧boundary/preserve/margin/CE目标。batch1×acc4、2,060步、单GPU、W&B online；数据/sidecar/audit静态预检已通过，当前进入真实模型加载门禁与启动阶段。
@@ -38,7 +39,7 @@
 
 本文件只登记当前仍存在、仍可使用的模型产物。历史分数和实验归因见 `experiment_log.md`。
 
-## 已冻结并获授权启动：i40_i35_direct_user_continue_r112_v1（I-40）
+## 已完成训练、step1030线上回退并关闭：i40_i35_direct_user_continue_r112_v1（I-40）
 
 | 项 | 记录 |
 |---|---|
@@ -48,7 +49,10 @@
 | 损失语义 | 5,500条用户行：`0.05 * weighted answer CE + 16.0 * KL(I35_step548 || policy)`；2,740条I-35回放：`16.0 * KL(I35_step548 || policy)`，每行最多128个回答token参与KL。原I-35的boundary/preserve、margin、gold CE与旧r96 teacher均不复用；reference从真实加载后的step0 policy逐tensor精确快照后永久冻结，二者必须完全一致且step0 KL指纹为0 |
 | 训练物理 | 单GPU、W&B online；直接更新既有r112，batch1×gradient accumulation4，1个确定性shuffle pass，2,060 optimizer steps；lr=`5e-7` cosine、warmup_ratio=`0.03`、weight_decay=`0.001`、max_grad_norm=`0.5`、BF16、seed=`19260840`。adapter-only保存点=`515/1030/1545/2060`，只保存policy r112，不保存冻结reference |
 | 实现/预检 | builder/trainer/config/dataset-registry/online-launcher/detached-launcher SHA256=`24a548c168400a8e139dcc9802d26317d410f2c11e5e9881cba4b5b23748c5fe`/`cd5eb4095a692015bfb26831b10c02da1c0c2836a56581096ecf90e02f915473`/`992825270a4f16ed9a4ec26f2e0d974603a9c2c1f9ae9c4e79fcb50da2cdfbc3`/`6bd0f06fb18ea4d2a864e6515c1d0c85ce6f5f4bb2c0f0f22f047a61ba5d06e0`/`48a403eb7080a98b74e7371b8e1eebd855f3a5f56cc248dc9aa9e0c590288f1f`/`98c6008469b5800b1605c58e209d083e8002e3fac45fb53aa2599a6589ebc521`；audit `logs/data/i40_i35_direct_user_continue_v1_audit.json` SHA256 `c5c2323b2c9aa1dddd4e49936bad09a5cb342a1f32d592f3574cc442b6985b7c`。builder fail-closed、trainer self-test/py_compile及全量8,240行token路由预检已通过。第一次真实加载门在optimizer step0前发现policy加载路径发生BF16 round-trip、后加载reference保留源FP32，最大差`2.43149698e-4`并安全停止；修复为从真实step0 policy精确快照reference后再冻结，不从失败状态resume。失败日志`logs/train/i40_i35_direct_user_continue_r112_v1_failed_preoptimizer_attempt1.log` SHA256 `610fe028...91b`，无W&B run/checkpoint |
-| 当前状态/停止边界 | `RUNNING_DETACHED_SINGLE_GPU_WANDB_ONLINE`：GPU1，W&B [`34k0sdcj`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/34k0sdcj)，detached PID/SID=`2665551`、PPID=`1`；从原始I-35 r112全新启动，真实policy/reference/optimizer/step0 logits门全部通过。旧run `9dp9wnbo`仅本地到step169后外部终止，W&B `crashed`、无checkpoint，归档日志`logs/train/i40_i35_direct_user_continue_r112_v1_crashed_terminal_attempt2_step169.log` SHA256 `41c55bbf...356`，禁止resume。任何reference参数进入optimizer、rank/tensor数漂移、路由计数不符、NaN/Inf或非单GPU均立即停止；四个保存点不是自动授权的四个线上提交 |
+| 训练结果 | `COMPLETE_SINGLE_GPU_WANDB_ONLINE`：run `34k0sdcj`完成2,060/2,060步、epoch1、exit0、runtime `5135.3893s`、train loss `0.3024507062`；日志无OOM/NaN/Inf/traceback。step515/1030/1545/2060 adapter SHA256=`757a549c...a33d`/`851e2e98...5bfd`/`514f0a7b...096a`/`1bb7eba2...88aa`，root与step2060逐字节一致；四点config SHA256均为`7c47dd63...c3a9` |
+| 离线诊断/选点 | 同一v4下step515/1030/1545/2060的mat fresh=`0.1052/0.0996/0.0996/0.1089`，rec video/prod/ad/live分别=`.004/.003/.003/.027`、`.005/.003/.002/.027`、`.004/.003/.003/.024`、`.005/.003/.003/.026`，action F1=`.3062/.3068/.3059/.3044`，topic=`.0243/.0288/.0207/.0255`，world=`.432/.430/.436/.432`。step1030在结构稳定、用户和topic之间最均衡，行为优先级`1030>1545>515>2060`；但`docs/offline_eval.md`明确该协议`NOT_CERTIFIED`，不能换算线上分或证明提分，正式判决为`ABSTAIN` |
+| 官方结果/停止 | step1030正式评测`SUCCEEDED`，project/eval/model ID=`proj-t5g9rf-1781334955887818546`/`eval-task-bwvd45-1784866180`/`md-uqi0e0-1784866126730409012`，retry0、duration3990s、总分`0.9890615139753605`。八项=`0.2452961672/0.1192459749/0.0394833124/0.0576/0.1258/0.1358/0.1071/0.1587360595`；相对I-35逐项=`0/-0.0005213542/+0.0007260304/-0.0288/-0.0136/-0.0028/0/-0.0003717472`，总分`-0.0453670709`。I-40关闭，不上传515/1545/2060、不续训、不扫rank/LR/seed；I-35继续默认交付 |
+| 数据发布 | 完整release：`assets/derived/releases/i40_i35_direct_user_continue_r112_v1/`，含8,240行formal data和8,240行sidecar的确定性gzip、manifest、审计、离线与官方结果摘要及双层校验恢复器。step1030两文件包与正式训练产物继续保留审计，不再作为待上传候选 |
 
 ## 已完成唯一训练、双诊断证据冲突且建议一次官方验证：i39_i35_userab_firstdiv_retkl_r8_v1（I-39）
 

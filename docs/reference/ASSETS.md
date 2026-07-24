@@ -221,6 +221,14 @@ O3 官方页面：`https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_C
 - 残差训练数据：`data_user_residual_retention_v1.jsonl.gz`，14,327,379 bytes，SHA256 `b61e5578b4332b7e27db29f418cf0ddea9d8f7847191f6486ac6f4e25cb9cda4`；解压后6,106行/74,716,566 bytes/SHA256 `bd947aad...b08f0`
 - 恢复器：`scripts/data/restore_i13_highscore_data.py`；manifest登记两阶段数据来源、行数、混合比例、脚本/配置哈希及I-13参考产物哈希。父数据O1 32,480+O2 teacher 164；残差数据用户CE/父保持各3,053；两者O2规则/T/E均为0
 
+### I-40 完整训练数据 GitHub 发布
+
+- 固定入口：`assets/derived/releases/i40_i35_direct_user_continue_r112_v1/`
+- 作用：发布I-40实际使用的完整8,240行训练输入和完整8,240行loss路由sidecar；不是样本或预览，模型权重不属于本数据发布
+- 正式训练数据：`data_i40_i35_direct_user_continue_v1.jsonl.gz`，17,610,470 bytes，SHA256 `a6e710a45e73658449f74a541c9c21fe7c5c055dd49bc41814c2cdd94433906f`；解压后8,240行/102,365,905 bytes/SHA256 `483a4bb2f98d41497600d078032634d4f36fe2970a53d98b4a7fccc488910c18`
+- 路由sidecar：`data_i40_i35_direct_user_continue_v1_sidecar.jsonl.gz`，1,786,904 bytes，SHA256 `637a9b01735fdbe2d896513983d583b0211e610c6165c743b0defe39def0f16c`；解压后8,240行/7,605,609 bytes/SHA256 `e9bc129cd834bff161247985cc5430cf46872006cbae4a86fd37c3666b60acb2`
+- 恢复器：`scripts/data/restore_i40_i35_direct_user_continue_v1.py`；同时做gzip与payload双层SHA256、字节数和行数校验，并原子还原到登记的`assets/derived/processed/`路径。manifest记录上游、混合、损失路由、训练参数、checkpoint身份、`NOT_CERTIFIED`离线边界与step1030正式线上结果
+
 ## 4. 第三方资产 `T`（与官方物理分区）
 
 固定访问入口：`assets/third_party/`。
@@ -266,6 +274,7 @@ O3 官方页面：`https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_C
 
 ## 7. 维护记录
 
+- 2026-07-24 UTC：登记I-40完整训练数据GitHub release。正式data与sidecar均完整发布为确定性gzip，合计19,397,374 bytes，不使用Git LFS；manifest、原始数据审计、离线行为摘要和双层校验恢复器同时发布。资产仍为含imported model annotations的官方源派生`D`，不改称官方直发。
 - 2026-07-23 UTC：登记I-40直接续训正式混合与全量token路由sidecar。它从已登记I-36中只取全部5,500条审计通过的用户行，并把已登记I-35正式2,740条原文各保留一次但统一改作当前I-35 step548 KL-only回放；总计8,240次暴露、规范化唯一行8,215，比例`5,500:2,740`。25个重复world行是I-35上游继承且已显式审计；两路exact/mode交集0，T/E训练行0，builder/data/sidecar/audit哈希均已冻结。
 - 2026-07-23 UTC：登记I-39唯一r120在训练前冻结313行AB门上的E类teacher-forced报告。报告313/313、error_count0，A/B/C首分歧方向全部改善，但full-anchor三项保护与aggregate KL失败，`teacher_forced_pass=false`；报告/evaluator/config哈希和不回灌、不估线上分、不授权scale搜索的边界已写入主表。
 - 2026-07-23 UTC：登记I-39 AB/首分歧正式混合、全量token路由sidecar和训练前冻结门。正式数据2,560行，物料首分歧/关联用户微剂量/I-12父保持=`512/128/1,920`（20%/5%/75%）；门313行覆盖256个AB，训练与门在prompt、完整SID和AB前缀上均零交集。builder、数据、sidecar、门和audit哈希已冻结，I-35 Beam候选只作负例，T/E训练行0。

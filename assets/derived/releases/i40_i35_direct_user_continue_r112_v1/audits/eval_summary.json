@@ -102,7 +102,30 @@
   "selection": {
     "local_behavior_priority": [1030, 1545, 515, 2060],
     "recommended_single_official_probe": 1030,
-    "decision": "ABSTAIN_ON_ONLINE_IMPROVEMENT",
+    "pre_result_decision": "ABSTAIN_ON_ONLINE_IMPROVEMENT",
     "reason": "The offline protocol is not certified for score ranking. Step1030 is the least-regressed compromise under the available behavior diagnostics, not a calibrated score prediction."
+  },
+  "official_online_result": {
+    "status": "SUCCEEDED_REGRESSION_BRANCH_CLOSED",
+    "project_id": "proj-t5g9rf-1781334955887818546",
+    "eval_task_id": "eval-task-bwvd45-1784866180",
+    "model_id": "md-uqi0e0-1784866126730409012",
+    "task_name": "I-40_V1_eval_20260724120926",
+    "retry_count": 0,
+    "duration_seconds": 3990,
+    "score": 0.9890615139753605,
+    "component_order": ["material", "action", "topic", "video", "prod", "ad", "live", "world"],
+    "components": [0.2452961672473868, 0.11924597489635425, 0.039483312352065536, 0.0576, 0.1258, 0.1358, 0.1071, 0.15873605947955388],
+    "raw_record_sha256": "64124bba624c37c4c812b14e733672be43ab7fdd8e38e7c3878614d9c485e8ec",
+    "parent_comparison": {
+      "parent": "I-35-step548-r112",
+      "parent_eval_task_id": "eval-task-9nepj1-1784698215",
+      "parent_score": 1.0344285849069457,
+      "total_delta": -0.04536707093158521,
+      "component_delta": [0.0, -0.0005213541585961379, 0.0007260304389067676, -0.028799999999999992, -0.013600000000000001, -0.002799999999999997, 0.0, -0.0003717472118959231],
+      "user_sum_delta": 0.0002046762803106228,
+      "recommendation_sum_delta": -0.04520000000000002
+    },
+    "decision": "I40_CLOSED_DO_NOT_TEST_OTHER_CHECKPOINTS_OR_CONTINUE_TRAINING"
   }
 }

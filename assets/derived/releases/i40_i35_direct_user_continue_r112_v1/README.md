@@ -58,6 +58,6 @@ I-40 directly loaded I-35 step548 r112 and continued updating the same 392 LoRA 
 
 ## Evaluation boundary
 
-The local v4 suite is explicitly `NOT_CERTIFIED` for online score prediction. It is used only for behavior regression and structural diagnostics. The four-checkpoint local priority is step1030, step1545, step515, step2060, but the formal decision remains `ABSTAIN` on whether any checkpoint improves the online score.
+The local v4 suite is explicitly `NOT_CERTIFIED` for online score prediction. It is used only for behavior regression and structural diagnostics. Before the official result, its four-checkpoint local priority was step1030, step1545, step515, step2060 and the formal prediction was `ABSTAIN`.
 
-Step1030 is therefore a single official probe candidate, not a claimed upgrade. Model weights are not included in this Git data release.
+Step1030 was subsequently evaluated once on the official platform. Evaluation `eval-task-bwvd45-1784866180` succeeded with score `0.9890615139753605`, versus `1.0344285849069457` for the I-35 step548 parent. The delta was `-0.04536707093158521`, dominated by recommendation video/product/ad. I-40 is therefore closed; the other checkpoints are not recommended for upload or continued training. Model weights are not included in this Git data release.
