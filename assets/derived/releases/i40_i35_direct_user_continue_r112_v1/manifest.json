@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "release": {
+    "id": "i40_i35_direct_user_continue_r112_v1",
+    "experiment_id": "I-40",
+    "created_utc": "2026-07-24",
+    "purpose": "GitHub-shareable, byte-reproducible training-data release for the I-40 direct-I35-step548-r112 continuation",
+    "storage": "normal Git; no Git LFS required"
+  },
+  "asset": {
+    "class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General; imported model annotations; M-I35-step548)",
+    "official_direct": false,
+    "file_name": "data_i40_i35_direct_user_continue_v1.jsonl",
+    "format": "JSONL (Alpaca columns: instruction, input, output, history)",
+    "rows": 8240,
+    "bytes": 102365905,
+    "sha256": "483a4bb2f98d41497600d078032634d4f36fe2970a53d98b4a7fccc488910c18"
+  },
+  "archive": {
+    "path": "assets/derived/releases/i40_i35_direct_user_continue_r112_v1/data_i40_i35_direct_user_continue_v1.jsonl.gz",
+    "format": "gzip",
+    "deterministic_build_command": "gzip -n -9",
+    "bytes": 17610470,
+    "sha256": "a6e710a45e73658449f74a541c9c21fe7c5c055dd49bc41814c2cdd94433906f"
+  },
+  "sidecar_archive": {
+    "path": "assets/derived/releases/i40_i35_direct_user_continue_r112_v1/data_i40_i35_direct_user_continue_v1_sidecar.jsonl.gz",
+    "format": "gzip",
+    "bytes": 1786904,
+    "sha256": "637a9b01735fdbe2d896513983d583b0211e610c6165c743b0defe39def0f16c",
+    "payload_bytes": 7605609,
+    "payload_rows": 8240,
+    "payload_sha256": "e9bc129cd834bff161247985cc5430cf46872006cbae4a86fd37c3666b60acb2",
+    "role": "per-row token-routing hash sidecar; prompt/response/routing SHA256 plus frozen parent adapter/config SHA256"
+  },
+  "lineage": {
+    "i36_user_supervision_source": {
+      "asset_class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General)",
+      "rows": 16500,
+      "sha256": "2720746a2e8aa7804d519698ce9f2b127e9be2db1d4488e642e800a5337b692d",
+      "use": "copy only the 5,500 audited user_ce rows (4000 action + 1500 topic), byte-for-byte"
+    },
+    "i36_audit": {
+      "sha256": "eb426018525f9e3e1d682e1c89e5ca3dc8963b0a57c104911e1197324e464240"
+    },
+    "i35_retention_source": {
+      "asset_class": "D(O1,O2,O3; M-I35-step548)",
+      "rows": 2740,
+      "sha256": "9c044e47d26fb7644281107a548249e49564e0f203a04795337c6a90c0927100",
+      "use": "copy every row exactly once; discard the old r96-relative objective; KL-only anchor against the frozen I-35 step548 reference"
+    },
+    "i35_audit": {
+      "sha256": "7f72ebeeeb3718bc21ccb6c4831a02aa5407ee4da1dd7dba6a01541ad8b63ad1"
+    },
+    "i35_step548_reference": {
+      "path": "submissions/i35_r96_video_boundary_retkl_r112_step548_platform",
+      "adapter_sha256": "52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00",
+      "config_sha256": "4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996",
+      "role": "trainable policy starting point AND frozen parent-KL reference (a second copy is loaded under i40_reference by the custom trainer)"
+    },
+    "base_model_config": {
+      "path": "models/OneReason-0.8B-pretrain-competition/config.json",
+      "sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+    }
+  },
+  "construction": {
+    "builder": "scripts/data/build_i40_i35_direct_user_continue_v1.py",
+    "builder_sha256": "24a548c168400a8e139dcc9802d26317d410f2c11e5e9881cba4b5b23748c5fe",
+    "build_audit": "assets/derived/releases/i40_i35_direct_user_continue_r112_v1/audits/data_audit.json",
+    "build_audit_sha256": "c5c2323b2c9aa1dddd4e49936bad09a5cb342a1f32d592f3574cc442b6985b7c",
+    "restore_script": "scripts/data/restore_i40_i35_direct_user_continue_v1.py",
+    "restore_script_sha256": "072759788605da6d624c0c094a66b56edb43752a54be28d5d9859dfa72202438",
+    "behavior_diagnostics_audit": {
+      "path": "assets/derived/releases/i40_i35_direct_user_continue_r112_v1/audits/eval_summary.json",
+      "sha256": "c9eb11b2c55ab9395159e61775bbcbd6b07fdabd3268858312ad9a5cb0ddfc46",
+      "status": "NOT_CERTIFIED_BEHAVIOR_DIAGNOSTIC_ONLY"
+    }
+  },
+  "row_mix": {
+    "user_ce": {
+      "rows": 5500,
+      "ratio": 0.6674757281553398,
+      "by_task": {"action": 4000, "topic": 1500},
+      "objective": "0.05 weighted answer CE + 16.0 I35 parent KL"
+    },
+    "retention_kl": {
+      "rows": 2740,
+      "ratio": 0.3325242718446602,
+      "by_task": {
+        "material_desc2sid": 1370, "action": 207, "topic": 206, "rec_video": 206,
+        "rec_prod": 207, "rec_ad": 206, "rec_living": 207, "world": 131
+      },
+      "objective": "16.0 I35 parent KL only; max 128 answer positions",
+      "old_i35_objective_reused": false
+    },
+    "T_rows": 0,
+    "E_rows": 0
+  },
+  "contract": {
+    "total_rows": 8240,
+    "optimizer_steps_batch1_acc4": 2060,
+    "user_supervision_rows_copied_byte_for_byte_from_i36": 5500,
+    "i35_rows_retained_once_old_objective_discarded": 2740,
+    "user_retention_exact_prompt_overlap": 0,
+    "user_retention_mode_prompt_overlap": 0,
+    "forbidden_E_rows": 0,
+    "third_party_rows": 0,
+    "unique_normalized_rows": 8215,
+    "duplicate_row_exposures": 25,
+    "maximum_normalized_row_exposure": 2,
+    "maximum_qwen3_nothink_tokens": 8864,
+    "cutoff": 16384,
+    "rows_over_cutoff": 0
+  },
+  "tracked_entrypoints": {
+    "dataset_registry": {
+      "path": "configs/datasets/i40_i35_direct_user_continue_v1/dataset_info.json",
+      "sha256": "6bd0f06fb18ea4d2a864e6515c1d0c85ce6f5f4bb2c0f0f22f047a61ba5d06e0",
+      "note": "file_name is the cluster-absolute processed path; frozen by the launch script's checksum gate"
+    },
+    "training_config": {
+      "path": "configs/active/i40_i35_direct_user_continue_r112_v1.yaml",
+      "launch_time_sha256": "992825270a4f16ed9a4ec26f2e0d974603a9c2c1f9ae9c4e79fcb50da2cdfbc3",
+      "note": "four runtime paths are cluster-absolute and frozen by the launch script; adapt model/adapter/dataset/output paths for other environments, hyperparameters unchanged"
+    },
+    "training_script": {
+      "path": "scripts/train/train_i40_i35_direct_user_continue.py",
+      "sha256": "cd5eb4095a692015bfb26831b10c02da1c0c2836a56581096ecf90e02f915473"
+    },
+    "launch_script_online": {
+      "path": "scripts/train/launch_i40_wandb_online.sh",
+      "sha256": "48a403eb7080a98b74e7371b8e1eebd855f3a5f56cc248dc9aa9e0c590288f1f"
+    },
+    "launch_script_detached": {
+      "path": "scripts/train/launch_i40_wandb_detached.sh",
+      "sha256": "98c6008469b5800b1605c58e209d083e8002e3fac45fb53aa2599a6589ebc521"
+    },
+    "build_script": {
+      "path": "scripts/data/build_i40_i35_direct_user_continue_v1.py",
+      "sha256": "24a548c168400a8e139dcc9802d26317d410f2c11e5e9881cba4b5b23748c5fe"
+    }
+  },
+  "training_recipe": {
+    "base_asset": "O6 OneReason-0.8B",
+    "parent_adapter": "I-35 step548 r112 (trainable policy start + frozen parent-KL reference)",
+    "finetuning_type": "LoRA continuation; all 392 tensors of the existing r112 are trainable; no new adapter, no merge",
+    "lora_rank": 112,
+    "lora_alpha": 112,
+    "learning_rate": 5.0e-7,
+    "epochs": 1,
+    "max_steps": 2060,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.001,
+    "max_grad_norm": 0.5,
+    "cutoff_len": 16384,
+    "packing": false,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 4,
+    "bf16": true,
+    "seed": 19260840,
+    "single_gpu": true,
+    "wandb_required": true,
+    "save_steps": 515,
+    "checkpoint_savepoints": [515, 1030, 1545, 2060]
+  },
+  "training_result": {
+    "status": "COMPLETED_exit_code_0",
+    "final_step": 2060,
+    "train_loss": 0.3025,
+    "train_runtime": "1:25:35",
+    "wandb_run": "34k0sdcj",
+    "checkpoint_identities": [
+      {"step": 515, "adapter_sha256": "757a549c6d87f81b06e8b15ec83a0005887b4fe389aefac325f76bff7801a33d"},
+      {"step": 1030, "adapter_sha256": "851e2e9844a56e3385520cd31c0166c461b272e6192563dd9685ec9635785bfd", "config_sha256": "7c47dd63a5de55a8a04f0768b58122c922a73dc2e9d78a24312c4fc7af07c3a9"},
+      {"step": 1545, "adapter_sha256": "514f0a7bde74dff3c8423a2c540998002d3590cba746b038cbbf4eb4a400096a"},
+      {"step": 2060, "adapter_sha256": "1bb7eba23587865a440ec2b2244b97bd57c4bde47348549e15e7b1be2a2888aa"}
+    ],
+    "behavior_diagnostics": {
+      "status": "NOT_CERTIFIED_BEHAVIOR_DIAGNOSTIC_ONLY",
+      "local_priority": [1030, 1545, 515, 2060],
+      "recommended_single_official_probe": 1030,
+      "decision": "ABSTAIN_ON_ONLINE_IMPROVEMENT"
+    },
+    "packaged_checkpoint": "step1030",
+    "platform_package": {
+      "path": "submissions/i40_i35_direct_user_continue_r112_step1030_platform",
+      "gitignored_dev_only": true,
+      "adapter_sha256": "851e2e9844a56e3385520cd31c0166c461b272e6192563dd9685ec9635785bfd",
+      "config_sha256": "7c47dd63a5de55a8a04f0768b58122c922a73dc2e9d78a24312c4fc7af07c3a9",
+      "total_bytes": 282645379,
+      "lora_rank": 112
+    },
+    "online_eval": "not yet performed; this release is data + parameters only and makes no online-score claim"
+  }
+}

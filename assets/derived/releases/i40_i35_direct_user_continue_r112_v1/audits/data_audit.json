@@ -1,0 +1,174 @@
+{
+  "schema_version": "i40-i35-direct-user-continue-r112-v1",
+  "status": "FORMAL_DATA_FROZEN_TRAINING_AUTHORIZED",
+  "formal_training_generated": true,
+  "asset_class": "D(O1,O2.UserProfile,O2.Pid2Sid,O2.Pid2Caption,O2.Pid2Tag,O2.General; imported model annotations; M-I35-step548)",
+  "builder": "scripts/data/build_i40_i35_direct_user_continue_v1.py",
+  "builder_sha256": "24a548c168400a8e139dcc9802d26317d410f2c11e5e9881cba4b5b23748c5fe",
+  "seed": 19260840,
+  "upstreams": {
+    "i36_formal_data": {
+      "path": "assets/derived/processed/data_i36_i35_user_expand_retkl_v1.jsonl",
+      "rows": 16500,
+      "sha256": "2720746a2e8aa7804d519698ce9f2b127e9be2db1d4488e642e800a5337b692d",
+      "use": "copy only 5,500 audited user_ce rows"
+    },
+    "i36_audit": {
+      "path": "logs/data/i36_i35_user_expand_retkl_v1_audit.json",
+      "sha256": "eb426018525f9e3e1d682e1c89e5ca3dc8963b0a57c104911e1197324e464240"
+    },
+    "i35_formal_data": {
+      "path": "assets/derived/processed/data_i35_video_boundary_retkl_v1.jsonl",
+      "rows": 2740,
+      "sha256": "9c044e47d26fb7644281107a548249e49564e0f203a04795337c6a90c0927100",
+      "use": "copy every row once; discard old objective; I35 KL-only"
+    },
+    "i35_audit": {
+      "path": "logs/data/i35_video_boundary_retkl_v1_audit.json",
+      "sha256": "7f72ebeeeb3718bc21ccb6c4831a02aa5407ee4da1dd7dba6a01541ad8b63ad1"
+    },
+    "base_config": {
+      "path": "models/OneReason-0.8B-pretrain-competition/config.json",
+      "sha256": "5fe266426d3f950f5040a9cff724f2250c4a16cb62fac6135be42ed300faebc4"
+    },
+    "i35_step548_reference": {
+      "path": "submissions/i35_r96_video_boundary_retkl_r112_step548_platform",
+      "adapter_sha256": "52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00",
+      "config_sha256": "4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996"
+    }
+  },
+  "mix": {
+    "total_rows": 8240,
+    "optimizer_steps_batch1_acc4": 2060,
+    "fixed_seed_hash_shuffle": true,
+    "routes": {
+      "user_ce": {
+        "rows": 5500,
+        "ratio": 0.6674757281553398,
+        "by_task": {
+          "action": 4000,
+          "topic": 1500
+        },
+        "objective": "0.05 weighted answer CE + 16.0 I35 parent KL"
+      },
+      "retention_kl": {
+        "rows": 2740,
+        "ratio": 0.3325242718446602,
+        "by_task": {
+          "material_desc2sid": 1370,
+          "action": 207,
+          "topic": 206,
+          "rec_video": 206,
+          "rec_prod": 207,
+          "rec_ad": 206,
+          "rec_living": 207,
+          "world": 131
+        },
+        "objective": "16.0 I35 parent KL only; max 128 answer positions",
+        "old_i35_objective_reused": false
+      }
+    },
+    "aggregate_task_counts": {
+      "action": 4207,
+      "material_desc2sid": 1370,
+      "rec_ad": 206,
+      "rec_living": 207,
+      "rec_prod": 207,
+      "rec_video": 206,
+      "topic": 1706,
+      "world": 131
+    }
+  },
+  "selection": {
+    "user_tasks": {
+      "action": 4000,
+      "topic": 1500
+    },
+    "retention_tasks": {
+      "material_desc2sid": 1370,
+      "world": 131,
+      "rec_living": 207,
+      "rec_ad": 206,
+      "rec_video": 206,
+      "topic": 206,
+      "action": 207,
+      "rec_prod": 207
+    },
+    "i35_source_routes": {
+      "material_boundary": 1370,
+      "retention_kl": 1370
+    },
+    "user_exact_prompts": 5500,
+    "user_mode_prompts": 5500,
+    "retention_exact_prompts": 2715,
+    "retention_mode_prompts": 2715,
+    "unique_normalized_rows": 8215,
+    "duplicate_row_exposures": 25,
+    "maximum_normalized_row_exposure": 2,
+    "user_retention_exact_overlap": 0,
+    "user_retention_mode_overlap": 0
+  },
+  "tokenization": {
+    "rows": 8240,
+    "unique_prompt_token_hashes": 8215,
+    "unique_routing_token_hashes": 8215,
+    "duplicate_routing_token_exposures": 25,
+    "maximum_routing_token_exposure": 2,
+    "maximum_qwen3_nothink_tokens": 8864,
+    "cutoff": 16384,
+    "route_tasks": {
+      "retention_kl:action": 207,
+      "retention_kl:material_desc2sid": 1370,
+      "retention_kl:rec_ad": 206,
+      "retention_kl:rec_living": 207,
+      "retention_kl:rec_prod": 207,
+      "retention_kl:rec_video": 206,
+      "retention_kl:topic": 206,
+      "retention_kl:world": 131,
+      "user_ce:action": 4000,
+      "user_ce:topic": 1500
+    }
+  },
+  "intersections": {
+    "user_retention_exact_prompt": 0,
+    "user_retention_mode_prompt": 0,
+    "forbidden_E_rows": 0,
+    "third_party_rows": 0
+  },
+  "sidecar_contract": {
+    "schema_version": "i40-i35-direct-user-continue-r112-v1",
+    "rows": 8240,
+    "routes": {
+      "user_ce": 5500,
+      "retention_kl": 2740
+    },
+    "route_tasks": {
+      "retention_kl:action": 207,
+      "retention_kl:material_desc2sid": 1370,
+      "retention_kl:rec_ad": 206,
+      "retention_kl:rec_living": 207,
+      "retention_kl:rec_prod": 207,
+      "retention_kl:rec_video": 206,
+      "retention_kl:topic": 206,
+      "retention_kl:world": 131,
+      "user_ce:action": 4000,
+      "user_ce:topic": 1500
+    },
+    "parent_adapter_sha256": "52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00",
+    "parent_config_sha256": "4f90d28f538e17cf70bc6876851fadd1d26a03a0e4574b7602fcb360b56e5996"
+  },
+  "outputs": {
+    "training_data": {
+      "path": "assets/derived/processed/data_i40_i35_direct_user_continue_v1.jsonl",
+      "rows": 8240,
+      "bytes": 102365905,
+      "sha256": "483a4bb2f98d41497600d078032634d4f36fe2970a53d98b4a7fccc488910c18"
+    },
+    "sidecar": {
+      "path": "assets/derived/processed/data_i40_i35_direct_user_continue_v1_sidecar.jsonl",
+      "rows": 8240,
+      "bytes": 7605609,
+      "sha256": "e9bc129cd834bff161247985cc5430cf46872006cbae4a86fd37c3666b60acb2"
+    }
+  }
+}

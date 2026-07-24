@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "status": "NOT_CERTIFIED_BEHAVIOR_DIAGNOSTIC_ONLY",
+  "online_score_estimate": null,
+  "parent": {
+    "id": "I-35-step548-r112",
+    "adapter_sha256": "52d945cc297248848c5d20619f79d68a35ec42b1f76dc674afdbb320dbf12c00",
+    "full_v4": {
+      "mat_fresh_pass_at_64": 0.1015,
+      "rec_video_prod_ad_live_pass_at_64": [0.005, 0.003, 0.002, 0.025],
+      "action_f1": 0.3050,
+      "action_json_ok": 0.942,
+      "action_trunc_rate": 0.058,
+      "action_duplicate_items_mean": 39.87,
+      "action_max_repeat_p95": 661,
+      "topic_score": 0.0275,
+      "world_acc": 0.422,
+      "world_format_alive": 0.992
+    }
+  },
+  "checkpoints": [
+    {
+      "step": 515,
+      "adapter_sha256": "757a549c6d87f81b06e8b15ec83a0005887b4fe389aefac325f76bff7801a33d",
+      "report_sha256": "49c0b8ffa1832d89b4607c3e0f40388b4a53020fa110c2351385c426ee7b0476",
+      "mat_fresh_pass_at_64": 0.1052,
+      "rec_video_prod_ad_live_pass_at_64": [0.004, 0.003, 0.003, 0.027],
+      "action_f1": 0.3062,
+      "action_json_ok": 0.929,
+      "action_trunc_rate": 0.071,
+      "action_duplicate_items_mean": 48.16,
+      "action_max_repeat_p95": 666,
+      "topic_score": 0.0243,
+      "world_acc": 0.432,
+      "world_format_alive": 0.992
+    },
+    {
+      "step": 1030,
+      "adapter_sha256": "851e2e9844a56e3385520cd31c0166c461b272e6192563dd9685ec9635785bfd",
+      "config_sha256": "7c47dd63a5de55a8a04f0768b58122c922a73dc2e9d78a24312c4fc7af07c3a9",
+      "report_sha256": "5060bc9e90aaa4fb9c87641007b06715884c14d99b5048b4c8922830e25c2eaa",
+      "mat_fresh_pass_at_64": 0.0996,
+      "rec_video_prod_ad_live_pass_at_64": [0.005, 0.003, 0.002, 0.027],
+      "action_f1": 0.3068,
+      "action_json_ok": 0.945,
+      "action_trunc_rate": 0.055,
+      "action_duplicate_items_mean": 37.85,
+      "action_max_repeat_p95": 573,
+      "topic_score": 0.0288,
+      "world_acc": 0.430,
+      "world_format_alive": 0.990,
+      "action1024": {
+        "report_sha256": "ed99569215f0f87006a46b4ea8d9221a433ec31751f5530bd5ee20bbf3dc3231",
+        "f1": 0.2991,
+        "json_ok": 0.938,
+        "trunc_rate": 0.062,
+        "duplicate_items_mean": 10.27,
+        "max_repeat_p95": 144,
+        "n_pred_median": 10
+      }
+    },
+    {
+      "step": 1545,
+      "adapter_sha256": "514f0a7bde74dff3c8423a2c540998002d3590cba746b038cbbf4eb4a400096a",
+      "report_sha256": "b0293e52d9345390c5fc531006ff369ef508cca1afe20bc7bd1b17795682a9ea",
+      "mat_fresh_pass_at_64": 0.0996,
+      "rec_video_prod_ad_live_pass_at_64": [0.004, 0.003, 0.003, 0.024],
+      "action_f1": 0.3059,
+      "action_json_ok": 0.942,
+      "action_trunc_rate": 0.058,
+      "action_duplicate_items_mean": 40.11,
+      "action_max_repeat_p95": 664,
+      "topic_score": 0.0207,
+      "world_acc": 0.436,
+      "world_format_alive": 0.990,
+      "action1024": {
+        "report_sha256": "12e39c6691279a5a267328353e8eb40fb0aa42938d1bd412d8ba71ce103e5ba4f",
+        "f1": 0.3002,
+        "json_ok": 0.942,
+        "trunc_rate": 0.058,
+        "duplicate_items_mean": 9.87,
+        "max_repeat_p95": 139,
+        "n_pred_median": 10
+      }
+    },
+    {
+      "step": 2060,
+      "adapter_sha256": "1bb7eba23587865a440ec2b2244b97bd57c4bde47348549e15e7b1be2a2888aa",
+      "report_sha256": "8cfe0aa1bc23946e905b09b8fb57239cb21534500dcec51e52692ebf563223e2",
+      "mat_fresh_pass_at_64": 0.1089,
+      "rec_video_prod_ad_live_pass_at_64": [0.005, 0.003, 0.003, 0.026],
+      "action_f1": 0.3044,
+      "action_json_ok": 0.920,
+      "action_trunc_rate": 0.080,
+      "action_duplicate_items_mean": 54.17,
+      "action_max_repeat_p95": 664,
+      "topic_score": 0.0255,
+      "world_acc": 0.432,
+      "world_format_alive": 0.992
+    }
+  ],
+  "selection": {
+    "local_behavior_priority": [1030, 1545, 515, 2060],
+    "recommended_single_official_probe": 1030,
+    "decision": "ABSTAIN_ON_ONLINE_IMPROVEMENT",
+    "reason": "The offline protocol is not certified for score ranking. Step1030 is the least-regressed compromise under the available behavior diagnostics, not a calibrated score prediction."
+  }
+}

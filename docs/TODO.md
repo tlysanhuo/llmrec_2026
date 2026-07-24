@@ -2,6 +2,12 @@
 
 > 只记录尚未完成的动作。旧 TODO 已归档到 `docs/archive/TODO_pre_cleanup_20260711.md`。
 >
+> 变更记录（2026-07-23 UTC）：I-40已从原始I-35 r112全新恢复为GPU1独立后台run `34k0sdcj`，detached PID/SID `2665551`、PPID1，不依赖交互终端；全量data/W&B身份、reference/policy/optimizer与step0 logits差0门已再次通过。旧run `9dp9wnbo`本地到step169后外部终止，W&B `crashed`，无错误栈/OOM/NaN且未生成checkpoint，已归档并禁止resume。
+>
+> 变更记录（2026-07-23 UTC）：I-40有效run已在GPU1单卡启动，W&B `9dp9wnbo`。真实门确认r112/392 tensors/70,647,808参数、reference逐tensor精确快照后差0、reference不进optimizer、step0 logits差0；25步loss `0.2934384`，无OOM/NaN/路由异常，继续运行。第一次精度路径不一致尝试在optimizer step0前安全停止，无W&B/checkpoint且不resume。
+>
+> 变更记录（2026-07-23 UTC）：用户授权启动I-40直接r112续训。正式8,240行混合已冻结为I-36审计用户5,500 + I-35原正式2,740；后者统一改作当前I-35 step548 KL-only回放，不复用旧boundary/preserve目标。数据、sidecar、audit和trainer全量静态预检已通过；唯一当前动作是完成真实模型门禁后在一张空闲GPU上启动W&B online训练。
+>
 > 变更记录（2026-07-23 UTC）：I-39队友full v4已在GPU3单卡完整结束，报告SHA256 `252736fd...cd12`。相对同协议I-35，mat fresh=`60/542`对`55/542`，rec总命中=`36/4000`对`35/4000`，action/topic/world=`0.3018/0.0325/0.424`对`0.3050/0.0275/0.422`；物料正向、用户基本持平、动作轻微负向且无结构性崩坏。官方material从`0.2452961672473868`到`0.27595818815331014`只差1道有效命中（`8→9/574`），但I-37离线多2/542时官方仍是8/574，因此不能声称I-39预计达到0.276。仅凭teacher-forced门否决上传已不充分，当前新增待办是只提交I-39一次作正式探索验证，结果前I-35仍为默认交付。
 >
 > 变更记录（2026-07-23 UTC）：I-39唯一一发已完成GPU3单卡/W&B训练、fresh r8验收、唯一r120精确组合和313行冻结门。run `51yko99h`服务端finished，640/640步、runtime `1435.1195s`、train loss `1.4501802083`，路由/目标计数全部精确；r120包392 tensors、302,830,492 bytes并通过逐tensor切片恒等式。门上A/B/C首分歧方向全部改善，但full-anchor三项和aggregate KL保护失败，`teacher_forced_pass=false`；本分支关闭，不上传、不续训或扫scale。
@@ -55,6 +61,8 @@
 
 ## P0
 
+- [x] I-40数据契约与静态预检：I-36中全部5,500条审计用户行加I-35原2,740条形成8,240次暴露；user:retention=`5,500:2,740`，两路exact/mode交集0，T/E=0。保留上游25个重复world行并按多重集路由，data/sidecar/audit SHA256=`483a4bb2...0c18`/`e9bc129c...cb2`/`c5c2323b...5b7c`。
+- [ ] I-40唯一单卡训练正在独立后台运行：GPU1，W&B [`34k0sdcj`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/34k0sdcj)，detached PID/SID `2665551`、PPID1；从原始I-35 step548直接更新同一r112，真实reference/policy/optimizer/step0 logits门均通过。旧run `9dp9wnbo`外部终止且无checkpoint，绝不resume。当前目标2,060步，保存515/1030/1545/2060 adapter-only轨迹；训练完成前不打包、不上传。
 - [x] I-39 AB/首分歧数据与冻结门：O3/I-36相交且O1/E/I-35训练排除后的3,072行池完成单父Beam64；正式2,560行与全量sidecar已登记，物料/关联用户/I-12保持=`512/128/1,920`，独立审计和trainer预检通过。
 - [x] I-39唯一训练：固定I-35 step548 r112起点，GPU3单卡/W&B online，fresh r8、batch1xacc4、lr5e-6、640/640步、无中间checkpoint；run [`51yko99h`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/51yko99h) finished，runtime `1435.1195s`、train loss `1.4501802083`，三路与四目标计数均精确，残差392 tensors全有限。
 - [x] I-39唯一产物与停止：full fresh r8与固定r112按1.0/1.0精确拼成唯一r120包`submissions/i39_i35_userab_firstdiv_retkl_r120_step640_platform/`，严格两文件/392 tensors/302,830,492 bytes并通过逐tensor恒等式。313行冻结门报告SHA256 `25b69458...72ca`：A/B/C首分歧均改善，但full-anchor Top1/KL/gold与全体KL失败；`teacher_forced_pass=false`，不上传、不续训、不扫scale，本门不换算线上分。
