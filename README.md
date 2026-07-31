@@ -1,8 +1,42 @@
-# LLM-Rec 2026 竞赛工程
+# LLM-Rec 2026 · Team CornerCase
 
-基座为 `OneReason-0.8B`。目标是通过 SFT/LoRA 提升 8 个加权子项：懂物料 1 项、懂用户 2 项、懂推荐 4 项、懂世界 1 项。
+> 🏆 **最终排名 55 / 1200（Top 4.6%），线上总分 1.0567**。基座 OneReason-0.8B。
 
-> 变更记录（2026-07-30 UTC，最终方案开源）：最终提交为 **i35 ⊕ i50 全参正交残差融合 λ=0.10**（`i35_i50_orthfuse_l010_fullparam_bf16`），线上总分 **1.0567、rank 55（队伍 CornerCase）**，提交于 2026-07-30 16:50 UTC，相对单模型天花板 I-35 step548（1.0344）+0.0223，为全队最高分。方法与复现见 [`SOLUTION.md`](SOLUTION.md)；I-41→I-74 + 最终合并记录见 [`docs/EXPERIMENT_RECORDS_I41_I74.md`](docs/EXPERIMENT_RECORDS_I41_I74.md)；融合脚本 `scripts/train/full_weight_orthogonal_fuse.py`。本仓库不发布权重 / 原始数据 / 日志 / 密钥。
+## 一句话方案
+
+把两个 LoRA adapter —— **i35**（懂推荐 / video-boundary，单模型 1.0344）与 **i50**（多教师懂物料，1.0302）—— 通过**全参正交残差融合**在 λ=0.10 下合并：只注入 i50 中与 i35 **正交**的分量，保住 i35 强项、叠加 i50 物料方向 → **1.0567**，超越单模型天花板 +0.0223。
+
+```text
+W_fused = W_i35 + 0.10 · ( ΔB − (⟨ΔB,ΔA⟩ / ‖ΔA‖²) · ΔA )      # Δ = W_merged − W_base
+```
+
+## 速览
+
+- 📄 **方法与复现** → [`SOLUTION.md`](SOLUTION.md)
+- 📊 **完整实验记录**（I-01 → I-74 + 最终合并冲刺） → [`docs/EXPERIMENT_RECORDS_I41_I74.md`](docs/EXPERIMENT_RECORDS_I41_I74.md) · [`docs/experiment_log.md`](docs/experiment_log.md) · [`docs/EXPERIMENT_INDEX.md`](docs/EXPERIMENT_INDEX.md)
+- 🔧 **冠军融合脚本** → [`scripts/train/full_weight_orthogonal_fuse.py`](scripts/train/full_weight_orthogonal_fuse.py)
+- 🧩 训练栈改动 → [`third_party/llama-factory-customizations/`](third_party/llama-factory-customizations/)
+
+## 分数轨迹
+
+| 阶段 | 总分 | 日期 |
+|---|---|---|
+| 官方预训练锚点 | 0.6655 | 07-01 |
+| I-13 s875（固定协议主线） | 0.9978 | 07-14 |
+| I-23 seed_teacher_cotfix_v3（最强单 adapter） | 0.9915 | 07-16 |
+| I19-world-residual r96 | 1.0253 | 07-19 |
+| I-35 step548 r112（单模型天花板） | 1.0344 | 07-22 |
+| **I-35 ⊕ i50 正交融合 λ=0.10（最终）** | **1.0567** | 07-30 |
+
+## 复现要点
+
+> **权重不发布**，按代码自训两路 adapter 再融合。基座从官方 OneReason-0.8B 获取（本仓库不分发）。⚠️ i50 训练脚本不在本发布内（见 `SOLUTION.md` 缺口）；后半段代码从历史会话 transcript 恢复（原工作目录已丢失）。不发布原始数据 / 日志 / 密钥。
+
+## 背景
+
+基座为 `OneReason-0.8B`。竞赛目标是通过 SFT/LoRA 提升 8 个加权子项：懂物料 1 项、懂用户 2 项、懂推荐 4 项、懂世界 1 项。
+
+> 变更记录（2026-07-30 UTC，最终方案开源）：最终提交为 **i35 ⊕ i50 全参正交残差融合 λ=0.10**（`i35_i50_orthfuse_l010_fullparam_bf16`），线上总分 **1.0567、rank 55/1200（队伍 CornerCase）**，提交于 2026-07-30 16:50 UTC，相对单模型天花板 I-35 step548（1.0344）+0.0223，为全队最高分。方法与复现见 [`SOLUTION.md`](SOLUTION.md)；I-41→I-74 + 最终合并记录见 [`docs/EXPERIMENT_RECORDS_I41_I74.md`](docs/EXPERIMENT_RECORDS_I41_I74.md)；融合脚本 `scripts/train/full_weight_orthogonal_fuse.py`。本仓库不发布权重 / 原始数据 / 日志 / 密钥。
 
 > 变更记录（2026-07-24 UTC）：I-40 step1030正式评测`SUCCEEDED`，evalTaskId `eval-task-bwvd45-1784866180`、modelId `md-uqi0e0-1784866126730409012`，总分`0.9890615139753605`。八项material/action/topic/video/prod/ad/live/world=`0.2452961672/0.1192459749/0.0394833124/0.0576/0.1258/0.1358/0.1071/0.1587360595`；相对I-35 step548总分`-0.0453670709`，用户合计微升`+0.0002046763`但推荐合计下降`-0.0452`。I-40分支关闭，不再上传515/1545/2060或续训。完整8,240行训练数据和8,240行路由sidecar仍已发布到[`assets/derived/releases/i40_i35_direct_user_continue_r112_v1/`](assets/derived/releases/i40_i35_direct_user_continue_r112_v1/)，不是抽样数据。
 
@@ -35,7 +69,7 @@
 
 ## 当前状态
 
-- **最终方案（2026-07-30）**：i35 ⊕ i50 全参正交残差融合 λ=0.10 → 线上 1.0567 / rank 55（CornerCase），全队最高分，超越 I-35 step548 的 1.0344。详见 `SOLUTION.md` 与 `docs/EXPERIMENT_RECORDS_I41_I74.md`。
+- **最终方案（2026-07-30）**：i35 ⊕ i50 全参正交残差融合 λ=0.10 → 线上 1.0567 / rank 55/1200（CornerCase），全队最高分，超越 I-35 step548 的 1.0344。详见 `SOLUTION.md` 与 `docs/EXPERIMENT_RECORDS_I41_I74.md`。
 - I-34已在训练前关闭：固定O6+r96/I-23、原生`/no_think`空think、固定domain前缀、无约束beam64x3。train/gate的teacher-only gap仅`7/1`，对照门槛`128/32`；train四域=`2/0/3/2`，gate四域=`1/0/0/0`，均不满足覆盖。r96/I-23在train净命中差只有`+1/1024`，gate为`0/256`，所以这条“从I-23 beam差集训练first-divergence r16”的数据基础不存在。两份ledger与审计已登记；正式训练集、sidecar、W&B、checkpoint、包和提交均为0。
 - I-30已完成并本地否决：verified r96作为冻结parent，I-23只作material构造评分/KL teacher，fresh r8；正式混合512 material+1,536七任务保持，严格1:3。四点中material gold mean-logp最多仅`+0.00207`，两向改善率与teacher-KL联合门均未通过；多项保持任务Top-1也低于冻结`0.99`。最早全过点为空，零提交。
 - I-31开发探针已完成并停止：直接插值证明`lambda=0.10`能把两向material分布向I-23移动，但同时使world精确题少1题，并未改善video/ad等总分风险。该点只作为下一版“物料任务向量起点+按任务恢复r96”的机制证据，不是提交候选。
