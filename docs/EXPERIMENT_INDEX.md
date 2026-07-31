@@ -1,6 +1,7 @@
 # Experiment And Artifact Index
 
-> 当前状态基线：2026-07-24 UTC。
+> 当前状态基线：2026-07-30 UTC（最终方案开源）。
+> 变更记录（2026-07-30 UTC）：最终提交 i35 ⊕ i50 全参正交残差融合 λ=0.10（`i35_i50_orthfuse_l010_fullparam_bf16`），线上 1.0567 / rank 55（CornerCase），相对 I-35 step548（1.0344）+0.0223，为全队最高分。model A = i35 r112（adapter SHA256 `52d945cc…2c00`，线上 1.0344），model B = i50 r128（adapter SHA256 `d08b3f36…3868`，线上 1.0302）；公式 `W = W_A + 0.10·(ΔB − (⟨ΔB,ΔA⟩/‖ΔA‖²)·ΔA)`，7 proj 目标，BF16 全参 1,602,902,832 bytes。融合脚本 `scripts/train/full_weight_orthogonal_fuse.py`。I-41→I-74 + 最终合并记录见 `docs/EXPERIMENT_RECORDS_I41_I74.md` 与 `SOLUTION.md`。
 > 旧版完整历史表已归档到 `docs/archive/EXPERIMENT_INDEX_pre_cleanup_20260711.md`。
 > 变更记录（2026-07-24 UTC）：I-40 step1030正式评测`SUCCEEDED`，evalTaskId `eval-task-bwvd45-1784866180`、总分`0.9890615139753605`，相对I-35 step548为`-0.04536707093158521`。material/live不变，用户两项合计`+0.0002046763`，推荐四项合计`-0.0452`；本次实际结果再次证明v4离线行为优先级不能预测榜分。I-40分支关闭，不上传其它三点、不续训或扫参数；完整训练数据/sidecar的GitHub release继续保留用于复现。
 > 变更记录（2026-07-23 UTC）：I-40已从原始I-35 r112全新恢复为真正脱离终端的GPU1后台run [`34k0sdcj`](https://wandb.ai/thaongocnguyendo0-/llmrec-2026/runs/34k0sdcj)，detached wrapper PID/SID=`2665551`、PPID=`1`，data/W&B身份、policy/reference、optimizer-only与step0 logits差0门均再次通过。前一run `9dp9wnbo`本地运行到step169后无错误栈/OOM/NaN地被外部终止，W&B状态`crashed`，未到step515故无checkpoint；日志SHA256=`41c55bb...356`，完整归档且不resume。

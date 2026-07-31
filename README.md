@@ -2,6 +2,8 @@
 
 基座为 `OneReason-0.8B`。目标是通过 SFT/LoRA 提升 8 个加权子项：懂物料 1 项、懂用户 2 项、懂推荐 4 项、懂世界 1 项。
 
+> 变更记录（2026-07-30 UTC，最终方案开源）：最终提交为 **i35 ⊕ i50 全参正交残差融合 λ=0.10**（`i35_i50_orthfuse_l010_fullparam_bf16`），线上总分 **1.0567、rank 55（队伍 CornerCase）**，提交于 2026-07-30 16:50 UTC，相对单模型天花板 I-35 step548（1.0344）+0.0223，为全队最高分。方法与复现见 [`SOLUTION.md`](SOLUTION.md)；I-41→I-74 + 最终合并记录见 [`docs/EXPERIMENT_RECORDS_I41_I74.md`](docs/EXPERIMENT_RECORDS_I41_I74.md)；融合脚本 `scripts/train/full_weight_orthogonal_fuse.py`。本仓库不发布权重 / 原始数据 / 日志 / 密钥。
+
 > 变更记录（2026-07-24 UTC）：I-40 step1030正式评测`SUCCEEDED`，evalTaskId `eval-task-bwvd45-1784866180`、modelId `md-uqi0e0-1784866126730409012`，总分`0.9890615139753605`。八项material/action/topic/video/prod/ad/live/world=`0.2452961672/0.1192459749/0.0394833124/0.0576/0.1258/0.1358/0.1071/0.1587360595`；相对I-35 step548总分`-0.0453670709`，用户合计微升`+0.0002046763`但推荐合计下降`-0.0452`。I-40分支关闭，不再上传515/1545/2060或续训。完整8,240行训练数据和8,240行路由sidecar仍已发布到[`assets/derived/releases/i40_i35_direct_user_continue_r112_v1/`](assets/derived/releases/i40_i35_direct_user_continue_r112_v1/)，不是抽样数据。
 
 > 变更记录（2026-07-23 UTC）：I-37 strict-future r120正式评测`SUCCEEDED`，evalTaskId `eval-task-0yco4c-1784766273`、modelId `md-z9m20x-1784766072216356022`，总分`1.02762520217381`，八项=`0.2452961672/0.1204379107/0.0394833175/0.0768/0.1292/0.1484/0.1089/0.1591078067`。相对I-35 step548总分`-0.0068033827`：material/world不变，用户合计`+0.0013966173`，推荐合计`-0.0082`；ad/live增益未抵消video/product回退。I-37分支关闭，不追加checkpoint或scale；I-35 step548继续作为当前最高与默认交付模型。
@@ -33,6 +35,7 @@
 
 ## 当前状态
 
+- **最终方案（2026-07-30）**：i35 ⊕ i50 全参正交残差融合 λ=0.10 → 线上 1.0567 / rank 55（CornerCase），全队最高分，超越 I-35 step548 的 1.0344。详见 `SOLUTION.md` 与 `docs/EXPERIMENT_RECORDS_I41_I74.md`。
 - I-34已在训练前关闭：固定O6+r96/I-23、原生`/no_think`空think、固定domain前缀、无约束beam64x3。train/gate的teacher-only gap仅`7/1`，对照门槛`128/32`；train四域=`2/0/3/2`，gate四域=`1/0/0/0`，均不满足覆盖。r96/I-23在train净命中差只有`+1/1024`，gate为`0/256`，所以这条“从I-23 beam差集训练first-divergence r16”的数据基础不存在。两份ledger与审计已登记；正式训练集、sidecar、W&B、checkpoint、包和提交均为0。
 - I-30已完成并本地否决：verified r96作为冻结parent，I-23只作material构造评分/KL teacher，fresh r8；正式混合512 material+1,536七任务保持，严格1:3。四点中material gold mean-logp最多仅`+0.00207`，两向改善率与teacher-KL联合门均未通过；多项保持任务Top-1也低于冻结`0.99`。最早全过点为空，零提交。
 - I-31开发探针已完成并停止：直接插值证明`lambda=0.10`能把两向material分布向I-23移动，但同时使world精确题少1题，并未改善video/ad等总分风险。该点只作为下一版“物料任务向量起点+按任务恢复r96”的机制证据，不是提交候选。
