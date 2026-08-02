@@ -1,0 +1,51 @@
+{
+  "excluded": {
+    "credentials_and_environment_values": true,
+    "evaluation_logs": "streamlake_evaluation_logs",
+    "model_weights_and_tokenizers": true,
+    "prompts_and_generated_outputs": true,
+    "raw_experiment_json_and_sqlite": true
+  },
+  "generated_at": "2026-07-30T06:34:37.006775+00:00",
+  "schema_version": 1,
+  "snapshot": {
+    "evaluation_count": 121,
+    "finetune_count": 8,
+    "metric_count": 855,
+    "metric_rows_skipped_by_allowlist": 0
+  },
+  "source_catalog_generated_at": "2026-07-30T06:34:37.006775+00:00",
+  "source_exports": [
+    {
+      "label": "evaluation.csv",
+      "sha256": "a92c2fba1b1422952d93d1012f706d88301dd27cd6b9f246db3d5b39c488de7b",
+      "size_bytes": 17975
+    },
+    {
+      "label": "finetune.csv",
+      "sha256": "06a06c48d1a7e2a4e265806be6b32436b3b2c318e808fc0f3e60759182928c0c",
+      "size_bytes": 930
+    },
+    {
+      "label": "metrics.csv",
+      "sha256": "f0b4c4646c70a7daae9479d7e183a59df466938957895637a2c54969dfd74426",
+      "size_bytes": 92152
+    },
+    {
+      "label": "catalog.md",
+      "sha256": "2c8e5ef57bf944ce90a9e99ead4f4ce5980378b76b6374f413f378b6599cd52b",
+      "size_bytes": 12726
+    }
+  ],
+  "source_sync_state": {
+    "error_count": 0,
+    "experiment_count": 129,
+    "metric_count": 855,
+    "parameter_count": 536,
+    "source_counts": {
+      "evaluation": 121,
+      "finetune": 8
+    },
+    "updated_at": "2026-07-30T06:34:37.026031+00:00"
+  }
+}

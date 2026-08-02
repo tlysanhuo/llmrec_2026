@@ -14,6 +14,7 @@ W_fused = W_i35 + 0.10 · ( ΔB − (⟨ΔB,ΔA⟩ / ‖ΔA‖²) · ΔA )      
 
 - 📄 **方法与复现** → [`SOLUTION.md`](SOLUTION.md)
 - 📊 **完整实验记录**（I-01 → I-74 + 最终合并冲刺） → [`docs/EXPERIMENT_RECORDS_I41_I74.md`](docs/EXPERIMENT_RECORDS_I41_I74.md) · [`docs/experiment_log.md`](docs/experiment_log.md) · [`docs/EXPERIMENT_INDEX.md`](docs/EXPERIMENT_INDEX.md)
+- 🧪 **StreamLake 实验快照**（脱敏索引与聚合指标） → [`docs/streamlake/`](docs/streamlake/)
 - 🔧 **冠军融合脚本** → [`scripts/train/full_weight_orthogonal_fuse.py`](scripts/train/full_weight_orthogonal_fuse.py)
 - 🧩 训练栈改动 → [`third_party/llama-factory-customizations/`](third_party/llama-factory-customizations/)
 
