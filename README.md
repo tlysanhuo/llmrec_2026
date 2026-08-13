@@ -2,6 +2,10 @@
 
 > 🏆 **最终排名 55 / 1200（Top 4.6%），线上总分 1.0567**。基座 OneReason-0.8B。
 
+![LLM-Rec 2026 最终排行榜：CornerCase 第 55 名](docs/assets/final-leaderboard-rank-55.png)
+
+<p align="center"><sub>最终排行榜截图：CornerCase 第 55 名（共 1200 支队伍），最高得分 1.0567。</sub></p>
+
 ## 一句话方案
 
 把两个 LoRA adapter —— **i35**（懂推荐 / video-boundary，单模型 1.0344）与 **i50**（多教师懂物料，1.0302）—— 通过**全参正交残差融合**在 λ=0.10 下合并：只注入 i50 中与 i35 **正交**的分量，保住 i35 强项、叠加 i50 物料方向 → **1.0567**，超越单模型天花板 +0.0223。
