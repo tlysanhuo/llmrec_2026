@@ -21,15 +21,15 @@ R_B = ΔB − (⟨ΔB,ΔA⟩ / ‖ΔA‖²) · ΔA     # i50 增量中正交于 
 W_fused = W_i35 + λ · R_B     # λ = 0.10
 ```
 
-非目标权重:保留 i35。结果以 BF16 全参存储(`model.safetensors`,约 1.6 GB)。
+非目标权重保留 i35；最终参赛模型以 BF16 全参数格式提交。
 
-> 实现见 `scripts/train/full_weight_orthogonal_fuse.py`。配套的 adapter 级变体 `orthogonal_residual_fuse.py` 在 LoRA 参数空间做同样的正交残差融合、输出一个更高秩的融合 adapter(用于 i73/i74 探索)。
+> 最终实现见 `scripts/train/full_weight_orthogonal_fuse.py`。`orthogonal_residual_fuse.py` 是 i73/i74 阶段使用的 adapter 参数空间探索版本。
 
 ## 复现
 
-> **权重不发布。** 自行训练两个组件,再融合。
+> 基座与官方数据下载见 `README.md`。准备两路专长 adapter 后，按下列流程融合。
 
-1. **基座**:从官方获取 [OneReason-0.8B](https://github.com/...) 预训练 checkpoint(本仓库不分发),放到 `models/OneReason-0.8B-pretrain-competition/`,或修改融合脚本里的 `BASE`。
+1. **基座**:从官方 [OpenOneRec/OneReason-0.8B-pretrain-competition](https://huggingface.co/OpenOneRec/OneReason-0.8B-pretrain-competition) 获取预训练 checkpoint(本仓库不分发),放到 `models/OneReason-0.8B-pretrain-competition/`,或显式指定自己的本地路径。
 2. **训练 i35(model A)**:`scripts/train/train_i35_video_boundary_retkl.py` + `configs/` 下对应配置。产出 r112 LoRA adapter(线上 1.0344)。
 3. **训练 i50(model B)**:多教师懂物料 adapter,r128(线上 1.0302)。⚠️ **i50 训练脚本不在本发布内**(见下方"缺口")。
 4. **融合**:
@@ -38,7 +38,7 @@ W_fused = W_i35 + λ · R_B     # λ = 0.10
      --model-a <i35_adapter> --model-b <i50_adapter> \
      --lambda 0.10 --output <fused_model_dir>
    ```
-5. **评测**:`eval/run_eval.py`(离线协议 `offline-eval-v4` 见 `docs/offline_eval.md`)。
+5. **评测**:`eval/run_eval.py`；离线评测设计与历史协议见 `docs/offline_eval.md`。
 
 ## 分数轨迹
 
